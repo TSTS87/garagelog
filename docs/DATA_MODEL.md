@@ -119,7 +119,9 @@ oil_change, tires, brakes, chain, inspection, mot (TÜV/HU), insurance, tax, rep
 
 ## Abgeleitete Werte (nicht gespeichert, im Core berechnet)
 - `currentOdometer(vehicle)` = max(odometer_m aus fuel_entries, service_entries, trips.odometer_end_m) + odometer_offset_m
-- `consumption(fuelEntryN)` = quantity(N) / (odometer(N) − odometer(letzter full_tank vor N)) · 100 km; nur wenn N und der vorherige Volltank sind; sonst NULL
+- `consumption(fuelEntryN)` = Σ quantity aller Einträge nach dem letzten full_tank vor N bis einschließlich N (Teiltanks zählen mit) / (odometer(N) − odometer(letzter full_tank vor N)) · 100 km; Kosten/100 km analog mit Σ total_cost_c. Nur wenn N ein Volltank ist und es einen vorherigen Volltank gibt; sonst NULL
+  - Tacho rückwärts (odometer(N) ≤ odometer(vorheriger Volltank)): NULL, N wird trotzdem neue Basis für den nächsten Volltank
+  - Teiltanks vor dem ersten Volltank fließen nicht ein
 - `intervalDue(interval)`:
   - letzter Service mit gleicher category_id und date ≤ heute → `lastDate`, `lastOdo`
   - dueOdo = lastOdo + every_m (falls every_m), dueDate = lastDate + every_months (falls every_months)
