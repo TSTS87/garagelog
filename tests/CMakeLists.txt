@@ -21,6 +21,10 @@ add_executable(test_fuelrepository test_fuelrepository.cpp)
 target_link_libraries(test_fuelrepository PRIVATE garagelog_core Qt6::Test)
 add_test(NAME test_fuelrepository COMMAND test_fuelrepository)
 
+add_executable(test_fuelstats test_fuelstats.cpp)
+target_link_libraries(test_fuelstats PRIVATE garagelog_core Qt6::Test)
+add_test(NAME test_fuelstats COMMAND test_fuelstats)
+
 # App-layer models: linked against garagelog_applib, still without a GUI.
 add_executable(test_vehiclelistmodel test_vehiclelistmodel.cpp)
 target_link_libraries(test_vehiclelistmodel PRIVATE garagelog_applib Qt6::Test)

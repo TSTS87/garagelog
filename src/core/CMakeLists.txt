@@ -11,6 +11,8 @@ add_library(garagelog_core STATIC
     fuelentry.h
     fuelrepository.cpp
     fuelrepository.h
+    fuelstats.cpp
+    fuelstats.h
     migrationrunner.cpp
     migrationrunner.h
     odometer.cpp
