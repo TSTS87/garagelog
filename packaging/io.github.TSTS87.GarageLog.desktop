@@ -4,6 +4,6 @@ Name=GarageLog
 Comment=Track fuel, maintenance and costs for your vehicles
 Comment[de]=Tanken, Wartung und Kosten deiner Fahrzeuge erfassen
 Exec=garagelog
-Icon=org.tmx.GarageLog
+Icon=io.github.TSTS87.GarageLog
 Categories=Utility;Qt;KDE;
 Terminal=false

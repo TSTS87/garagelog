@@ -1,6 +1,6 @@
-# Flatpak-Manifest – App-ID vor Flathub-Einreichung ggf. auf io.github.<user>.GarageLog ändern
-# (Flathub verlangt Kontrolle über die Domain; io.github.* ist ohne eigene Domain zulässig).
-id: org.tmx.GarageLog
+# Flatpak manifest for local development builds (builds the working tree).
+# The Flathub manifest in packaging/flathub/ builds a git tag instead.
+id: io.github.TSTS87.GarageLog
 runtime: org.kde.Platform
 runtime-version: '6.9'
 sdk: org.kde.Sdk

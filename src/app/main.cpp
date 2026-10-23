@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName(QStringLiteral("garagelog"));
     QCoreApplication::setApplicationVersion(garagelog::core::version());
     // Must match the .desktop file name so Wayland compositors show the right icon.
-    QGuiApplication::setDesktopFileName(QStringLiteral("org.tmx.GarageLog"));
+    QGuiApplication::setDesktopFileName(QStringLiteral("io.github.TSTS87.GarageLog"));
 
     // The garage chosen last on the settings page is remembered in
     // ~/.config/garagelogrc (KConfig), outside the garage file itself.

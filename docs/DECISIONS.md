@@ -47,4 +47,9 @@ Alternativen: vor jedem Schreiben prüfen (verteilt über alle Repositories), Ve
 Entscheidung: Nicht ausgelieferte Hilfsprogramme liegen in `tools/` (eigene CMake-Ziele, nicht installiert, nicht im Flatpak). Erstes: `garagelog-gendata` und die Bibliothek `garagelog_sampledata` (Testgarage mit 10.000 Tankeinträgen, M15), die auch `test_performance` nutzt. Sie verwenden nur `garagelog_core`.
 Grund: Der Generator gehört weder in die Kern-Bibliothek (keine Produktfunktion) noch nur in die Tests (Thomas soll sich eine volle Garage ansehen können).
 
-<!-- Nächste: ADR-013 -->
+## ADR-013 (2026-10-23) App-ID `io.github.TSTS87.GarageLog`
+Entscheidung: Die App-ID (Desktop-Datei, AppStream, Flatpak, Icon-Name) ist `io.github.TSTS87.GarageLog` und ersetzt den Platzhalter `org.tmx.GarageLog`. Die QML-Modul-URI `org.tmx.garagelog` bleibt (intern, nicht sichtbar); `OrganizationDomain` bleibt ebenfalls, weil `AppDataLocation` nur vom Anwendungsnamen abhängt.
+Grund: Flathub verlangt eine App-ID, deren Domain der Entwickler kontrolliert; ohne eigene Domain belegt das GitHub-Konto TSTS87 die Kontrolle. Nach dem ersten Release wäre ein Wechsel für Nutzer schmerzhaft (Flatpak-Datenordner, Einstellungen).
+Alternativen: eigene Domain kaufen (Kosten, kein Mehrwert in Phase 1).
+
+<!-- Nächste: ADR-014 -->
