@@ -169,6 +169,8 @@ private Q_SLOTS:
         QVERIFY(f.parseDistance(QString()).isNull());
         QVERIFY(f.parseDistance(QStringLiteral("abc")).isNull());
         QVERIFY(f.parseDistance(QStringLiteral("-5")).isNull());
+        // QML compares against null, so the invalid result must be nullptr, not an empty QVariant (= undefined).
+        QCOMPARE(f.parseDistance(QStringLiteral("abc")).metaType(), QMetaType::fromType<std::nullptr_t>());
     }
 
 private:

@@ -30,7 +30,9 @@ QVariant Format::parseDistance(const QString &text) const
     bool ok = false;
     const double km = QLocale().toDouble(text.trimmed(), &ok);
     if (!ok || km < 0 || !std::isfinite(km)) {
-        return {};
+        // An empty QVariant would arrive in JS as undefined; nullptr arrives as null,
+        // which is what QML compares against.
+        return QVariant::fromValue(nullptr);
     }
     return QVariant::fromValue<qint64>(std::llround(km * 1000.0));
 }

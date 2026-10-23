@@ -39,7 +39,7 @@ public:
 
     /**
      * @brief Parses user input in km (locale decimal separator) to metres.
-     * @return Metres as qint64 in a QVariant; a null QVariant (JS null) for
+     * @return Metres as qint64 in a QVariant; QVariant(nullptr), i.e. JS null, for
      *         empty, non-numeric or negative input.
      */
     Q_INVOKABLE QVariant parseDistance(const QString &text) const;
