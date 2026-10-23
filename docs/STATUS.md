@@ -10,13 +10,13 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M08 – Service (UI)
+M09 – Intervalle & Fälligkeit (Core)
 
 ## Zustand
-- Letzter Commit: `4cbeb67` feat: add service entries, categories and attachment store to core (+ docs)
+- Letzter Commit: `c70a9dc` feat: add service tab and service form with attachments (+ docs)
 - Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4, keine Warnungen)
-- Tests grün: ja (13/13, neu: `test_categoryrepository`, `test_servicerepository`, `test_attachmentstore`)
-- App startet: ja (offscreen). Sichtprüfung am echten Plasma-Desktop durch Thomas steht weiterhin aus (M04 + M06)
+- Tests grün: ja (14/14, zuletzt neu: `test_servicelistmodel`)
+- App startet: ja (offscreen; Service-Liste und -Formular per Screenshot geprüft). Sichtprüfung am echten Desktop (M04, M06, M08) und der native FileDialog stehen aus Sichtprüfung am echten Plasma-Desktop durch Thomas steht weiterhin aus (M04 + M06)
 
 ## Offene Punkte im aktuellen Meilenstein
 - alle (noch nicht begonnen)
@@ -27,6 +27,7 @@ M08 – Service (UI)
 - M05: Verbrauchsformel mit Thomas präzisiert (DATA_MODEL.md): Teiltanks seit letztem Volltank zählen mit (Menge + Kosten); Tacho rückwärts → kein Wert, Eintrag wird neue Basis
 - M05: zusätzlich `core/dbvalues.h` (gemeinsame Datum/Zeit/NULL-Helfer, namespace `core::db`, neue Konvertierungen nur dort) und `quantityUnitFor(Powertrain)` in fuelentry.h
 - M06: zusätzlich Löschen von Tankeinträgen (Formular-Aktion mit `Kirigami.PromptDialog`); Plausibilität warnt auch bei Duplikat (gleiches Datum + Tacho, DATA_MODEL Invariante 1)
+- M08: Anhänge eines neuen Eintrags werden erst beim Speichern kopiert (`newAttachments` in `ServiceEntries.save`); bestehende Anhänge werden sofort (mit Rückfrage) gelöscht. `garagelog_applib` linkt jetzt KF6::I18n (Übersetzung der Builtin-Kategorien in `ServiceListModel::categoryLabel`)
 - M07: zusätzlich `CategoryRepository::byName()`, `AttachmentStore::entriesWithAttachments()` (für das Büroklammer-Icon M08); Kategorie in Benutzung → Löschen verweigert mit Klartext
 - M06: Währung fest € und Datumseingabe als Textfeld (Locale-Kurzformat mit 4-stelligem Jahr oder ISO), da kein Datepicker ohne neue Abhängigkeit (kirigami-addons) – ggf. M15 mit ADR
 
@@ -37,9 +38,10 @@ M08 – Service (UI)
 
 ## Hinweise für die nächste Session
 - App-Schicht `garagelog_applib` (ohne GUI testbar): QML-Singletons `Vehicles`, `FuelEntries`, `Format` (`import org.tmx.garagelog`), in main.cpp registriert; neue Models genauso
+- App-API (M08): `ServiceEntries` (`ServiceListModel`, wie FuelEntries; `categories()`, `addCategory()`, `attachments(id)` mit file://-URL, `removeAttachment`). `entriesChanged` → `Vehicles.reload`. Intervall-Model (M10) genauso anbinden
 - App-API (M06): `FuelEntries` (`FuelListModel`, vehicleId wird von VehiclePage gesetzt, neueste zuerst, save/get/remove/plausibility/stationSuggestions). main.cpp verbindet `entriesChanged` → `Vehicles.reload` und `Vehicles.reloaded` → `FuelEntries.reload`. Service-Model (M08) genauso anbinden. Preis-Dreisatz in `core/fuelprice.h` (Einheitspreis in Tausendstel Währung pro l/kWh, nicht gespeichert)
-- VehiclePage hat Tabs (TabBar + StackLayout); Service/Intervalle/Auswertung sind Platzhalter im Repeater – beim Füllen den Repeater ersetzen
-- Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` (+ `qrc_migrations_init.cpp.o`), lädt `qml/Main.qml` per Pfad, `grabWindow()`; nicht im Repo
+- VehiclePage hat Tabs (TabBar + StackLayout); Intervalle/Auswertung sind Platzhalter im Repeater – beim Füllen ersetzen. „Hinzufügen“-Aktion folgt dem Tab
+- Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` + `qrc_qml.cpp.o` + `qrc_migrations_init.cpp.o`, registriert die Singletons zusätzlich als Context-Properties (sonst sieht `QQmlExpression` sie nicht), führt JS-Schritte aus und macht `grabWindow()`; nicht im Repo
 - Core-API (M07): `ServiceRepository` (odometerM optional, `PerformedBy` Unknown/Self/Shop = NULL/'self'/'shop'; `remove()` löscht auch Anhang-Dateien), `CategoryRepository` (all(): Builtins in Seed-Reihenfolge, dann eigene nach Name; Builtin-`name` ist Übersetzungsschlüssel), `AttachmentStore` (Ordner = Verzeichnis der DB-Datei + `/attachments`, `filePath(a)` zum Öffnen)
 - Core-API (M05): `FuelRepository`, `FuelStats::consumption(entries)` (indexgleich zu byVehicle), `stationSuggestions`; Mengeneinheit `quantityUnitFor(powertrain)`. Seed-Kategorien: feste UUIDs in 0001, `name` = stabiler Schlüssel (z. B. `oil_change`)
 - **Qt-Logs landen ohne Terminal im Journal** → beim Testen immer `QT_FORCE_STDERR_LOGGING=1` setzen, sonst sieht man keine QML-Warnungen. Testgarage statt echter Datei: `XDG_DATA_HOME=<scratch>/xdgN ./build/bin/garagelog` (Ordner neu anlegen, `rm -rf` ist gesperrt)
@@ -61,3 +63,4 @@ M08 – Service (UI)
 - M05 Tankeinträge (Core) – 2026-10-23 – `68e0da8`
 - M06 Tankeinträge (UI) – 2026-10-23 – `cdcaecc`
 - M07 Service (Core) – 2026-10-23 – `4cbeb67`
+- M08 Service (UI) – 2026-10-23 – `c70a9dc`
