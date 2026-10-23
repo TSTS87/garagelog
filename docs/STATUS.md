@@ -10,13 +10,13 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M12 – Auswertung (UI)
+M13 – Export/Import (Core)
 
 ## Zustand
-- Letzter Commit: `6de335f` feat: add statistics service and choose KQuickCharts for charts (+ docs)
+- Letzter Commit: `38b660a` feat: add statistics tab with key figures, consumption chart and cost bars (+ docs)
 - Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4, keine Warnungen)
-- Tests grün: ja (18/18, zuletzt neu: `test_statsservice`)
-- App startet: ja (offscreen; Intervall-Tab, -Formular, Fällig-Seite per Screenshot geprüft). Sichtprüfung am echten Desktop (M04, M06, M08, M10) und der native FileDialog stehen aus Sichtprüfung am echten Plasma-Desktop durch Thomas steht weiterhin aus (M04 + M06)
+- Tests grün: ja (19/19, zuletzt neu: `test_statsmodel`)
+- App startet: ja (offscreen; Auswertungs-Tab per Screenshot geprüft). Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04, M06, M08, M10, M12) sowie der native FileDialog
 
 ## Offene Punkte im aktuellen Meilenstein
 - alle (noch nicht begonnen)
@@ -27,6 +27,7 @@ M12 – Auswertung (UI)
 - M05: Verbrauchsformel mit Thomas präzisiert (DATA_MODEL.md): Teiltanks seit letztem Volltank zählen mit (Menge + Kosten); Tacho rückwärts → kein Wert, Eintrag wird neue Basis
 - M05: zusätzlich `core/dbvalues.h` (gemeinsame Datum/Zeit/NULL-Helfer, namespace `core::db`, neue Konvertierungen nur dort) und `quantityUnitFor(Powertrain)` in fuelentry.h
 - M06: zusätzlich Löschen von Tankeinträgen (Formular-Aktion mit `Kirigami.PromptDialog`); Plausibilität warnt auch bei Duplikat (gleiches Datum + Tacho, DATA_MODEL Invariante 1)
+- M12: Kategorie-Balken als einfache Rectangles statt KQuickCharts-BarChart (Beschriftung je Zeile lesbarer), nur die Verbrauchslinie nutzt KQuickCharts. Zeiträume enden immer „heute“ (Jahr = 1.1. bis heute)
 - M11: ADR-009 – Diagramme mit KQuickCharts (in Runtime 6.11 geprüft, lokal installiert); zusätzlich `StatsService::distance()` und `averageConsumption()`; Definitionen in DATA_MODEL.md ergänzt
 - M10: Fällig-Seite zeigt nur aktive Intervalle nicht archivierter Fahrzeuge; Drawer-Eintrag „Due (n overdue)“. Intervall-Formular ohne „Neue Kategorie…“ (Kategorien legt man im Service-Formular an)
 - M09: Fälligkeitsregeln präzisiert und in DATA_MODEL.md ergänzt (Fälligkeitstag = overdue, Service ohne Tacho → nur Zeitteil, Zukunftseinträge zählen nicht); zusätzlich `IntervalRepository::allActive()` (ohne archivierte Fahrzeuge) und `DueCalculator::moreUrgent()` für die Sortierung
@@ -41,10 +42,12 @@ M12 – Auswertung (UI)
 
 ## Hinweise für die nächste Session
 - App-Schicht `garagelog_applib` (ohne GUI testbar): QML-Singletons `Vehicles`, `FuelEntries`, `Format` (`import org.tmx.garagelog`), in main.cpp registriert; neue Models genauso
+- App-API (M12): `Stats` (`StatsModel`, Properties für Kacheln/Diagramm, `period` = "year"/"12months"/"all", lädt bei `Vehicles.reloaded`); `Format.moneyPerKm()`, `Format.number()`; applib definiert `TRANSLATION_DOMAIN="garagelog"`
 - App-API (M10): `Intervals` (pro Fahrzeug, Properties `worstStatus`, `nextDue`, `overdueCount`) und `DueIntervals` (alle Fahrzeuge), beide `IntervalListModel`, laden bei `Vehicles.reloaded` neu. `Format.dueSummary()`, `Format.parseCount()`, Komponente `StatusDot.qml`
 - App-API (M08): `ServiceEntries` (`ServiceListModel`, wie FuelEntries; `categories()`, `addCategory()`, `attachments(id)` mit file://-URL, `removeAttachment`). `entriesChanged` → `Vehicles.reload`. Intervall-Model (M10) genauso anbinden
 - App-API (M06): `FuelEntries` (`FuelListModel`, vehicleId wird von VehiclePage gesetzt, neueste zuerst, save/get/remove/plausibility/stationSuggestions). main.cpp verbindet `entriesChanged` → `Vehicles.reload` und `Vehicles.reloaded` → `FuelEntries.reload`. Service-Model (M08) genauso anbinden. Preis-Dreisatz in `core/fuelprice.h` (Einheitspreis in Tausendstel Währung pro l/kWh, nicht gespeichert)
 - VehiclePage hat Tabs (TabBar + StackLayout); Auswertung ist noch Platzhalter-Item – in M12 ersetzen. „Hinzufügen“-Aktion folgt dem Tab
+- KQuickCharts zeichnet per Shader: Offscreen nur mit `QT_QUICK_BACKEND=rhi QSG_RHI_BACKEND=opengl` sichtbar (Software-Backend lässt Linie weg; Vulkan stürzt offscreen ab)
 - Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` + `qrc_qml.cpp.o` + `qrc_migrations_init.cpp.o`, registriert die Singletons zusätzlich als Context-Properties (sonst sieht `QQmlExpression` sie nicht), führt JS-Schritte aus und macht `grabWindow()`; nicht im Repo
 - Core-API (M11): `StatsService` mit `Period{from,to}` (inklusiv, ungültig = offen): `totalCost` (fuel/service/total in Cent), `distance`, `costPerKm` (Cent/km), `costPerMonth` (braucht gültiges `to` = heute), `costByCategory` (Treibstoff als `isFuel`), `consumptionSeries`, `averageConsumption` (ml bzw. Wh/100 km)
 - Core-API (M09): `IntervalRepository`, `DueCalculator::evaluate(interval, today)` (DB) bzw. statisch mit `LastService` + Tacho (rein, getestet) → `DueResult` {status, last/due Datum+Tacho, remainingM/-Days, remainingFraction}; `dueStatusName()` liefert "overdue"/"soon"/"ok"/"unknown" (nicht `toString` nennen – kollidiert mit QTest)
@@ -73,3 +76,4 @@ M12 – Auswertung (UI)
 - M09 Intervalle & Fälligkeit (Core) – 2026-10-23 – `47a0d50`
 - M10 Intervalle & Fälligkeit (UI) – 2026-10-23 – `2e119f6`
 - M11 Auswertung (Core) – 2026-10-23 – `6de335f`
+- M12 Auswertung (UI) – 2026-10-23 – `38b660a`
