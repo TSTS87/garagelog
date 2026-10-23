@@ -74,7 +74,7 @@ Thomas liest den Code zum Lernen (QML/Kirigami sind neu für ihn) und muss ihn n
 
 ## Build (lokal, CachyOS/Arch)
 ```
-sudo pacman -S --needed base-devel cmake extra-cmake-modules qt6-base qt6-declarative kirigami ki18n kcoreaddons kconfig
+sudo pacman -S --needed base-devel cmake extra-cmake-modules qt6-base qt6-declarative kirigami ki18n kcoreaddons kconfig kquickcharts
 cmake -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ./build/bin/garagelog

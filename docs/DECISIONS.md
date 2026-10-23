@@ -20,11 +20,17 @@ Grund: DB bleibt klein und schnell, Dateien bleiben mit normalen Werkzeugen lesb
 ## ADR-006 (2026-10-23) GPL-3.0-or-later, Open-Core nur für klar abgegrenzte Zusatzmodule
 Grund: Reputation auf GitHub und Flathub-Akzeptanz. Mögliche spätere Pro-Module (Beleg-KI, Windows-Store-Version) als separate Repos/Plugins, der Kern bleibt vollständig frei.
 
-## ADR-007 (2026-10-23) Diagramme: offen
+## ADR-007 (2026-10-23) Diagramme: offen – ersetzt durch ADR-009
 Optionen: QtCharts (einfach, in Qt 6 wieder verfügbar, GPL-kompatibel), Kirigami-Charts-Addon (KQuickCharts, nativer Look), eigenes Canvas. Entscheidung in M6, Tendenz KQuickCharts, da bereits in der KDE-Runtime enthalten.
 
 ## ADR-008 (2026-10-23) Formulare als eigene Seite im PageRow, nicht als OverlaySheet
 Grund: Auf breiten Fenstern erscheint das Formular als zweite Spalte neben der Fahrzeugseite (Kontext bleibt sichtbar), auf schmalen als eigene Seite – ohne Sonderfall. Lange Formulare (Tanken, Service mit Anhang) scrollen in `Kirigami.ScrollablePage` zuverlässig; ein OverlaySheet wird bei vielen Feldern und Bildschirmtastatur unhandlich. Ein Muster für alle Formulare (Fahrzeug M04, Tanken M06, Service M08): Seite mit Aktionen Speichern/Abbrechen, Signal `saved`/`canceled`, Navigation entscheidet `Main.qml`.
 Alternativen: `Kirigami.OverlaySheet` bzw. `Kirigami.Dialog` (modal, für kurze Rückfragen weiter erlaubt); FormCard aus kirigami-addons (schöner, aber zusätzliche Abhängigkeit).
 
-<!-- Nächste: ADR-009 -->
+## ADR-009 (2026-10-23) Diagramme mit KQuickCharts (ersetzt ADR-007)
+Entscheidung: Verbrauchslinie und Kategorie-Balken der Auswertung (M12) mit KQuickCharts (`import org.kde.quickcharts`, KDE Framework).
+Grund: Geprüft in der installierten Runtime org.kde.Platform 6.11: KQuickCharts, QtCharts und QtGraphs sind alle enthalten, für Flatpak also kein Zusatzmodul nötig. KQuickCharts übernimmt Farben und Stil von Kirigami (nativer Plasma-Look, Dark Mode), ist leichtgewichtig (GPU-Shader, keine Widgets) und lokal bereits installiert (`kquickcharts`); QtCharts ist in Qt 6 veraltet (Nachfolger QtGraphs) und fehlt lokal; QtGraphs ist auf 3D/aufwendige Graphen ausgelegt. Die Daten liefert C++ als einfache Listen (`StatsService`), die Diagramme sind reine Anzeige.
+Abhängigkeit: nur zur Laufzeit (QML-Import), kein CMake-`find_package`; Arch-Paket `kquickcharts` in der Build-Anleitung ergänzt.
+Alternativen: QtCharts (veraltet, nicht installiert), QtGraphs (schwergewichtig), eigenes Canvas (mehr Code, kein Theme-Support).
+
+<!-- Nächste: ADR-010 -->

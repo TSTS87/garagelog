@@ -49,6 +49,10 @@ add_executable(test_duecalculator test_duecalculator.cpp)
 target_link_libraries(test_duecalculator PRIVATE garagelog_core Qt6::Test)
 add_test(NAME test_duecalculator COMMAND test_duecalculator)
 
+add_executable(test_statsservice test_statsservice.cpp)
+target_link_libraries(test_statsservice PRIVATE garagelog_core Qt6::Test)
+add_test(NAME test_statsservice COMMAND test_statsservice)
+
 # App-layer models: linked against garagelog_applib, still without a GUI.
 add_executable(test_vehiclelistmodel test_vehiclelistmodel.cpp)
 target_link_libraries(test_vehiclelistmodel PRIVATE garagelog_applib Qt6::Test)

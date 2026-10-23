@@ -131,6 +131,9 @@ oil_change, tires, brakes, chain, inspection, mot (TÜV/HU), insurance, tax, rep
   - Letzter Service ohne Tachostand: Distanzteil unbekannt, nur der Zeitteil zählt; ist kein Teil berechenbar → `unknown`
   - Einträge mit Datum in der Zukunft setzen das Intervall nicht zurück; Monatsarithmetik wie `QDate::addMonths` (31.1. + 1 Monat = 28./29.2.)
 - `costPerKm(vehicle, from, to)` = (Σ fuel.total_cost_c + Σ service.cost_c) / Distanz im Zeitraum
+  - Distanz im Zeitraum = höchster Tachostand im Zeitraum (fuel + service) − höchster Tachostand davor (falls vorhanden, sonst niedrigster im Zeitraum); ≤ 0 → kein Wert
+- `costPerMonth(vehicle, from, to)` = Kosten im Zeitraum / (Tage von `from` bzw. erstem Eintrag bis `to`, inklusive, / 30,4375), mindestens 1 Monat
+- Durchschnittsverbrauch im Zeitraum = Σ Menge / Σ Distanz aller Verbrauchssegmente, deren End-Volltank im Zeitraum liegt (distanzgewichtet)
 
 ## Invarianten (Tests schreiben)
 1. Zwei fuel_entries desselben Fahrzeugs mit gleichem Datum und gleichem Tacho → Warnung in UI, in DB erlaubt
