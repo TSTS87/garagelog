@@ -10,13 +10,13 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M05 – Tankeinträge (Core)
+M06 – Tankeinträge (UI)
 
 ## Zustand
-- Letzter Commit: `1137dde` docs: record ADR-008 (forms as pages)
+- Letzter Commit: `68e0da8` feat: add FuelStats for consumption and station suggestions (+ docs)
 - Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4, keine Warnungen)
-- Tests grün: ja (6/6: `appstreamtest`, `test_smoke`, `test_database`, `test_vehiclerepository`, `test_odometer`, `test_vehiclelistmodel`)
-- App startet: ja (offscreen mit Testdaten; Abläufe Anlegen/Bearbeiten/Tacho korrigieren/Archivieren/Neustart per Wegwerf-Harness geprüft, Screenshots ok). Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus
+- Tests grün: ja (8/8: `appstreamtest`, `test_smoke`, `test_database`, `test_vehiclerepository`, `test_odometer`, `test_fuelrepository`, `test_fuelstats`, `test_vehiclelistmodel`)
+- App startet: ja (offscreen, M05 ohne UI-Änderung). Sichtprüfung der M04-UI am echten Plasma-Desktop durch Thomas steht weiterhin aus
 
 ## Offene Punkte im aktuellen Meilenstein
 - alle (noch nicht begonnen)
@@ -24,6 +24,8 @@ M05 – Tankeinträge (Core)
 ## Verschoben / Abweichungen vom Plan
 - M04: Breeze hat nur ein `car`-Icon, keins für Motorrad/Roller/E-Bike → alle Typen zeigen vorerst `car`; Zuordnung zentral in `VehicleListModel::iconForType()`. Eigene Icons frühestens M15 (Thomas fragen)
 - M04: zusätzlich `Odometer::offsetFor()` (Core, getestet) für die manuelle Tachokorrektur im Formular
+- M05: Verbrauchsformel mit Thomas präzisiert (DATA_MODEL.md): Teiltanks seit letztem Volltank zählen mit (Menge + Kosten); Tacho rückwärts → kein Wert, Eintrag wird neue Basis
+- M05: zusätzlich `core/dbvalues.h` (gemeinsame Datum/Zeit/NULL-Helfer, namespace `core::db`, neue Konvertierungen nur dort) und `quantityUnitFor(Powertrain)` in fuelentry.h
 
 ## Bekannte Probleme
 - Kirigami-intern, nicht unser Code: „Created graphical object was not placed in the graphics scene" bei jedem `pageStack.push(Component)`; Binding-Loop in `InlineMessage` bei schmalem Fenster mit Aktion
@@ -31,6 +33,8 @@ M05 – Tankeinträge (Core)
 - `origin/main` = GitHub, Auth über `gh` (Konto TSTS87); Claude darf `git push origin main`, Force-Push ist in `.claude/settings.json` gesperrt
 
 ## Hinweise für die nächste Session
+- Core-API (M05): `FuelRepository(const Database&)` (create/update/byId/byVehicle/remove; byVehicle sortiert date, odometer, created_at), `FuelStats::consumption(entries)` (statisch, Ergebnis indexgleich zu byVehicle, `std::optional<Consumption>` mit ml-bzw.-Wh/100 km und Cent/100 km als double), `FuelStats(db).stationSuggestions(vehicleId)` (zuletzt benutzte zuerst). Einheit der Menge: `quantityUnitFor(vehicle.powertrain)`
+- Plausibilität (Tacho < vorheriger Eintrag, Duplikat gleiches Datum+Tacho) prüft der Core NICHT – laut SPEC/DATA_MODEL nur Warnung in der UI (M06)
 - **Qt-Logs landen ohne Terminal im Journal** → beim Testen immer `QT_FORCE_STDERR_LOGGING=1` setzen, sonst sieht man keine QML-Warnungen
 - Testgarage statt echter Datei: `XDG_DATA_HOME=<scratch>/xdgN ./build/bin/garagelog` (Ordner neu anlegen, `rm -rf` ist gesperrt)
 - App-Schicht: `garagelog_applib` (src/app, ohne GUI testbar) enthält `VehicleListModel` und `Format`; in main.cpp als QML-Singletons `Vehicles`/`Format` (`import org.tmx.garagelog`) registriert. Neue Models genauso
@@ -54,3 +58,4 @@ M05 – Tankeinträge (Core)
 - M02 Datenbank & Migration – 2026-10-23 – `196f452`
 - M03 Fahrzeuge (Core) – 2026-10-23 – `8a035e5`
 - M04 Fahrzeuge (UI) – 2026-10-23 – `1137dde`
+- M05 Tankeinträge (Core) – 2026-10-23 – `68e0da8`
