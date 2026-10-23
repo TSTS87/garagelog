@@ -70,7 +70,7 @@ Definition of Done (DoD) für jeden Meilenstein:
 
 ## M11 – Auswertung (Core)
 - `core/StatsService`: totalCost, costPerKm, costPerMonth, costByCategory, consumptionSeries – jeweils mit Zeitraum (from, to)
-- Entscheidung ADR-008: Diagrammbibliothek (KQuickCharts vs QtCharts) – Verfügbarkeit in org.kde.Platform-Runtime prüfen
+- Entscheidung Diagrammbibliothek (neuer ADR, löst ADR-007 ab): KQuickCharts vs QtCharts – Verfügbarkeit in org.kde.Platform-Runtime prüfen
 - Tests: 4 Kennzahlen mit bekannten Daten nachrechnen
 
 ## M12 – Auswertung (UI)

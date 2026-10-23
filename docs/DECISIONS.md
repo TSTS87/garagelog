@@ -23,4 +23,8 @@ Grund: Reputation auf GitHub und Flathub-Akzeptanz. Mögliche spätere Pro-Modul
 ## ADR-007 (2026-10-23) Diagramme: offen
 Optionen: QtCharts (einfach, in Qt 6 wieder verfügbar, GPL-kompatibel), Kirigami-Charts-Addon (KQuickCharts, nativer Look), eigenes Canvas. Entscheidung in M6, Tendenz KQuickCharts, da bereits in der KDE-Runtime enthalten.
 
-<!-- Nächste: ADR-008 -->
+## ADR-008 (2026-10-23) Formulare als eigene Seite im PageRow, nicht als OverlaySheet
+Grund: Auf breiten Fenstern erscheint das Formular als zweite Spalte neben der Fahrzeugseite (Kontext bleibt sichtbar), auf schmalen als eigene Seite – ohne Sonderfall. Lange Formulare (Tanken, Service mit Anhang) scrollen in `Kirigami.ScrollablePage` zuverlässig; ein OverlaySheet wird bei vielen Feldern und Bildschirmtastatur unhandlich. Ein Muster für alle Formulare (Fahrzeug M04, Tanken M06, Service M08): Seite mit Aktionen Speichern/Abbrechen, Signal `saved`/`canceled`, Navigation entscheidet `Main.qml`.
+Alternativen: `Kirigami.OverlaySheet` bzw. `Kirigami.Dialog` (modal, für kurze Rückfragen weiter erlaubt); FormCard aus kirigami-addons (schöner, aber zusätzliche Abhängigkeit).
+
+<!-- Nächste: ADR-009 -->
