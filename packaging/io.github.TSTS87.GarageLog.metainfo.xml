@@ -1,15 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata: what software centres (Discover, GNOME Software, Flathub) show
+     about GarageLog. Validate with: appstreamcli validate packaging/*.metainfo.xml
+     Screenshot URLs point at the v1.0.0 tag so they stay stable for that release. -->
 <component type="desktop-application">
   <id>io.github.TSTS87.GarageLog</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
   <name>GarageLog</name>
-  <summary>Fuel, maintenance and cost tracking for your vehicles</summary>
-  <summary xml:lang="de">Tanken, Wartung und Kosten für deine Fahrzeuge</summary>
+  <summary>Track fuel, maintenance and costs of your vehicles</summary>
+  <summary xml:lang="de">Tanken, Wartung und Kosten deiner Fahrzeuge erfassen</summary>
+  <developer id="io.github.tsts87">
+    <name>Thomas (TMX)</name>
+  </developer>
   <description>
-    <p>GarageLog keeps a local, private logbook for your cars, motorcycles and scooters: fuel-ups with consumption, service history with attachments, maintenance intervals with due reminders, and cost statistics. No account, no cloud, one SQLite file you own.</p>
+    <p>GarageLog is a private logbook for your cars, motorcycles, scooters and electric vehicles. Everything stays on your computer in one file you own: no account, no cloud, no tracking.</p>
+    <p xml:lang="de">GarageLog ist ein privates Logbuch für Autos, Motorräder, Roller und Elektrofahrzeuge. Alles bleibt auf deinem Rechner in einer Datei, die dir gehört: kein Konto, keine Cloud, kein Tracking.</p>
+    <p>Features:</p>
+    <p xml:lang="de">Funktionen:</p>
+    <ul>
+      <li>Fuel and charging entries with consumption between full tanks</li>
+      <li xml:lang="de">Tank- und Ladeeinträge mit Verbrauch zwischen zwei Volltankungen</li>
+      <li>Service history with categories, workshop and attached receipts</li>
+      <li xml:lang="de">Servicehistorie mit Kategorien, Werkstatt und angehängten Belegen</li>
+      <li>Maintenance intervals by distance and time with due reminders</li>
+      <li xml:lang="de">Wartungsintervalle nach Strecke und Zeit mit Fälligkeitsanzeige</li>
+      <li>Statistics: total cost, cost per kilometre and month, consumption chart</li>
+      <li xml:lang="de">Statistik: Gesamtkosten, Kosten pro Kilometer und Monat, Verbrauchskurve</li>
+      <li>Export to JSON and CSV, import of fuel entries from CSV</li>
+      <li xml:lang="de">Export als JSON und CSV, Import von Tankeinträgen aus CSV</li>
+      <li>Kilometres or miles, litres or gallons, any currency symbol</li>
+      <li xml:lang="de">Kilometer oder Meilen, Liter oder Gallonen, beliebiges Währungssymbol</li>
+    </ul>
   </description>
   <launchable type="desktop-id">io.github.TSTS87.GarageLog.desktop</launchable>
+  <provides>
+    <binary>garagelog</binary>
+  </provides>
+  <translation type="gettext">garagelog</translation>
+  <url type="homepage">https://github.com/TSTS87/garagelog</url>
+  <url type="bugtracker">https://github.com/TSTS87/garagelog/issues</url>
+  <url type="vcs-browser">https://github.com/TSTS87/garagelog</url>
+  <url type="contribute">https://github.com/TSTS87/garagelog/blob/main/CONTRIBUTING.md</url>
+  <url type="donation">https://github.com/sponsors/TSTS87</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Fuel log with consumption per tank</caption>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.0/docs/screenshots/fuel.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Costs and consumption over time</caption>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.0/docs/screenshots/statistics.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Maintenance intervals of a vehicle</caption>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.0/docs/screenshots/intervals.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Everything that is due, across all vehicles</caption>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.0/docs/screenshots/due.png</image>
+    </screenshot>
+  </screenshots>
+  <branding>
+    <color type="primary" scheme_preference="light">#93cef9</color>
+    <color type="primary" scheme_preference="dark">#1272b8</color>
+  </branding>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <keywords>
+    <keyword>car</keyword>
+    <keyword>motorcycle</keyword>
+    <keyword>fuel</keyword>
+    <keyword>mileage</keyword>
+    <keyword>maintenance</keyword>
+    <keyword>logbook</keyword>
+    <keyword xml:lang="de">Auto</keyword>
+    <keyword xml:lang="de">Tanken</keyword>
+    <keyword xml:lang="de">Fahrzeugkosten</keyword>
+    <keyword xml:lang="de">Wartung</keyword>
+  </keywords>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
   <content_rating type="oars-1.1"/>
-  <!-- TODO M8: screenshots, url (homepage, bugtracker, donation), releases, developer -->
+  <releases>
+    <release version="1.0.0" date="2026-10-23">
+      <description>
+        <p>First release: fuel and charging log, service history with attachments, maintenance intervals with due reminders, statistics, JSON/CSV export and CSV import, English and German.</p>
+      </description>
+    </release>
+  </releases>
 </component>

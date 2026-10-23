@@ -1,9 +1,14 @@
 [Desktop Entry]
 Type=Application
 Name=GarageLog
-Comment=Track fuel, maintenance and costs for your vehicles
+GenericName=Vehicle Logbook
+GenericName[de]=Fahrzeug-Logbuch
+Comment=Track fuel, maintenance and costs of your vehicles
 Comment[de]=Tanken, Wartung und Kosten deiner Fahrzeuge erfassen
 Exec=garagelog
 Icon=io.github.TSTS87.GarageLog
 Categories=Utility;Qt;KDE;
+Keywords=car;motorcycle;fuel;mileage;maintenance;service;logbook;
+Keywords[de]=Auto;Motorrad;Tanken;Verbrauch;Wartung;Service;Logbuch;
 Terminal=false
+StartupNotify=true
