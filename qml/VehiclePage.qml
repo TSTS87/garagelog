@@ -1,7 +1,6 @@
 // Page of one vehicle (role: qml, pure UI).
 // Header with icon, name, details, current odometer and the next due
-// interval, below it the tabs fuel | service | intervals | statistics
-// (SPEC §6). Statistics is filled in a later milestone.
+// interval, below it the tabs fuel | service | intervals | statistics (SPEC §6).
 
 import QtQuick
 import QtQuick.Controls as Controls
@@ -56,13 +55,14 @@ Kirigami.Page {
         }
     ]
 
-    // FuelEntries/ServiceEntries/Intervals are singletons shared by all pages;
+    // FuelEntries/ServiceEntries/Intervals/Stats are singletons shared by all pages;
     // only one vehicle page exists at a time, so it points them at its vehicle.
     onVehicleIdChanged: {
         reload();
         FuelEntries.vehicleId = vehicleId;
         ServiceEntries.vehicleId = vehicleId;
         Intervals.vehicleId = vehicleId;
+        Stats.vehicleId = vehicleId;
     }
 
     // Connections listens to signals of an object defined elsewhere, here the
@@ -188,15 +188,7 @@ Kirigami.Page {
                 onFormRequested: intervalId => page.intervalFormRequested(intervalId)
             }
 
-            // Empty until statistics (M12). The Item wrapper gets the full tab
-            // size from the StackLayout, so the message can be centred inside it.
-            Item {
-                Kirigami.PlaceholderMessage {
-                    anchors.centerIn: parent
-                    width: parent.width - Kirigami.Units.gridUnit * 4
-                    text: i18n("Coming soon")
-                }
-            }
+            StatsTab {}
         }
     }
 }

@@ -94,6 +94,16 @@ QString Format::money(qint64 cents) const
     return QLocale().toCurrencyString(cents / 100.0, currencySymbol, 2);
 }
 
+QString Format::moneyPerKm(double centsPerKm) const
+{
+    return QStringLiteral("%1/km").arg(QLocale().toCurrencyString(centsPerKm / 100.0, currencySymbol, 3));
+}
+
+QString Format::number(double value, int decimals) const
+{
+    return QLocale().toString(value, 'f', decimals);
+}
+
 QString Format::moneyInput(qint64 cents) const
 {
     return inputLocale().toString(cents / 100.0, 'f', 2);

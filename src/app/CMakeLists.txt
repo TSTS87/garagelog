@@ -13,12 +13,17 @@ add_library(garagelog_applib STATIC
     intervallistmodel.h
     servicelistmodel.cpp
     servicelistmodel.h
+    statsmodel.cpp
+    statsmodel.h
     vehiclelistmodel.cpp
     vehiclelistmodel.h
 )
 target_include_directories(garagelog_applib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 # KI18n (no GUI) translates built-in service categories and formatted texts.
 target_link_libraries(garagelog_applib PUBLIC garagelog_core Qt6::Core KF6::I18n)
+# i18n() calls in this library use the app's catalogue even when no
+# application domain is set (tests), which also silences KI18n's warning.
+target_compile_definitions(garagelog_applib PRIVATE TRANSLATION_DOMAIN="garagelog")
 
 add_executable(garagelog
     main.cpp
@@ -38,6 +43,7 @@ qt_add_resources(garagelog "qml"
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceTab.qml
+        ${PROJECT_SOURCE_DIR}/qml/StatsTab.qml
         ${PROJECT_SOURCE_DIR}/qml/StatusDot.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleDrawer.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleFormPage.qml

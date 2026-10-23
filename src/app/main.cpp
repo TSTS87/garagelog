@@ -19,6 +19,7 @@
 #include "fuellistmodel.h"
 #include "intervallistmodel.h"
 #include "servicelistmodel.h"
+#include "statsmodel.h"
 #include "vehiclelistmodel.h"
 #include "version.h"
 
@@ -52,6 +53,7 @@ int main(int argc, char *argv[])
     using garagelog::app::IntervalListModel;
     IntervalListModel intervals(database, IntervalListModel::Scope::Vehicle);
     IntervalListModel dueIntervals(database, IntervalListModel::Scope::AllVehicles);
+    garagelog::app::StatsModel stats(database);
     garagelog::app::Format format;
     // A saved fuel entry can raise the odometer shown in the drawer and the
     // page header; an edited vehicle can switch the fuel unit (l <-> kWh).
@@ -63,6 +65,7 @@ int main(int argc, char *argv[])
     // so the due status follows new odometers, services and archiving.
     QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &intervals, &IntervalListModel::reload);
     QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &dueIntervals, &IntervalListModel::reload);
+    QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &stats, &garagelog::app::StatsModel::reload);
     QObject::connect(&intervals, &IntervalListModel::intervalsChanged, &dueIntervals, &IntervalListModel::reload);
     QObject::connect(&dueIntervals, &IntervalListModel::intervalsChanged, &intervals, &IntervalListModel::reload);
     // Singleton instances: QML uses them as Vehicles.xxx / Format.xxx after
@@ -72,6 +75,7 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "ServiceEntries", &serviceEntries);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Intervals", &intervals);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "DueIntervals", &dueIntervals);
+    qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Stats", &stats);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Format", &format);
 
     QQmlApplicationEngine engine;

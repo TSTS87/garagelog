@@ -47,6 +47,12 @@ public:
     /** Amount for display with currency, e.g. "72,50 €". @param cents Amount in cents. */
     Q_INVOKABLE QString money(qint64 cents) const;
 
+    /** Cost per km for display with three decimals, e.g. "0,246 €/km". @param centsPerKm Cents per km. */
+    Q_INVOKABLE QString moneyPerKm(double centsPerKm) const;
+
+    /** Plain locale number with @p decimals decimals, e.g. for chart axis labels ("6,5"). */
+    Q_INVOKABLE QString number(double value, int decimals) const;
+
     /** Amount as editable text without currency, e.g. "72,50". @param cents Amount in cents. */
     Q_INVOKABLE QString moneyInput(qint64 cents) const;
 
