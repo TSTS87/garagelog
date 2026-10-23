@@ -53,6 +53,16 @@ add_executable(test_statsservice test_statsservice.cpp)
 target_link_libraries(test_statsservice PRIVATE garagelog_core Qt6::Test)
 add_test(NAME test_statsservice COMMAND test_statsservice)
 
+add_executable(test_jsonexport test_jsonexport.cpp)
+target_link_libraries(test_jsonexport PRIVATE garagelog_core Qt6::Test)
+add_test(NAME test_jsonexport COMMAND test_jsonexport)
+
+# Sample files from other apps live in tests/data/.
+add_executable(test_csvfuelimporter test_csvfuelimporter.cpp)
+target_link_libraries(test_csvfuelimporter PRIVATE garagelog_core Qt6::Test)
+target_compile_definitions(test_csvfuelimporter PRIVATE GARAGELOG_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
+add_test(NAME test_csvfuelimporter COMMAND test_csvfuelimporter)
+
 # App-layer models: linked against garagelog_applib, still without a GUI.
 add_executable(test_vehiclelistmodel test_vehiclelistmodel.cpp)
 target_link_libraries(test_vehiclelistmodel PRIVATE garagelog_applib Qt6::Test)

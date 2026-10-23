@@ -7,6 +7,12 @@ add_library(garagelog_core STATIC
     attachmentstore.h
     categoryrepository.cpp
     categoryrepository.h
+    csv.cpp
+    csv.h
+    csvexporter.cpp
+    csvexporter.h
+    csvfuelimporter.cpp
+    csvfuelimporter.h
     database.cpp
     database.h
     duecalculator.cpp
@@ -23,6 +29,10 @@ add_library(garagelog_core STATIC
     fuelstats.h
     intervalrepository.cpp
     intervalrepository.h
+    jsonexporter.cpp
+    jsonexporter.h
+    jsonimporter.cpp
+    jsonimporter.h
     maintenanceinterval.h
     migrationrunner.cpp
     migrationrunner.h
