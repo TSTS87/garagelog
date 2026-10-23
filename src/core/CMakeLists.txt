@@ -7,6 +7,10 @@ add_library(garagelog_core STATIC
     database.h
     migrationrunner.cpp
     migrationrunner.h
+    vehicle.cpp
+    vehicle.h
+    vehiclerepository.cpp
+    vehiclerepository.h
     version.cpp
     version.h
 )
