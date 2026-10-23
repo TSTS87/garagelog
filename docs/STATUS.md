@@ -10,12 +10,12 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M13 – Export/Import (Core)
+M14 – Export/Import & Einstellungen (UI)
 
 ## Zustand
-- Letzter Commit: `38b660a` feat: add statistics tab with key figures, consumption chart and cost bars (+ docs)
+- Letzter Commit: `1fb7225` feat: add JSON export/import, CSV export and CSV fuel import to core (+ docs)
 - Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4, keine Warnungen)
-- Tests grün: ja (19/19, zuletzt neu: `test_statsmodel`)
+- Tests grün: ja (21/21, zuletzt neu: `test_jsonexport`, `test_csvfuelimporter`)
 - App startet: ja (offscreen; Auswertungs-Tab per Screenshot geprüft). Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04, M06, M08, M10, M12) sowie der native FileDialog
 
 ## Offene Punkte im aktuellen Meilenstein
@@ -27,6 +27,7 @@ M13 – Export/Import (Core)
 - M05: Verbrauchsformel mit Thomas präzisiert (DATA_MODEL.md): Teiltanks seit letztem Volltank zählen mit (Menge + Kosten); Tacho rückwärts → kein Wert, Eintrag wird neue Basis
 - M05: zusätzlich `core/dbvalues.h` (gemeinsame Datum/Zeit/NULL-Helfer, namespace `core::db`, neue Konvertierungen nur dort) und `quantityUnitFor(Powertrain)` in fuelentry.h
 - M06: zusätzlich Löschen von Tankeinträgen (Formular-Aktion mit `Kirigami.PromptDialog`); Plausibilität warnt auch bei Duplikat (gleiches Datum + Tacho, DATA_MODEL Invariante 1)
+- M13: JSON-Import nur in eine Garage ohne Fahrzeuge (kein Zusammenführen); Export-Ordner = `garagelog.json` + `attachments/`. CSV-Export in DB-Einheiten (Spaltennamen wie in der DB). Fuelio-Beispieldatei ist handgeschrieben im Fuelio-Layout, keine echte Exportdatei
 - M12: Kategorie-Balken als einfache Rectangles statt KQuickCharts-BarChart (Beschriftung je Zeile lesbarer), nur die Verbrauchslinie nutzt KQuickCharts. Zeiträume enden immer „heute“ (Jahr = 1.1. bis heute)
 - M11: ADR-009 – Diagramme mit KQuickCharts (in Runtime 6.11 geprüft, lokal installiert); zusätzlich `StatsService::distance()` und `averageConsumption()`; Definitionen in DATA_MODEL.md ergänzt
 - M10: Fällig-Seite zeigt nur aktive Intervalle nicht archivierter Fahrzeuge; Drawer-Eintrag „Due (n overdue)“. Intervall-Formular ohne „Neue Kategorie…“ (Kategorien legt man im Service-Formular an)
@@ -49,6 +50,7 @@ M13 – Export/Import (Core)
 - VehiclePage hat Tabs (TabBar + StackLayout); Auswertung ist noch Platzhalter-Item – in M12 ersetzen. „Hinzufügen“-Aktion folgt dem Tab
 - KQuickCharts zeichnet per Shader: Offscreen nur mit `QT_QUICK_BACKEND=rhi QSG_RHI_BACKEND=opengl` sichtbar (Software-Backend lässt Linie weg; Vulkan stürzt offscreen ab)
 - Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` + `qrc_qml.cpp.o` + `qrc_migrations_init.cpp.o`, registriert die Singletons zusätzlich als Context-Properties (sonst sieht `QQmlExpression` sie nicht), führt JS-Schritte aus und macht `grabWindow()`; nicht im Repo
+- Core-API (M13): `JsonExporter::exportTo(dir)` / `JsonImporter::check(dir)`, `importFrom(dir)` (+ `warnings()`), `CsvExporter::exportAll(dir)`, `CsvFuelImporter` (`loadFile`, `suggestMapping`, `preview` = Dry-Run, `importInto(vehicleId, mapping)`), Tabellenliste `exportformat::tables`
 - Core-API (M11): `StatsService` mit `Period{from,to}` (inklusiv, ungültig = offen): `totalCost` (fuel/service/total in Cent), `distance`, `costPerKm` (Cent/km), `costPerMonth` (braucht gültiges `to` = heute), `costByCategory` (Treibstoff als `isFuel`), `consumptionSeries`, `averageConsumption` (ml bzw. Wh/100 km)
 - Core-API (M09): `IntervalRepository`, `DueCalculator::evaluate(interval, today)` (DB) bzw. statisch mit `LastService` + Tacho (rein, getestet) → `DueResult` {status, last/due Datum+Tacho, remainingM/-Days, remainingFraction}; `dueStatusName()` liefert "overdue"/"soon"/"ok"/"unknown" (nicht `toString` nennen – kollidiert mit QTest)
 - Core-API (M07): `ServiceRepository` (odometerM optional, `PerformedBy` Unknown/Self/Shop = NULL/'self'/'shop'; `remove()` löscht auch Anhang-Dateien), `CategoryRepository` (all(): Builtins in Seed-Reihenfolge, dann eigene nach Name; Builtin-`name` ist Übersetzungsschlüssel), `AttachmentStore` (Ordner = Verzeichnis der DB-Datei + `/attachments`, `filePath(a)` zum Öffnen)
@@ -77,3 +79,4 @@ M13 – Export/Import (Core)
 - M10 Intervalle & Fälligkeit (UI) – 2026-10-23 – `2e119f6`
 - M11 Auswertung (Core) – 2026-10-23 – `6de335f`
 - M12 Auswertung (UI) – 2026-10-23 – `38b660a`
+- M13 Export/Import (Core) – 2026-10-23 – `1fb7225`
