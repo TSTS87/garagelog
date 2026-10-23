@@ -9,6 +9,8 @@ add_library(garagelog_core STATIC
     dbvalues.h
     fuelentry.cpp
     fuelentry.h
+    fuelprice.cpp
+    fuelprice.h
     fuelrepository.cpp
     fuelrepository.h
     fuelstats.cpp
