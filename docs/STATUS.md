@@ -10,13 +10,13 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M06 – Tankeinträge (UI)
+M07 – Service (Core)
 
 ## Zustand
-- Letzter Commit: `68e0da8` feat: add FuelStats for consumption and station suggestions (+ docs)
+- Letzter Commit: `cdcaecc` feat: add fuel entry form with price calculation and plausibility warning (+ docs)
 - Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4, keine Warnungen)
-- Tests grün: ja (8/8: `appstreamtest`, `test_smoke`, `test_database`, `test_vehiclerepository`, `test_odometer`, `test_fuelrepository`, `test_fuelstats`, `test_vehiclelistmodel`)
-- App startet: ja (offscreen, M05 ohne UI-Änderung). Sichtprüfung der M04-UI am echten Plasma-Desktop durch Thomas steht weiterhin aus
+- Tests grün: ja (10/10: `appstreamtest`, `test_smoke`, `test_database`, `test_vehiclerepository`, `test_odometer`, `test_fuelrepository`, `test_fuelstats`, `test_fuelprice`, `test_vehiclelistmodel`, `test_fuellistmodel`)
+- App startet: ja (offscreen; Tankliste, Formular, Warnung, Löschdialog per Screenshot geprüft). Sichtprüfung am echten Plasma-Desktop durch Thomas steht weiterhin aus (M04 + M06)
 
 ## Offene Punkte im aktuellen Meilenstein
 - alle (noch nicht begonnen)
@@ -26,6 +26,8 @@ M06 – Tankeinträge (UI)
 - M04: zusätzlich `Odometer::offsetFor()` (Core, getestet) für die manuelle Tachokorrektur im Formular
 - M05: Verbrauchsformel mit Thomas präzisiert (DATA_MODEL.md): Teiltanks seit letztem Volltank zählen mit (Menge + Kosten); Tacho rückwärts → kein Wert, Eintrag wird neue Basis
 - M05: zusätzlich `core/dbvalues.h` (gemeinsame Datum/Zeit/NULL-Helfer, namespace `core::db`, neue Konvertierungen nur dort) und `quantityUnitFor(Powertrain)` in fuelentry.h
+- M06: zusätzlich Löschen von Tankeinträgen (Formular-Aktion mit `Kirigami.PromptDialog`); Plausibilität warnt auch bei Duplikat (gleiches Datum + Tacho, DATA_MODEL Invariante 1)
+- M06: Währung fest € und Datumseingabe als Textfeld (Locale-Kurzformat mit 4-stelligem Jahr oder ISO), da kein Datepicker ohne neue Abhängigkeit (kirigami-addons) – ggf. M15 mit ADR
 
 ## Bekannte Probleme
 - Kirigami-intern, nicht unser Code: „Created graphical object was not placed in the graphics scene" bei jedem `pageStack.push(Component)`; Binding-Loop in `InlineMessage` bei schmalem Fenster mit Aktion
@@ -33,24 +35,20 @@ M06 – Tankeinträge (UI)
 - `origin/main` = GitHub, Auth über `gh` (Konto TSTS87); Claude darf `git push origin main`, Force-Push ist in `.claude/settings.json` gesperrt
 
 ## Hinweise für die nächste Session
-- Core-API (M05): `FuelRepository(const Database&)` (create/update/byId/byVehicle/remove; byVehicle sortiert date, odometer, created_at), `FuelStats::consumption(entries)` (statisch, Ergebnis indexgleich zu byVehicle, `std::optional<Consumption>` mit ml-bzw.-Wh/100 km und Cent/100 km als double), `FuelStats(db).stationSuggestions(vehicleId)` (zuletzt benutzte zuerst). Einheit der Menge: `quantityUnitFor(vehicle.powertrain)`
-- Plausibilität (Tacho < vorheriger Eintrag, Duplikat gleiches Datum+Tacho) prüft der Core NICHT – laut SPEC/DATA_MODEL nur Warnung in der UI (M06)
-- **Qt-Logs landen ohne Terminal im Journal** → beim Testen immer `QT_FORCE_STDERR_LOGGING=1` setzen, sonst sieht man keine QML-Warnungen
-- Testgarage statt echter Datei: `XDG_DATA_HOME=<scratch>/xdgN ./build/bin/garagelog` (Ordner neu anlegen, `rm -rf` ist gesperrt)
-- App-Schicht: `garagelog_applib` (src/app, ohne GUI testbar) enthält `VehicleListModel` und `Format`; in main.cpp als QML-Singletons `Vehicles`/`Format` (`import org.tmx.garagelog`) registriert. Neue Models genauso
-- Formulare nach ADR-008: eigene `ScrollablePage`, Signale `saved(id)`/`canceled()`, Navigation nur in Main.qml (`openForm`, `showVehicle`)
-- QML ↔ C++: leeres `QVariant()` kommt als `undefined` an, `QVariant::fromValue(nullptr)` als `null`; ComboBox-Index aus dem Options-Array berechnen, nicht per `indexOfValue()` im Binding
+- App-Schicht `garagelog_applib` (ohne GUI testbar): QML-Singletons `Vehicles`, `FuelEntries`, `Format` (`import org.tmx.garagelog`), in main.cpp registriert; neue Models genauso
+- App-API (M06): `FuelEntries` (`FuelListModel`, vehicleId wird von VehiclePage gesetzt, neueste zuerst, save/get/remove/plausibility/stationSuggestions). main.cpp verbindet `entriesChanged` → `Vehicles.reload` und `Vehicles.reloaded` → `FuelEntries.reload`. Service-Model (M08) genauso anbinden. Preis-Dreisatz in `core/fuelprice.h` (Einheitspreis in Tausendstel Währung pro l/kWh, nicht gespeichert)
+- VehiclePage hat Tabs (TabBar + StackLayout); Service/Intervalle/Auswertung sind Platzhalter im Repeater – beim Füllen den Repeater ersetzen
+- Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` (+ `qrc_migrations_init.cpp.o`), lädt `qml/Main.qml` per Pfad, `grabWindow()`; nicht im Repo
+- Core-API (M05): `FuelRepository`, `FuelStats::consumption(entries)` (indexgleich zu byVehicle), `stationSuggestions`; Mengeneinheit `quantityUnitFor(powertrain)`. Seed-Kategorien (für M07): feste UUIDs in 0001, `name` = stabiler Schlüssel (z. B. `oil_change`)
+- **Qt-Logs landen ohne Terminal im Journal** → beim Testen immer `QT_FORCE_STDERR_LOGGING=1` setzen, sonst sieht man keine QML-Warnungen. Testgarage statt echter Datei: `XDG_DATA_HOME=<scratch>/xdgN ./build/bin/garagelog` (Ordner neu anlegen, `rm -rf` ist gesperrt)
+- Formulare nach ADR-008: eigene `ScrollablePage`, Signale `saved(id)`/`canceled()`, Navigation nur in Main.qml (`pushForm`, `openForm`, `openFuelForm`, `showVehicle`)
+- QML ↔ C++: Daten als ISO-Text (`Format.parseDate/date/today`), nie als JS Date; leeres `QVariant()` kommt als `undefined` an, `QVariant::fromValue(nullptr)` als `null`; ComboBox-Index aus dem Options-Array berechnen, nicht per `indexOfValue()` im Binding
 - UI-Texte englisch mit `i18n()` (KI18n eingerichtet, `KLocalizedQmlContext`); deutsche Übersetzung erst M16
-- Core-API (M03): `VehicleRepository(const Database&)` (create/update/byId/all(includeArchived)/archive/unarchive/remove, Fehler via `errorString()`), `Odometer(const Database&).current(id)` in Metern; Enums `VehicleType`/`Powertrain` mit `toDbString()`/`…FromDb()` in vehicle.h
-- Repositories speichern `const Database&` und holen die Verbindung pro Aufruf → Database muss länger leben als Repo/Model
-- Zeitstempel in Structs: `QDateTime` UTC, ganze Sekunden; leere QStrings = NULL in optionalen Textspalten
-- DB-Zugriff: `core::Database` (database.h) besitzt eine eindeutig benannte QSqlDatabase-Verbindung; Repositories holen sie über `connection()`. Foreign Keys sind an (geprüft)
-- `main.cpp` öffnet `Database::defaultFilePath()` vor der QML-Engine; bei Fehler `qCritical` + Exit 1 (noch kein Dialog)
+- Core-API (M03): `VehicleRepository`, `Odometer.current(id)` in Metern; Enums mit `toDbString()`/`…FromDb()` in vehicle.h. Structs: `QDateTime` UTC ganze Sekunden, leere QStrings = NULL
+- DB-Zugriff: `core::Database` besitzt die Verbindung; Repositories speichern `const Database&` und holen sie pro Aufruf über `connection()` → Database muss länger leben als Repo/Model. Foreign Keys sind an
 - `AppDataLocation` ergibt nur dann `~/.local/share/garagelog/`, wenn KEIN OrganizationName gesetzt ist (nur Domain gesetzt) – nicht ändern
-- Migrationen: `src/core/migrations/NNNN_*.sql`, zusätzlich in `qt_add_resources` in src/core/CMakeLists.txt eintragen. Der Runner setzt `schema_version` selbst (UPDATE nach jeder Datei); keine Trigger mit `;` im Body (Splitter kann das nicht)
-- Seed-Kategorien haben feste UUIDs in 0001; `name` ist ein stabiler Schlüssel (z. B. `oil_change`), Übersetzung erst in der UI
+- Migrationen: `src/core/migrations/NNNN_*.sql`, zusätzlich in `qt_add_resources` in src/core/CMakeLists.txt eintragen. Der Runner setzt `schema_version` selbst (UPDATE nach jeder Datei); keine Trigger mit `;` im Body (Splitter kann das nicht). Neue QML-Dateien in `qt_add_resources` in src/app/CMakeLists.txt eintragen
 - `main.cpp` nutzt `QGuiApplication`; für den Plasma-Look (Style `org.kde.desktop`) wäre `QApplication` + Qt6::Widgets nötig → nur mit ADR entscheiden
-- QML wird per `qt_add_resources` unter `qrc:/qml/` eingebettet (src/app/CMakeLists.txt); neue QML-Dateien dort eintragen
 - App-ID im Manifest ist Platzhalter `org.tmx.GarageLog` – Thomas entscheidet (siehe Kommentar in `packaging/flatpak/*.yml`)
 
 ## Historie (eine Zeile pro abgeschlossenem Meilenstein)
@@ -59,3 +57,4 @@ M06 – Tankeinträge (UI)
 - M03 Fahrzeuge (Core) – 2026-10-23 – `8a035e5`
 - M04 Fahrzeuge (UI) – 2026-10-23 – `1137dde`
 - M05 Tankeinträge (Core) – 2026-10-23 – `68e0da8`
+- M06 Tankeinträge (UI) – 2026-10-23 – `cdcaecc`
