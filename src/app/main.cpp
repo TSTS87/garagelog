@@ -6,9 +6,12 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QGuiApplication>
+#include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 #include <QQmlEngine>
+#include <QQuickWindow>
 #include <QUrl>
 
 #include <KConfigGroup>
@@ -27,8 +30,14 @@
 #include "vehiclelistmodel.h"
 #include "version.h"
 
+// Start time measurement for the M15 performance check; off by default, enable
+// with QT_LOGGING_RULES="garagelog.startup.debug=true".
+Q_LOGGING_CATEGORY(lcStartup, "garagelog.startup", QtWarningMsg)
+
 int main(int argc, char *argv[])
 {
+    QElapsedTimer startTimer;
+    startTimer.start();
     QGuiApplication app(argc, argv);
     // Translation catalogue name (garagelog.mo); must be set before any i18n() call.
     KLocalizedString::setApplicationDomain("garagelog");
@@ -119,5 +128,14 @@ int main(int argc, char *argv[])
         &engine, &QQmlApplicationEngine::objectCreationFailed, &app, [] { QCoreApplication::exit(1); }, Qt::QueuedConnection);
 
     engine.load(url);
+
+    // The first rendered frame is what the user perceives as "started".
+    if (!engine.rootObjects().isEmpty()) {
+        if (auto *window = qobject_cast<QQuickWindow *>(engine.rootObjects().constFirst())) {
+            QObject::connect(window, &QQuickWindow::frameSwapped, &app, [&startTimer] {
+                qCDebug(lcStartup) << "first frame after" << startTimer.elapsed() << "ms";
+            }, Qt::SingleShotConnection);
+        }
+    }
     return app.exec();
 }

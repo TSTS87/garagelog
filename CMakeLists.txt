@@ -1,6 +1,7 @@
 # Top-level build definition for GarageLog.
-# Finds Qt 6 / KDE Frameworks 6 and wires up the three parts of the project:
-# src/core (static logic library), src/app (QML executable) and tests (QtTest).
+# Finds Qt 6 / KDE Frameworks 6 and wires up the four parts of the project:
+# src/core (static logic library), src/app (QML executable), tools (developer
+# helpers such as the test data generator) and tests (QtTest).
 
 cmake_minimum_required(VERSION 3.21)
 project(garagelog VERSION 0.1.0 LANGUAGES CXX)
@@ -27,6 +28,7 @@ find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami I18n CoreAddons 
 
 add_subdirectory(src/core)
 add_subdirectory(src/app)
+add_subdirectory(tools)
 
 enable_testing()
 add_subdirectory(tests)

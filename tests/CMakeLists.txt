@@ -87,3 +87,8 @@ add_test(NAME test_statsmodel COMMAND test_statsmodel)
 add_executable(test_garagecontroller test_garagecontroller.cpp)
 target_link_libraries(test_garagecontroller PRIVATE garagelog_applib Qt6::Test)
 add_test(NAME test_garagecontroller COMMAND test_garagecontroller)
+
+# M15: 10,000 generated fuel entries; uses the generator from tools/.
+add_executable(test_performance test_performance.cpp)
+target_link_libraries(test_performance PRIVATE garagelog_applib garagelog_sampledata Qt6::Test)
+add_test(NAME test_performance COMMAND test_performance)
