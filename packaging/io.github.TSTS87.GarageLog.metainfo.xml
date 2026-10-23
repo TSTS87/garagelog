@@ -88,7 +88,7 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
-    <release version="1.0.0" date="2026-10-23">
+    <release version="1.0.0" date="2026-10-24">
       <description>
         <p>First release: fuel and charging log, service history with attachments, maintenance intervals with due reminders, statistics, JSON/CSV export and CSV import, English and German.</p>
       </description>

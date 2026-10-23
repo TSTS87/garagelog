@@ -4,6 +4,7 @@
 // the embedded resources. Exits with an error code if the database or QML
 // fails to load.
 
+#include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QElapsedTimer>
@@ -51,6 +52,13 @@ int main(int argc, char *argv[])
     QGuiApplication::setDesktopFileName(QStringLiteral("io.github.TSTS87.GarageLog"));
     // X11 and the window list need the icon explicitly; it comes from the installed hicolor theme.
     QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("io.github.TSTS87.GarageLog")));
+
+    // Only --help and --version for now; lets bug reports name the exact version.
+    QCommandLineParser parser;
+    parser.setApplicationDescription(i18n("Track fuel, maintenance and costs of your vehicles"));
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.process(app);
 
     // The garage chosen last on the settings page is remembered in
     // ~/.config/garagelogrc (KConfig), outside the garage file itself.

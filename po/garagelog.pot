@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: garagelog\n"
 "Report-Msgid-Bugs-To: https://github.com/TSTS87/garagelog/issues\n"
-"POT-Creation-Date: 2026-10-23 23:49+0200\n"
+"POT-Creation-Date: 2026-10-24 00:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -110,6 +110,10 @@ msgstr ""
 
 #: src/app/garagecontroller.cpp:302
 msgid "Cannot copy attachment %1"
+msgstr ""
+
+#: src/app/main.cpp:58
+msgid "Track fuel, maintenance and costs of your vehicles"
 msgstr ""
 
 #: src/app/servicelistmodel.cpp:53

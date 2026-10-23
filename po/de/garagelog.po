@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: garagelog\n"
 "Report-Msgid-Bugs-To: https://github.com/TSTS87/garagelog/issues\n"
-"POT-Creation-Date: 2026-10-23 23:49+0200\n"
+"POT-Creation-Date: 2026-10-24 00:19+0200\n"
 "PO-Revision-Date: 2026-10-23 12:00+0200\n"
 "Last-Translator: Thomas (TMX)\n"
 "Language-Team: German\n"
@@ -110,6 +110,10 @@ msgstr "Garage kann nicht kopiert werden: %1"
 #: src/app/garagecontroller.cpp:302
 msgid "Cannot copy attachment %1"
 msgstr "Anhang %1 kann nicht kopiert werden"
+
+#: src/app/main.cpp:58
+msgid "Track fuel, maintenance and costs of your vehicles"
+msgstr "Tanken, Wartung und Kosten deiner Fahrzeuge erfassen"
 
 #: src/app/servicelistmodel.cpp:53
 msgctxt "service category"
@@ -296,8 +300,12 @@ msgid "Comma (40,5)"
 msgstr "Komma (40,5)"
 
 #: qml/CsvImportPage.qml:201
-msgid "Values must be in km, litres (or kWh) and your currency. Rows with errors are skipped."
-msgstr "Werte müssen in km, Litern (bzw. kWh) und deiner Währung vorliegen. Zeilen mit Fehlern werden übersprungen."
+msgid ""
+"Values must be in km, litres (or kWh) and your currency. Rows with errors "
+"are skipped."
+msgstr ""
+"Werte müssen in km, Litern (bzw. kWh) und deiner Währung vorliegen. Zeilen "
+"mit Fehlern werden übersprungen."
 
 #: qml/CsvImportPage.qml:211
 msgid "Preview: %1 valid row"
@@ -354,8 +362,12 @@ msgid "Delete"
 msgstr "Löschen"
 
 #: qml/FuelFormPage.qml:140
-msgid "The odometer is lower than in an earlier entry (%1). Please check the reading; you can still save."
-msgstr "Der Kilometerstand ist niedriger als in einem früheren Eintrag (%1). Bitte prüfen; speichern ist trotzdem möglich."
+msgid ""
+"The odometer is lower than in an earlier entry (%1). Please check the "
+"reading; you can still save."
+msgstr ""
+"Der Kilometerstand ist niedriger als in einem früheren Eintrag (%1). Bitte "
+"prüfen; speichern ist trotzdem möglich."
 
 #: qml/FuelFormPage.qml:142
 msgid "An entry with the same date and odometer already exists."
@@ -367,7 +379,8 @@ msgstr "Eintrag löschen?"
 
 #: qml/FuelFormPage.qml:152
 msgid "This entry is removed permanently. Consumption values are recalculated."
-msgstr "Der Eintrag wird endgültig entfernt. Verbrauchswerte werden neu berechnet."
+msgstr ""
+"Der Eintrag wird endgültig entfernt. Verbrauchswerte werden neu berechnet."
 
 #: qml/FuelFormPage.qml:185 qml/ServiceFormPage.qml:219
 msgid "Please enter a date like %1."
@@ -459,8 +472,12 @@ msgid "No fuel entries yet"
 msgstr "Noch keine Tankeinträge"
 
 #: qml/FuelTab.qml:109
-msgid "Record every refuelling or charge; consumption is calculated between two full tanks."
-msgstr "Erfasse jedes Tanken oder Laden; der Verbrauch wird zwischen zwei Volltankungen berechnet."
+msgid ""
+"Record every refuelling or charge; consumption is calculated between two "
+"full tanks."
+msgstr ""
+"Erfasse jedes Tanken oder Laden; der Verbrauch wird zwischen zwei "
+"Volltankungen berechnet."
 
 #: qml/IntervalFormPage.qml:62 qml/IntervalTab.qml:111 qml/VehiclePage.qml:37
 msgid "Add Interval"
@@ -546,20 +563,34 @@ msgid "No intervals yet"
 msgstr "Noch keine Intervalle"
 
 #: qml/IntervalTab.qml:109
-msgid "Add rules like “oil change every 15,000 km or 12 months”. The due date is calculated from the last matching service entry."
-msgstr "Lege Regeln an wie „Ölwechsel alle 15.000 km oder 12 Monate“. Die Fälligkeit wird aus dem letzten passenden Serviceeintrag berechnet."
+msgid ""
+"Add rules like “oil change every 15,000 km or 12 months”. The due date is "
+"calculated from the last matching service entry."
+msgstr ""
+"Lege Regeln an wie „Ölwechsel alle 15.000 km oder 12 Monate“. Die Fälligkeit "
+"wird aus dem letzten passenden Serviceeintrag berechnet."
 
 #: qml/Main.qml:20 qml/Main.qml:280
 msgid "GarageLog"
 msgstr "GarageLog"
 
 #: qml/Main.qml:48
-msgid "The garage file %1 was deleted or moved. GarageLog still has your data open, but changes are lost when it closes. Save a copy to keep them."
-msgstr "Die Garage-Datei %1 wurde gelöscht oder verschoben. GarageLog hat deine Daten noch geöffnet, Änderungen gehen beim Beenden aber verloren. Speichere eine Kopie, um sie zu behalten."
+msgid ""
+"The garage file %1 was deleted or moved. GarageLog still has your data open, "
+"but changes are lost when it closes. Save a copy to keep them."
+msgstr ""
+"Die Garage-Datei %1 wurde gelöscht oder verschoben. GarageLog hat deine "
+"Daten noch geöffnet, Änderungen gehen beim Beenden aber verloren. Speichere "
+"eine Kopie, um sie zu behalten."
 
 #: qml/Main.qml:49
-msgid "The garage file %1 is write-protected. You can look at your data, but changes cannot be saved. Save a copy to keep working."
-msgstr "Die Garage-Datei %1 ist schreibgeschützt. Du kannst deine Daten ansehen, Änderungen lassen sich aber nicht speichern. Speichere eine Kopie, um weiterzuarbeiten."
+msgid ""
+"The garage file %1 is write-protected. You can look at your data, but "
+"changes cannot be saved. Save a copy to keep working."
+msgstr ""
+"Die Garage-Datei %1 ist schreibgeschützt. Du kannst deine Daten ansehen, "
+"Änderungen lassen sich aber nicht speichern. Speichere eine Kopie, um "
+"weiterzuarbeiten."
 
 #: qml/Main.qml:52
 msgid "Save Copy…"
@@ -580,7 +611,8 @@ msgstr "Garage gespeichert; du arbeitest jetzt in der Kopie"
 
 #: qml/Main.qml:107
 msgid "Add a vehicle first; fuel entries are imported into a vehicle."
-msgstr "Lege zuerst ein Fahrzeug an; Tankeinträge werden in ein Fahrzeug importiert."
+msgstr ""
+"Lege zuerst ein Fahrzeug an; Tankeinträge werden in ein Fahrzeug importiert."
 
 #: qml/Main.qml:119
 msgid "(%1 warning)"
@@ -613,12 +645,18 @@ msgid "No vehicles yet"
 msgstr "Noch keine Fahrzeuge"
 
 #: qml/Main.qml:293
-msgid "Show the archived vehicles to look at their entries, or add a new vehicle from the side bar."
-msgstr "Zeige die archivierten Fahrzeuge an, um ihre Einträge zu sehen, oder lege in der Seitenleiste ein neues Fahrzeug an."
+msgid ""
+"Show the archived vehicles to look at their entries, or add a new vehicle "
+"from the side bar."
+msgstr ""
+"Zeige die archivierten Fahrzeuge an, um ihre Einträge zu sehen, oder lege in "
+"der Seitenleiste ein neues Fahrzeug an."
 
 #: qml/Main.qml:294
 msgid "Add your car, motorcycle or scooter to start tracking fuel and service."
-msgstr "Lege dein Auto, Motorrad oder deinen Roller an, um Tanken und Service zu erfassen."
+msgstr ""
+"Lege dein Auto, Motorrad oder deinen Roller an, um Tanken und Service zu "
+"erfassen."
 
 #: qml/Main.qml:299 qml/VehicleDrawer.qml:56 qml/VehicleFormPage.qml:82
 msgid "Add Vehicle"
@@ -753,8 +791,11 @@ msgid "No service entries yet"
 msgstr "Noch keine Serviceeinträge"
 
 #: qml/ServiceTab.qml:98
-msgid "Record oil changes, repairs, inspections and recurring costs like insurance."
-msgstr "Erfasse Ölwechsel, Reparaturen, Inspektionen und laufende Kosten wie die Versicherung."
+msgid ""
+"Record oil changes, repairs, inspections and recurring costs like insurance."
+msgstr ""
+"Erfasse Ölwechsel, Reparaturen, Inspektionen und laufende Kosten wie die "
+"Versicherung."
 
 #: qml/SettingsPage.qml:18 qml/VehicleDrawer.qml:93
 msgid "Settings"
@@ -813,8 +854,12 @@ msgid "Currency:"
 msgstr "Währung:"
 
 #: qml/SettingsPage.qml:102
-msgid "Stored values are not converted; only the display changes. Electric vehicles always use kWh. The currency only changes the symbol."
-msgstr "Gespeicherte Werte werden nicht umgerechnet, nur die Anzeige ändert sich. Elektrofahrzeuge verwenden immer kWh. Die Währung ändert nur das Symbol."
+msgid ""
+"Stored values are not converted; only the display changes. Electric vehicles "
+"always use kWh. The currency only changes the symbol."
+msgstr ""
+"Gespeicherte Werte werden nicht umgerechnet, nur die Anzeige ändert sich. "
+"Elektrofahrzeuge verwenden immer kWh. Die Währung ändert nur das Symbol."
 
 #: qml/SettingsPage.qml:110
 msgid "Garage File"
@@ -837,16 +882,24 @@ msgid "Save Garage As…"
 msgstr "Garage speichern unter …"
 
 #: qml/SettingsPage.qml:142
-msgid "A garage is one file plus its “attachments” folder next to it. “Save As” copies both and continues in the copy."
-msgstr "Eine Garage ist eine Datei plus der Ordner „attachments“ daneben. „Speichern unter“ kopiert beides und arbeitet in der Kopie weiter."
+msgid ""
+"A garage is one file plus its “attachments” folder next to it. “Save As” "
+"copies both and continues in the copy."
+msgstr ""
+"Eine Garage ist eine Datei plus der Ordner „attachments“ daneben. „Speichern "
+"unter“ kopiert beides und arbeitet in der Kopie weiter."
 
 #: qml/StatsTab.qml:25
 msgid "No statistics yet"
 msgstr "Noch keine Statistik"
 
 #: qml/StatsTab.qml:26
-msgid "Costs, consumption and charts appear here once you add fuel or service entries."
-msgstr "Kosten, Verbrauch und Diagramme erscheinen hier, sobald du Tank- oder Serviceeinträge erfasst."
+msgid ""
+"Costs, consumption and charts appear here once you add fuel or service "
+"entries."
+msgstr ""
+"Kosten, Verbrauch und Diagramme erscheinen hier, sobald du Tank- oder "
+"Serviceeinträge erfasst."
 
 #: qml/StatsTab.qml:60
 msgid "This Year"
@@ -1050,8 +1103,12 @@ msgid "Licence plate:"
 msgstr "Kennzeichen:"
 
 #: qml/VehiclePage.qml:87
-msgid "This vehicle is archived. It is hidden from the vehicle list, its entries are kept."
-msgstr "Dieses Fahrzeug ist archiviert. Es ist in der Fahrzeugliste ausgeblendet, seine Einträge bleiben erhalten."
+msgid ""
+"This vehicle is archived. It is hidden from the vehicle list, its entries "
+"are kept."
+msgstr ""
+"Dieses Fahrzeug ist archiviert. Es ist in der Fahrzeugliste ausgeblendet, "
+"seine Einträge bleiben erhalten."
 
 #: qml/VehiclePage.qml:131
 msgid "Odometer: %1"
