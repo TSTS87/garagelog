@@ -49,3 +49,7 @@ add_test(NAME test_vehiclelistmodel COMMAND test_vehiclelistmodel)
 add_executable(test_fuellistmodel test_fuellistmodel.cpp)
 target_link_libraries(test_fuellistmodel PRIVATE garagelog_applib Qt6::Test)
 add_test(NAME test_fuellistmodel COMMAND test_fuellistmodel)
+
+add_executable(test_servicelistmodel test_servicelistmodel.cpp)
+target_link_libraries(test_servicelistmodel PRIVATE garagelog_applib Qt6::Test)
+add_test(NAME test_servicelistmodel COMMAND test_servicelistmodel)

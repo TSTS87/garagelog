@@ -17,6 +17,7 @@
 #include "database.h"
 #include "format.h"
 #include "fuellistmodel.h"
+#include "servicelistmodel.h"
 #include "vehiclelistmodel.h"
 #include "version.h"
 
@@ -42,19 +43,23 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Both live on main()'s stack, after the database and before the engine,
+    // The models live on main()'s stack, after the database and before the engine,
     // so QML never sees them destroyed.
     garagelog::app::VehicleListModel vehicles(database);
     garagelog::app::FuelListModel fuelEntries(database);
+    garagelog::app::ServiceListModel serviceEntries(database);
     garagelog::app::Format format;
     // A saved fuel entry can raise the odometer shown in the drawer and the
     // page header; an edited vehicle can switch the fuel unit (l <-> kWh).
     QObject::connect(&fuelEntries, &garagelog::app::FuelListModel::entriesChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
     QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &fuelEntries, &garagelog::app::FuelListModel::reload);
+    // Service entries can carry an odometer reading as well.
+    QObject::connect(&serviceEntries, &garagelog::app::ServiceListModel::entriesChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
     // Singleton instances: QML uses them as Vehicles.xxx / Format.xxx after
     // "import org.tmx.garagelog", without creating its own copies.
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Vehicles", &vehicles);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "FuelEntries", &fuelEntries);
+    qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "ServiceEntries", &serviceEntries);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Format", &format);
 
     QQmlApplicationEngine engine;

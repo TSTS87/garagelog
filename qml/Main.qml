@@ -1,6 +1,6 @@
 // Root QML file of GarageLog (role: qml, pure UI).
 // Main window with the vehicle drawer and the page stack. Owns navigation:
-// which vehicle page is shown and when the vehicle or fuel form opens (SPEC §6).
+// which vehicle page is shown and when the vehicle, fuel or service form opens (SPEC §6).
 
 import QtQuick
 import org.kde.kirigami as Kirigami
@@ -51,6 +51,11 @@ Kirigami.ApplicationWindow {
         pushForm(fuelFormComponent, { entryId: entryId });
     }
 
+    /** Opens the service form for an entry of the shown vehicle; entryId "" = new entry. */
+    function openServiceForm(entryId) {
+        pushForm(serviceFormComponent, { entryId: entryId });
+    }
+
     function pushForm(component, properties) {
         // At most one form at a time: drop an already open one first.
         while (pageStack.depth > 1) {
@@ -66,6 +71,16 @@ Kirigami.ApplicationWindow {
         VehiclePage {
             onEditRequested: root.openForm(vehicleId)
             onFuelFormRequested: entryId => root.openFuelForm(entryId)
+            onServiceFormRequested: entryId => root.openServiceForm(entryId)
+        }
+    }
+
+    Component {
+        id: serviceFormComponent
+        ServiceFormPage {
+            onSaved: root.pageStack.pop()
+            onRemoved: root.pageStack.pop()
+            onCanceled: root.pageStack.pop()
         }
     }
 

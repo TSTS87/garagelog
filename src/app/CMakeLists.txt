@@ -9,11 +9,14 @@ add_library(garagelog_applib STATIC
     format.h
     fuellistmodel.cpp
     fuellistmodel.h
+    servicelistmodel.cpp
+    servicelistmodel.h
     vehiclelistmodel.cpp
     vehiclelistmodel.h
 )
 target_include_directories(garagelog_applib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(garagelog_applib PUBLIC garagelog_core Qt6::Core)
+# KI18n (no GUI) translates the keys of built-in service categories.
+target_link_libraries(garagelog_applib PUBLIC garagelog_core Qt6::Core KF6::I18n)
 
 add_executable(garagelog
     main.cpp
@@ -28,6 +31,8 @@ qt_add_resources(garagelog "qml"
         ${PROJECT_SOURCE_DIR}/qml/FuelFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelTab.qml
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
+        ${PROJECT_SOURCE_DIR}/qml/ServiceFormPage.qml
+        ${PROJECT_SOURCE_DIR}/qml/ServiceTab.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleDrawer.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/VehiclePage.qml

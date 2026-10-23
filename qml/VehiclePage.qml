@@ -1,7 +1,7 @@
 // Page of one vehicle (role: qml, pure UI).
 // Header with icon, name, details and current odometer, below it the tabs
-// fuel | service | intervals | statistics (SPEC §6). Only fuel has content
-// so far; the others are filled in later milestones.
+// fuel | service | intervals | statistics (SPEC §6). Fuel and service have
+// content so far; the others are filled in later milestones.
 
 import QtQuick
 import QtQuick.Controls as Controls
@@ -21,6 +21,8 @@ Kirigami.Page {
     signal editRequested()
     /** Fuel form for an entry; entryId "" = new entry. */
     signal fuelFormRequested(string entryId)
+    /** Service form for an entry; entryId "" = new entry. */
+    signal serviceFormRequested(string entryId)
 
     function reload() {
         vehicle = Vehicles.get(vehicleId);
@@ -30,11 +32,12 @@ Kirigami.Page {
 
     actions: [
         Kirigami.Action {
-            text: i18n("Add Entry")
+            // One "add" button whose meaning follows the visible tab.
+            text: tabBar.currentIndex === 1 ? i18n("Add Service") : i18n("Add Entry")
             icon.name: "list-add"
-            visible: tabBar.currentIndex === 0
+            visible: tabBar.currentIndex <= 1
             shortcut: StandardKey.New
-            onTriggered: page.fuelFormRequested("")
+            onTriggered: tabBar.currentIndex === 1 ? page.serviceFormRequested("") : page.fuelFormRequested("")
         },
         Kirigami.Action {
             text: i18n("Edit Vehicle")
@@ -43,11 +46,12 @@ Kirigami.Page {
         }
     ]
 
-    // FuelEntries is a singleton shared by all pages; only one vehicle page
-    // exists at a time, so this page points it at its vehicle.
+    // FuelEntries/ServiceEntries are singletons shared by all pages; only one
+    // vehicle page exists at a time, so this page points them at its vehicle.
     onVehicleIdChanged: {
         reload();
         FuelEntries.vehicleId = vehicleId;
+        ServiceEntries.vehicleId = vehicleId;
     }
 
     // Connections listens to signals of an object defined elsewhere, here the
@@ -147,11 +151,15 @@ Kirigami.Page {
                 onFormRequested: entryId => page.fuelFormRequested(entryId)
             }
 
-            // Empty until their milestones (service M08, intervals M10, statistics M12).
+            ServiceTab {
+                onFormRequested: entryId => page.serviceFormRequested(entryId)
+            }
+
+            // Empty until their milestones (intervals M10, statistics M12).
             // The Item wrapper gets the full tab size from the StackLayout, so the
             // message can be centred inside it.
             Repeater {
-                model: 3
+                model: 2
                 Item {
                     Kirigami.PlaceholderMessage {
                         anchors.centerIn: parent
