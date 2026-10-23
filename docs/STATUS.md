@@ -10,12 +10,12 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M17 – Flatpak & CI
+M18 – Release 1.0
 
 ## Zustand
-- Letzter Commit: `140a854` feat: complete AppStream and desktop metadata with screenshots (+ docs)
+- Letzter Commit: `2bf0132` ci: run the tests as an unprivileged user (+ docs)
 - Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (26/26, inkl. desktop-file-validate, appstreamcli, msgfmt)
-- App startet: ja (offscreen, erstes Bild nach ~400 ms). Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04–M16), ebenso native FileDialog/FolderDialog
+- App startet: ja (offscreen ~400 ms; Flatpak `io.github.TSTS87.GarageLog` lokal gebaut/installiert, erstes Bild 357 ms). CI (GitHub Actions: Arch-Container + Flatpak) grün. Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04–M16), ebenso native FileDialog/FolderDialog (auch über das Portal im Flatpak)
 - Testgarage für Thomas (bleibt bestehen): `~/GarageLog-Testgarage/garage.sqlite` – 10.000 Tank-, 389 Serviceeinträge, 3 Intervalle; öffnen über Einstellungen → Garage öffnen
 
 ## Offene Punkte im aktuellen Meilenstein
@@ -34,7 +34,7 @@ M17 – Flatpak & CI
 ## Bekannte Probleme
 - Kirigami-intern: „Created graphical object was not placed in the graphics scene" bei jedem `pageStack.push(Component)`; Binding-Loop in `InlineMessage` bei schmalem Fenster
 - Offscreen fehlen Icons und KDE-Style; KQuickCharts zeichnet nur mit `QT_QUICK_BACKEND=rhi QSG_RHI_BACKEND=opengl` (Software-Backend lässt Linie weg, Vulkan stürzt offscreen ab)
-- Flatpak (M17): Garage außerhalb von `~/.local/share` braucht Dateisystem-Rechte – das Dokumentportal gibt nur Einzeldateien frei, `attachments/` daneben wäre unerreichbar
+- Flatpak: nur `~/Documents` freigegeben (ADR-014) – Garagen woanders sind ohne Flatseal-Freigabe nicht mit Anhängen nutzbar
 - `origin/main` = GitHub, Auth über `gh` (Konto TSTS87); `git push origin main` erlaubt, Force-Push gesperrt
 
 ## Hinweise für die nächste Session
@@ -43,6 +43,7 @@ M17 – Flatpak & CI
 - Core-Klassen: Repositories (Vehicle, Fuel, Service, Category, Interval, Settings), `AttachmentStore`, `Odometer`, `FuelStats`, `DueCalculator`, `StatsService`, `JsonExporter/Importer`, `CsvExporter`, `CsvFuelImporter`. Alle halten `const Database&` und holen die Verbindung pro Aufruf; `Garage` öffnet die Datei in-place neu
 - Formulare nach ADR-008 (`ScrollablePage`, Signale `saved`/`canceled`, Navigation nur in Main.qml: `pushForm`, `showHome`, `showVehicle`, `showDue`, `showSettings`, `openCsvImport`). Tastatur (M15): Notizen als `NotesArea`, Auswahlfelder als `FormComboBox { onSubmitted: form.save() }`, `Keys.onReturnPressed` am FormLayout, Save `StandardKey.Save`, Cancel `"Escape"`
 - `Garage.fileState` ("ok"/"missing"/"readOnly") + Banner im Fenster-`header` (Kirigami verschiebt den Header um die Drawer-Breite, daher `x: -parent.x`). `Vehicles.archivedCount` für den Platzhalter
+- Flatpak lokal: `flatpak run org.flatpak.Builder --user --install --force-clean build-flatpak packaging/flatpak/io.github.TSTS87.GarageLog.yml` (State-Dir muss unter $HOME liegen, nicht /tmp). `timeout` beendet `flatpak run` nicht → `flatpak kill io.github.TSTS87.GarageLog`. CI testet als Nicht-root (root ignoriert Schreibschutz)
 - Testdaten: `build/bin/garagelog-gendata <datei.sqlite> [anzahl]` (tools/, ADR-012); Startzeit messen mit `QT_LOGGING_RULES="garagelog.startup.debug=true"`
 - QML ↔ C++: Daten als ISO-Text, nie JS Date; `QVariant::fromValue(nullptr)` = JS `null`; ComboBox-Index aus Options-Array berechnen; nach Modellwechsel Binding neu setzen (`CsvImportPage.ColumnPicker`). Eigene Property nie `header` nennen (kollidiert mit `Page.header`)
 - Übersetzung: `tools/extract-messages.sh` erneuert `po/garagelog.pot` und mergt in `po/*/garagelog.po`; danach Übersetzungen ergänzen (msgfmt-CTest prüft Syntax). Icon-PNGs: `tools/render-icons.sh`. ECM-`appstreamtest` prüft die *installierte* metainfo (install_manifest.txt) → nach Änderungen `cmake --install build --prefix <scratch>`
@@ -61,3 +62,4 @@ M17 – Flatpak & CI
 - M13 Export/Import (Core) `1fb7225` · M14 Export/Import & Einstellungen (UI) `3bf0fc1` – 2026-10-23
 - M15 Politur – 2026-10-23 – `57e3f58`
 - M16 Übersetzung & Metadaten – 2026-10-23 – `140a854`
+- M17 Flatpak & CI – 2026-10-24 – `2bf0132`
