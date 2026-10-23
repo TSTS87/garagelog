@@ -11,11 +11,15 @@
       "Bash(ls *)",
       "Bash(pacman -Q*)",
       "Bash(pkg-config *)",
-      "Bash(qmake6 *)"
+      "Bash(qmake6 *)",
+      "Bash(git push origin main)"
     ],
     "deny": [
       "Bash(sudo *)",
-      "Bash(git push*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
       "Bash(rm -rf *)"
     ]
   }

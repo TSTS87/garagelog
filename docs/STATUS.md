@@ -25,8 +25,7 @@ M04 – Fahrzeuge (UI)
 - M03: `VehicleRepository::remove()` zusätzlich zur Roadmap-Liste, weil der Test „Löschen mit Einträgen schlägt fehl" eine Löschfunktion braucht
 
 ## Bekannte Probleme
-- `git push` ist in `.claude/settings.json` unter `deny` gesperrt, CLAUDE.md verlangt aber Push nach jedem Meilenstein → Thomas muss den Eintrag entfernen, sonst pusht er selbst
-- `origin/main` ist auf Stand `820f158` (erster Push mit `--force` durch Thomas, 2026-10-23); GitHub-Auth läuft über `gh` (`gh auth setup-git`, Konto TSTS87)
+- `origin/main` ist auf Stand `820f158` (erster Push mit `--force` durch Thomas, 2026-10-23); GitHub-Auth läuft über `gh` (`gh auth setup-git`, Konto TSTS87); Claude darf `git push origin main` ohne Rückfrage, Force-Push ist in `.claude/settings.json` gesperrt
 
 ## Hinweise für die nächste Session
 - Core-API für M04: `VehicleRepository(const Database&)` (create/update/byId/all(includeArchived)/archive/unarchive/remove, Fehler via `errorString()`), `Odometer(const Database&).current(id)` in Metern; Enums `VehicleType`/`Powertrain` mit `toDbString()`/`…FromDb()` in vehicle.h
