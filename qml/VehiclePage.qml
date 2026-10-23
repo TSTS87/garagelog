@@ -1,6 +1,7 @@
 // Page of one vehicle (role: qml, pure UI).
-// M04: header with icon, name, details and current odometer. The tabs
-// (fuel | service | intervals | statistics) follow in M06.
+// Header with icon, name, details and current odometer, below it the tabs
+// fuel | service | intervals | statistics (SPEC §6). Only fuel has content
+// so far; the others are filled in later milestones.
 
 import QtQuick
 import QtQuick.Controls as Controls
@@ -18,6 +19,8 @@ Kirigami.Page {
     property var vehicle: ({})
 
     signal editRequested()
+    /** Fuel form for an entry; entryId "" = new entry. */
+    signal fuelFormRequested(string entryId)
 
     function reload() {
         vehicle = Vehicles.get(vehicleId);
@@ -27,13 +30,25 @@ Kirigami.Page {
 
     actions: [
         Kirigami.Action {
-            text: i18n("Edit")
+            text: i18n("Add Entry")
+            icon.name: "list-add"
+            visible: tabBar.currentIndex === 0
+            shortcut: StandardKey.New
+            onTriggered: page.fuelFormRequested("")
+        },
+        Kirigami.Action {
+            text: i18n("Edit Vehicle")
             icon.name: "document-edit"
             onTriggered: page.editRequested()
         }
     ]
 
-    onVehicleIdChanged: reload()
+    // FuelEntries is a singleton shared by all pages; only one vehicle page
+    // exists at a time, so this page points it at its vehicle.
+    onVehicleIdChanged: {
+        reload();
+        FuelEntries.vehicleId = vehicleId;
+    }
 
     // Connections listens to signals of an object defined elsewhere, here the
     // C++ model: any save/archive reloads it, and this page follows along.
@@ -103,9 +118,48 @@ Kirigami.Page {
             }
         }
 
-        // Pushes the header to the top until the tabs fill this space (M06).
-        Item {
+        // TabBar (Qt Quick Controls) only draws the tab buttons; the
+        // StackLayout below shows the child whose index matches currentIndex.
+        Controls.TabBar {
+            id: tabBar
+            Layout.fillWidth: true
+
+            Controls.TabButton {
+                text: i18n("Fuel")
+            }
+            Controls.TabButton {
+                text: i18n("Service")
+            }
+            Controls.TabButton {
+                text: i18n("Intervals")
+            }
+            Controls.TabButton {
+                text: i18n("Statistics")
+            }
+        }
+
+        StackLayout {
+            Layout.fillWidth: true
             Layout.fillHeight: true
+            currentIndex: tabBar.currentIndex
+
+            FuelTab {
+                onFormRequested: entryId => page.fuelFormRequested(entryId)
+            }
+
+            // Empty until their milestones (service M08, intervals M10, statistics M12).
+            // The Item wrapper gets the full tab size from the StackLayout, so the
+            // message can be centred inside it.
+            Repeater {
+                model: 3
+                Item {
+                    Kirigami.PlaceholderMessage {
+                        anchors.centerIn: parent
+                        width: parent.width - Kirigami.Units.gridUnit * 4
+                        text: i18n("Coming soon")
+                    }
+                }
+            }
         }
     }
 }

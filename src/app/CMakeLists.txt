@@ -25,6 +25,7 @@ qt_add_resources(garagelog "qml"
     PREFIX "/"
     BASE ${PROJECT_SOURCE_DIR}
     FILES
+        ${PROJECT_SOURCE_DIR}/qml/FuelTab.qml
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleDrawer.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleFormPage.qml
