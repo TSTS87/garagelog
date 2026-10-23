@@ -10,24 +10,25 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M15 – Politur
+M16 – Übersetzung & Metadaten
 
 ## Zustand
-- Letzter Commit: `3bf0fc1` feat: add settings page, unit conversion, garage files and data menu (+ docs)
-- Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (22/22)
-- App startet: ja (offscreen, Screenshots aller Seiten bis M14). Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04–M14), ebenso native FileDialog/FolderDialog
+- Letzter Commit: `57e3f58` feat: warn when the garage file is deleted or write-protected (+ docs)
+- Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (23/23)
+- App startet: ja (offscreen; mit 10.000 Einträgen erstes Bild nach ~300 ms). Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04–M15), ebenso native FileDialog/FolderDialog
+- Testgarage für Thomas (bleibt bestehen): `~/GarageLog-Testgarage/garage.sqlite` – 10.000 Tank-, 389 Serviceeinträge, 3 Intervalle; öffnen über Einstellungen → Garage öffnen
 
 ## Offene Punkte im aktuellen Meilenstein
 - alle (noch nicht begonnen)
 
 ## Verschoben / Abweichungen vom Plan
-- Breeze hat nur `car`-Icon → alle Fahrzeugtypen zeigen `car` (`VehicleListModel::iconForType()`); eigene Icons frühestens M15 (Thomas fragen)
-- Datumseingabe als Textfeld (Locale-Kurzformat oder ISO), kein Datepicker ohne kirigami-addons – ggf. M15 mit ADR
+- Breeze hat nur `car`-Icon → alle Fahrzeugtypen zeigen `car` (`VehicleListModel::iconForType()`); eigene Icons nicht in ROADMAP M15 – weiter offen, Thomas entscheidet
+- Datumseingabe als Textfeld (Locale-Kurzformat oder ISO), kein Datepicker ohne kirigami-addons – weiter offen, bräuchte ADR
 - Präzisierte Regeln in DATA_MODEL.md: Verbrauch (M05), Fälligkeit (M09), Distanz/Kosten pro Monat/Durchschnittsverbrauch (M11)
 - M12: Kategorie-Balken als Rectangles, nur die Verbrauchslinie nutzt KQuickCharts (ADR-009). Zeiträume enden immer „heute“
 - M13/M14: JSON-Import nur in Garage ohne Fahrzeuge (ADR-010); CSV-Export in DB-Einheiten; CSV-Tankimport erwartet km/l/kWh unabhängig von den Einstellungen; Fuelio-Beispiel in `tests/data/` ist handgeschrieben
 - M14: Einheiten mi + l zeigen Verbrauch weiter in l/100 km (mpg nur mit Gallonen); Währung ändert nur das Symbol
-- M14: Auswertungs-Tab in schmaler Spalte (Formular daneben) schneidet die Zeitraum-Zeile rechts ab → M15
+- M15: Enter auf nicht-editierbarer ComboBox speichert nur über `FormComboBox`; schreibgeschützte Datei erst *nach* dem Öffnen: bestehende Verbindung schreibt weiter, Banner warnt trotzdem (ADR-011)
 
 ## Bekannte Probleme
 - Kirigami-intern: „Created graphical object was not placed in the graphics scene" bei jedem `pageStack.push(Component)`; Binding-Loop in `InlineMessage` bei schmalem Fenster
@@ -39,7 +40,9 @@ M15 – Politur
 - QML-Singletons (`import org.tmx.garagelog`, alle in main.cpp registriert): `Vehicles`, `FuelEntries`, `ServiceEntries`, `Intervals`, `DueIntervals`, `Stats`, `Format`, `Garage`, `DataTransfer`. Reload-Kette: jede Datenänderung → `Vehicles.reload` → `reloaded` → Fuel/Intervals/Due/Stats; `ServiceEntries` wird bei Garage-/Einheitenwechsel und Import direkt neu geladen
 - Format rechnet Einheiten um (`distanceLabel`, `volumeLabel`, `currencySymbol` als NOTIFY-Properties für Formular-Labels); `quantityInput/parseQuantity/unitPriceInput/parseUnitPrice` brauchen das `electric`-Flag. Neue Anzeige von Distanz/Menge/Geld immer über Format
 - Core-Klassen: Repositories (Vehicle, Fuel, Service, Category, Interval, Settings), `AttachmentStore`, `Odometer`, `FuelStats`, `DueCalculator`, `StatsService`, `JsonExporter/Importer`, `CsvExporter`, `CsvFuelImporter`. Alle halten `const Database&` und holen die Verbindung pro Aufruf; `Garage` öffnet die Datei in-place neu
-- Formulare nach ADR-008 (`ScrollablePage`, Signale `saved`/`canceled`, Navigation nur in Main.qml: `pushForm`, `showHome`, `showVehicle`, `showDue`, `showSettings`, `openCsvImport`)
+- Formulare nach ADR-008 (`ScrollablePage`, Signale `saved`/`canceled`, Navigation nur in Main.qml: `pushForm`, `showHome`, `showVehicle`, `showDue`, `showSettings`, `openCsvImport`). Tastatur (M15): Notizen als `NotesArea`, Auswahlfelder als `FormComboBox { onSubmitted: form.save() }`, `Keys.onReturnPressed` am FormLayout, Save `StandardKey.Save`, Cancel `"Escape"`
+- `Garage.fileState` ("ok"/"missing"/"readOnly") + Banner im Fenster-`header` (Kirigami verschiebt den Header um die Drawer-Breite, daher `x: -parent.x`). `Vehicles.archivedCount` für den Platzhalter
+- Testdaten: `build/bin/garagelog-gendata <datei.sqlite> [anzahl]` (tools/, ADR-012); Startzeit messen mit `QT_LOGGING_RULES="garagelog.startup.debug=true"`
 - QML ↔ C++: Daten als ISO-Text, nie JS Date; `QVariant::fromValue(nullptr)` = JS `null`; ComboBox-Index aus Options-Array berechnen; nach Modellwechsel Binding neu setzen (`CsvImportPage.ColumnPicker`). Eigene Property nie `header` nennen (kollidiert mit `Page.header`)
 - `dueStatusName()` statt `toString()` (kollidiert mit QTest). applib definiert `TRANSLATION_DOMAIN="garagelog"`
 - **Testen:** `QT_FORCE_STDERR_LOGGING=1` (sonst Logs im Journal), eigene Garage per `XDG_DATA_HOME=<scratch>/xdgN XDG_CONFIG_HOME=<scratch>/cfgN` (sonst wird `~/.config/garagelogrc` überschrieben); `rm -rf` ist gesperrt
@@ -51,9 +54,6 @@ M15 – Politur
 - M01 Projektgerüst `1471f96` · M02 Datenbank & Migration `196f452` · M03 Fahrzeuge (Core) `8a035e5` · M04 Fahrzeuge (UI) `1137dde` – alle 2026-10-23
 - M05 Tankeinträge (Core) `68e0da8` · M06 Tankeinträge (UI) `cdcaecc` – 2026-10-23
 - M07 Service (Core) `4cbeb67` · M08 Service (UI) `c70a9dc` – 2026-10-23
-- M09 Intervalle & Fälligkeit (Core) – 2026-10-23 – `47a0d50`
-- M10 Intervalle & Fälligkeit (UI) – 2026-10-23 – `2e119f6`
-- M11 Auswertung (Core) – 2026-10-23 – `6de335f`
-- M12 Auswertung (UI) – 2026-10-23 – `38b660a`
-- M13 Export/Import (Core) – 2026-10-23 – `1fb7225`
-- M14 Export/Import & Einstellungen (UI) – 2026-10-23 – `3bf0fc1`
+- M09 Intervalle & Fälligkeit (Core) `47a0d50` · M10 (UI) `2e119f6` · M11 Auswertung (Core) `6de335f` · M12 (UI) `38b660a` – 2026-10-23
+- M13 Export/Import (Core) `1fb7225` · M14 Export/Import & Einstellungen (UI) `3bf0fc1` – 2026-10-23
+- M15 Politur – 2026-10-23 – `57e3f58`
