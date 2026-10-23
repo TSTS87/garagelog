@@ -50,8 +50,7 @@ M15 – Politur
 ## Historie (eine Zeile pro abgeschlossenem Meilenstein)
 - M01 Projektgerüst `1471f96` · M02 Datenbank & Migration `196f452` · M03 Fahrzeuge (Core) `8a035e5` · M04 Fahrzeuge (UI) `1137dde` – alle 2026-10-23
 - M05 Tankeinträge (Core) `68e0da8` · M06 Tankeinträge (UI) `cdcaecc` – 2026-10-23
-- M07 Service (Core) – 2026-10-23 – `4cbeb67`
-- M08 Service (UI) – 2026-10-23 – `c70a9dc`
+- M07 Service (Core) `4cbeb67` · M08 Service (UI) `c70a9dc` – 2026-10-23
 - M09 Intervalle & Fälligkeit (Core) – 2026-10-23 – `47a0d50`
 - M10 Intervalle & Fälligkeit (UI) – 2026-10-23 – `2e119f6`
 - M11 Auswertung (Core) – 2026-10-23 – `6de335f`
