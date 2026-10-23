@@ -1,0 +1,1 @@
+Lies CLAUDE.md und docs/STATUS.md. Bestätige in 2 Sätzen: aktueller Meilenstein und erster offener Punkt. Prüfe mit `git status` und `git log --oneline -5`, dass STATUS.md zum Repo passt – bei Widerspruch anhalten und fragen. Dann arbeite nach CLAUDE.md → „Ablauf einer Session".

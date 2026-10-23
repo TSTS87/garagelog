@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake *)",
+      "Bash(ctest *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(ls *)",
+      "Bash(pacman -Q*)",
+      "Bash(pkg-config *)",
+      "Bash(qmake6 *)"
+    ],
+    "deny": [
+      "Bash(sudo *)",
+      "Bash(git push*)",
+      "Bash(rm -rf *)"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+# Flatpak-Manifest – App-ID vor Flathub-Einreichung ggf. auf io.github.<user>.GarageLog ändern
+# (Flathub verlangt Kontrolle über die Domain; io.github.* ist ohne eigene Domain zulässig).
+id: org.tmx.GarageLog
+runtime: org.kde.Platform
+runtime-version: '6.9'
+sdk: org.kde.Sdk
+command: garagelog
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  - --filesystem=xdg-documents   # Garage-Datei und Anhänge außerhalb des Sandbox-Datenordners
+  # Kein --share=network in Phase 1 (Spec §3)
+modules:
+  - name: garagelog
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+    sources:
+      - type: dir
+        path: ../..

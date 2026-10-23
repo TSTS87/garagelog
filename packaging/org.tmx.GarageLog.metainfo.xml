@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.tmx.GarageLog</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>GarageLog</name>
+  <summary>Fuel, maintenance and cost tracking for your vehicles</summary>
+  <summary xml:lang="de">Tanken, Wartung und Kosten für deine Fahrzeuge</summary>
+  <description>
+    <p>GarageLog keeps a local, private logbook for your cars, motorcycles and scooters: fuel-ups with consumption, service history with attachments, maintenance intervals with due reminders, and cost statistics. No account, no cloud, one SQLite file you own.</p>
+  </description>
+  <launchable type="desktop-id">org.tmx.GarageLog.desktop</launchable>
+  <content_rating type="oars-1.1"/>
+  <!-- TODO M8: screenshots, url (homepage, bugtracker, donation), releases, developer -->
+</component>
