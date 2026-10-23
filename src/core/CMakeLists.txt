@@ -3,6 +3,10 @@
 # without a display and without QtQuick/Kirigami.
 
 add_library(garagelog_core STATIC
+    attachmentstore.cpp
+    attachmentstore.h
+    categoryrepository.cpp
+    categoryrepository.h
     database.cpp
     database.h
     dbvalues.cpp
@@ -19,6 +23,10 @@ add_library(garagelog_core STATIC
     migrationrunner.h
     odometer.cpp
     odometer.h
+    serviceentry.cpp
+    serviceentry.h
+    servicerepository.cpp
+    servicerepository.h
     vehicle.cpp
     vehicle.h
     vehiclerepository.cpp
