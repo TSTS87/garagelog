@@ -10,69 +10,46 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M14 – Export/Import & Einstellungen (UI)
+M15 – Politur
 
 ## Zustand
-- Letzter Commit: `1fb7225` feat: add JSON export/import, CSV export and CSV fuel import to core (+ docs)
-- Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4, keine Warnungen)
-- Tests grün: ja (21/21, zuletzt neu: `test_jsonexport`, `test_csvfuelimporter`)
-- App startet: ja (offscreen; Auswertungs-Tab per Screenshot geprüft). Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04, M06, M08, M10, M12) sowie der native FileDialog
+- Letzter Commit: `3bf0fc1` feat: add settings page, unit conversion, garage files and data menu (+ docs)
+- Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (22/22)
+- App startet: ja (offscreen, Screenshots aller Seiten bis M14). Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04–M14), ebenso native FileDialog/FolderDialog
 
 ## Offene Punkte im aktuellen Meilenstein
 - alle (noch nicht begonnen)
 
 ## Verschoben / Abweichungen vom Plan
-- M04: Breeze hat nur ein `car`-Icon, keins für Motorrad/Roller/E-Bike → alle Typen zeigen vorerst `car`; Zuordnung zentral in `VehicleListModel::iconForType()`. Eigene Icons frühestens M15 (Thomas fragen)
-- M04: zusätzlich `Odometer::offsetFor()` (Core, getestet) für die manuelle Tachokorrektur im Formular
-- M05: Verbrauchsformel mit Thomas präzisiert (DATA_MODEL.md): Teiltanks seit letztem Volltank zählen mit (Menge + Kosten); Tacho rückwärts → kein Wert, Eintrag wird neue Basis
-- M05: zusätzlich `core/dbvalues.h` (gemeinsame Datum/Zeit/NULL-Helfer, namespace `core::db`, neue Konvertierungen nur dort) und `quantityUnitFor(Powertrain)` in fuelentry.h
-- M06: zusätzlich Löschen von Tankeinträgen (Formular-Aktion mit `Kirigami.PromptDialog`); Plausibilität warnt auch bei Duplikat (gleiches Datum + Tacho, DATA_MODEL Invariante 1)
-- M13: JSON-Import nur in eine Garage ohne Fahrzeuge (kein Zusammenführen); Export-Ordner = `garagelog.json` + `attachments/`. CSV-Export in DB-Einheiten (Spaltennamen wie in der DB). Fuelio-Beispieldatei ist handgeschrieben im Fuelio-Layout, keine echte Exportdatei
-- M12: Kategorie-Balken als einfache Rectangles statt KQuickCharts-BarChart (Beschriftung je Zeile lesbarer), nur die Verbrauchslinie nutzt KQuickCharts. Zeiträume enden immer „heute“ (Jahr = 1.1. bis heute)
-- M11: ADR-009 – Diagramme mit KQuickCharts (in Runtime 6.11 geprüft, lokal installiert); zusätzlich `StatsService::distance()` und `averageConsumption()`; Definitionen in DATA_MODEL.md ergänzt
-- M10: Fällig-Seite zeigt nur aktive Intervalle nicht archivierter Fahrzeuge; Drawer-Eintrag „Due (n overdue)“. Intervall-Formular ohne „Neue Kategorie…“ (Kategorien legt man im Service-Formular an)
-- M09: Fälligkeitsregeln präzisiert und in DATA_MODEL.md ergänzt (Fälligkeitstag = overdue, Service ohne Tacho → nur Zeitteil, Zukunftseinträge zählen nicht); zusätzlich `IntervalRepository::allActive()` (ohne archivierte Fahrzeuge) und `DueCalculator::moreUrgent()` für die Sortierung
-- M08: Anhänge eines neuen Eintrags werden erst beim Speichern kopiert (`newAttachments` in `ServiceEntries.save`); bestehende Anhänge werden sofort (mit Rückfrage) gelöscht. `garagelog_applib` linkt jetzt KF6::I18n (Übersetzung der Builtin-Kategorien in `ServiceListModel::categoryLabel`)
-- M07: zusätzlich `CategoryRepository::byName()`, `AttachmentStore::entriesWithAttachments()` (für das Büroklammer-Icon M08); Kategorie in Benutzung → Löschen verweigert mit Klartext
-- M06: Währung fest € und Datumseingabe als Textfeld (Locale-Kurzformat mit 4-stelligem Jahr oder ISO), da kein Datepicker ohne neue Abhängigkeit (kirigami-addons) – ggf. M15 mit ADR
+- Breeze hat nur `car`-Icon → alle Fahrzeugtypen zeigen `car` (`VehicleListModel::iconForType()`); eigene Icons frühestens M15 (Thomas fragen)
+- Datumseingabe als Textfeld (Locale-Kurzformat oder ISO), kein Datepicker ohne kirigami-addons – ggf. M15 mit ADR
+- Präzisierte Regeln in DATA_MODEL.md: Verbrauch (M05), Fälligkeit (M09), Distanz/Kosten pro Monat/Durchschnittsverbrauch (M11)
+- M12: Kategorie-Balken als Rectangles, nur die Verbrauchslinie nutzt KQuickCharts (ADR-009). Zeiträume enden immer „heute“
+- M13/M14: JSON-Import nur in Garage ohne Fahrzeuge (ADR-010); CSV-Export in DB-Einheiten; CSV-Tankimport erwartet km/l/kWh unabhängig von den Einstellungen; Fuelio-Beispiel in `tests/data/` ist handgeschrieben
+- M14: Einheiten mi + l zeigen Verbrauch weiter in l/100 km (mpg nur mit Gallonen); Währung ändert nur das Symbol
+- M14: Auswertungs-Tab in schmaler Spalte (Formular daneben) schneidet die Zeitraum-Zeile rechts ab → M15
 
 ## Bekannte Probleme
-- Kirigami-intern, nicht unser Code: „Created graphical object was not placed in the graphics scene" bei jedem `pageStack.push(Component)`; Binding-Loop in `InlineMessage` bei schmalem Fenster mit Aktion
-- Offscreen fehlen Icons und der KDE-Style (Schriftgrößen in der Drawer-Liste wirkten vertauscht) – am echten Desktop prüfen
-- `origin/main` = GitHub, Auth über `gh` (Konto TSTS87); Claude darf `git push origin main`, Force-Push ist in `.claude/settings.json` gesperrt
+- Kirigami-intern: „Created graphical object was not placed in the graphics scene" bei jedem `pageStack.push(Component)`; Binding-Loop in `InlineMessage` bei schmalem Fenster
+- Offscreen fehlen Icons und KDE-Style; KQuickCharts zeichnet nur mit `QT_QUICK_BACKEND=rhi QSG_RHI_BACKEND=opengl` (Software-Backend lässt Linie weg, Vulkan stürzt offscreen ab)
+- Flatpak (M17): Garage außerhalb von `~/.local/share` braucht Dateisystem-Rechte – das Dokumentportal gibt nur Einzeldateien frei, `attachments/` daneben wäre unerreichbar
+- `origin/main` = GitHub, Auth über `gh` (Konto TSTS87); `git push origin main` erlaubt, Force-Push gesperrt
 
 ## Hinweise für die nächste Session
-- App-Schicht `garagelog_applib` (ohne GUI testbar): QML-Singletons `Vehicles`, `FuelEntries`, `Format` (`import org.tmx.garagelog`), in main.cpp registriert; neue Models genauso
-- App-API (M12): `Stats` (`StatsModel`, Properties für Kacheln/Diagramm, `period` = "year"/"12months"/"all", lädt bei `Vehicles.reloaded`); `Format.moneyPerKm()`, `Format.number()`; applib definiert `TRANSLATION_DOMAIN="garagelog"`
-- App-API (M10): `Intervals` (pro Fahrzeug, Properties `worstStatus`, `nextDue`, `overdueCount`) und `DueIntervals` (alle Fahrzeuge), beide `IntervalListModel`, laden bei `Vehicles.reloaded` neu. `Format.dueSummary()`, `Format.parseCount()`, Komponente `StatusDot.qml`
-- App-API (M08): `ServiceEntries` (`ServiceListModel`, wie FuelEntries; `categories()`, `addCategory()`, `attachments(id)` mit file://-URL, `removeAttachment`). `entriesChanged` → `Vehicles.reload`. Intervall-Model (M10) genauso anbinden
-- App-API (M06): `FuelEntries` (`FuelListModel`, vehicleId wird von VehiclePage gesetzt, neueste zuerst, save/get/remove/plausibility/stationSuggestions). main.cpp verbindet `entriesChanged` → `Vehicles.reload` und `Vehicles.reloaded` → `FuelEntries.reload`. Service-Model (M08) genauso anbinden. Preis-Dreisatz in `core/fuelprice.h` (Einheitspreis in Tausendstel Währung pro l/kWh, nicht gespeichert)
-- VehiclePage hat Tabs (TabBar + StackLayout); Auswertung ist noch Platzhalter-Item – in M12 ersetzen. „Hinzufügen“-Aktion folgt dem Tab
-- KQuickCharts zeichnet per Shader: Offscreen nur mit `QT_QUICK_BACKEND=rhi QSG_RHI_BACKEND=opengl` sichtbar (Software-Backend lässt Linie weg; Vulkan stürzt offscreen ab)
-- Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` + `qrc_qml.cpp.o` + `qrc_migrations_init.cpp.o`, registriert die Singletons zusätzlich als Context-Properties (sonst sieht `QQmlExpression` sie nicht), führt JS-Schritte aus und macht `grabWindow()`; nicht im Repo
-- Core-API (M13): `JsonExporter::exportTo(dir)` / `JsonImporter::check(dir)`, `importFrom(dir)` (+ `warnings()`), `CsvExporter::exportAll(dir)`, `CsvFuelImporter` (`loadFile`, `suggestMapping`, `preview` = Dry-Run, `importInto(vehicleId, mapping)`), Tabellenliste `exportformat::tables`
-- Core-API (M11): `StatsService` mit `Period{from,to}` (inklusiv, ungültig = offen): `totalCost` (fuel/service/total in Cent), `distance`, `costPerKm` (Cent/km), `costPerMonth` (braucht gültiges `to` = heute), `costByCategory` (Treibstoff als `isFuel`), `consumptionSeries`, `averageConsumption` (ml bzw. Wh/100 km)
-- Core-API (M09): `IntervalRepository`, `DueCalculator::evaluate(interval, today)` (DB) bzw. statisch mit `LastService` + Tacho (rein, getestet) → `DueResult` {status, last/due Datum+Tacho, remainingM/-Days, remainingFraction}; `dueStatusName()` liefert "overdue"/"soon"/"ok"/"unknown" (nicht `toString` nennen – kollidiert mit QTest)
-- Core-API (M07): `ServiceRepository` (odometerM optional, `PerformedBy` Unknown/Self/Shop = NULL/'self'/'shop'; `remove()` löscht auch Anhang-Dateien), `CategoryRepository` (all(): Builtins in Seed-Reihenfolge, dann eigene nach Name; Builtin-`name` ist Übersetzungsschlüssel), `AttachmentStore` (Ordner = Verzeichnis der DB-Datei + `/attachments`, `filePath(a)` zum Öffnen)
-- Core-API (M05): `FuelRepository`, `FuelStats::consumption(entries)` (indexgleich zu byVehicle), `stationSuggestions`; Mengeneinheit `quantityUnitFor(powertrain)`. Seed-Kategorien: feste UUIDs in 0001, `name` = stabiler Schlüssel (z. B. `oil_change`)
-- **Qt-Logs landen ohne Terminal im Journal** → beim Testen immer `QT_FORCE_STDERR_LOGGING=1` setzen, sonst sieht man keine QML-Warnungen. Testgarage statt echter Datei: `XDG_DATA_HOME=<scratch>/xdgN ./build/bin/garagelog` (Ordner neu anlegen, `rm -rf` ist gesperrt)
-- Formulare nach ADR-008: eigene `ScrollablePage`, Signale `saved(id)`/`canceled()`, Navigation nur in Main.qml (`pushForm`, `openForm`, `openFuelForm`, `showVehicle`)
-- QML ↔ C++: Daten als ISO-Text (`Format.parseDate/date/today`), nie als JS Date; leeres `QVariant()` kommt als `undefined` an, `QVariant::fromValue(nullptr)` als `null`; ComboBox-Index aus dem Options-Array berechnen, nicht per `indexOfValue()` im Binding
-- UI-Texte englisch mit `i18n()` (KI18n eingerichtet, `KLocalizedQmlContext`); deutsche Übersetzung erst M16
-- Core-API (M03): `VehicleRepository`, `Odometer.current(id)` in Metern; Enums mit `toDbString()`/`…FromDb()` in vehicle.h. Structs: `QDateTime` UTC ganze Sekunden, leere QStrings = NULL
-- DB-Zugriff: `core::Database` besitzt die Verbindung; Repositories speichern `const Database&` und holen sie pro Aufruf über `connection()` → Database muss länger leben als Repo/Model. Foreign Keys sind an
-- `AppDataLocation` ergibt nur dann `~/.local/share/garagelog/`, wenn KEIN OrganizationName gesetzt ist (nur Domain gesetzt) – nicht ändern
-- Migrationen: `src/core/migrations/NNNN_*.sql`, zusätzlich in `qt_add_resources` in src/core/CMakeLists.txt eintragen. Der Runner setzt `schema_version` selbst (UPDATE nach jeder Datei); keine Trigger mit `;` im Body (Splitter kann das nicht). Neue QML-Dateien in `qt_add_resources` in src/app/CMakeLists.txt eintragen
-- `main.cpp` nutzt `QGuiApplication`; für den Plasma-Look (Style `org.kde.desktop`) wäre `QApplication` + Qt6::Widgets nötig → nur mit ADR entscheiden
-- App-ID im Manifest ist Platzhalter `org.tmx.GarageLog` – Thomas entscheidet (siehe Kommentar in `packaging/flatpak/*.yml`)
+- QML-Singletons (`import org.tmx.garagelog`, alle in main.cpp registriert): `Vehicles`, `FuelEntries`, `ServiceEntries`, `Intervals`, `DueIntervals`, `Stats`, `Format`, `Garage`, `DataTransfer`. Reload-Kette: jede Datenänderung → `Vehicles.reload` → `reloaded` → Fuel/Intervals/Due/Stats; `ServiceEntries` wird bei Garage-/Einheitenwechsel und Import direkt neu geladen
+- Format rechnet Einheiten um (`distanceLabel`, `volumeLabel`, `currencySymbol` als NOTIFY-Properties für Formular-Labels); `quantityInput/parseQuantity/unitPriceInput/parseUnitPrice` brauchen das `electric`-Flag. Neue Anzeige von Distanz/Menge/Geld immer über Format
+- Core-Klassen: Repositories (Vehicle, Fuel, Service, Category, Interval, Settings), `AttachmentStore`, `Odometer`, `FuelStats`, `DueCalculator`, `StatsService`, `JsonExporter/Importer`, `CsvExporter`, `CsvFuelImporter`. Alle halten `const Database&` und holen die Verbindung pro Aufruf; `Garage` öffnet die Datei in-place neu
+- Formulare nach ADR-008 (`ScrollablePage`, Signale `saved`/`canceled`, Navigation nur in Main.qml: `pushForm`, `showHome`, `showVehicle`, `showDue`, `showSettings`, `openCsvImport`)
+- QML ↔ C++: Daten als ISO-Text, nie JS Date; `QVariant::fromValue(nullptr)` = JS `null`; ComboBox-Index aus Options-Array berechnen; nach Modellwechsel Binding neu setzen (`CsvImportPage.ColumnPicker`). Eigene Property nie `header` nennen (kollidiert mit `Page.header`)
+- `dueStatusName()` statt `toString()` (kollidiert mit QTest). applib definiert `TRANSLATION_DOMAIN="garagelog"`
+- **Testen:** `QT_FORCE_STDERR_LOGGING=1` (sonst Logs im Journal), eigene Garage per `XDG_DATA_HOME=<scratch>/xdgN XDG_CONFIG_HOME=<scratch>/cfgN` (sonst wird `~/.config/garagelogrc` überschrieben); `rm -rf` ist gesperrt
+- Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` + `qrc_qml.cpp.o` + `qrc_migrations_init.cpp.o`, Singletons zusätzlich als Context-Properties, JS-Schritte per `QQmlExpression`, `grabWindow()`; nicht im Repo
+- Migrationen: `src/core/migrations/NNNN_*.sql` + Eintrag in src/core/CMakeLists.txt; keine Trigger mit `;`. Neue QML-Dateien in `qt_add_resources` (src/app/CMakeLists.txt)
+- `AppDataLocation` stimmt nur ohne OrganizationName – nicht ändern. `QGuiApplication` statt `QApplication` (Plasma-Style bräuchte Widgets + ADR). App-ID `org.tmx.GarageLog` ist Platzhalter – Thomas entscheidet
 
 ## Historie (eine Zeile pro abgeschlossenem Meilenstein)
-- M01 Projektgerüst – 2026-10-23 – `1471f96`
-- M02 Datenbank & Migration – 2026-10-23 – `196f452`
-- M03 Fahrzeuge (Core) – 2026-10-23 – `8a035e5`
-- M04 Fahrzeuge (UI) – 2026-10-23 – `1137dde`
-- M05 Tankeinträge (Core) – 2026-10-23 – `68e0da8`
-- M06 Tankeinträge (UI) – 2026-10-23 – `cdcaecc`
+- M01 Projektgerüst `1471f96` · M02 Datenbank & Migration `196f452` · M03 Fahrzeuge (Core) `8a035e5` · M04 Fahrzeuge (UI) `1137dde` – alle 2026-10-23
+- M05 Tankeinträge (Core) `68e0da8` · M06 Tankeinträge (UI) `cdcaecc` – 2026-10-23
 - M07 Service (Core) – 2026-10-23 – `4cbeb67`
 - M08 Service (UI) – 2026-10-23 – `c70a9dc`
 - M09 Intervalle & Fälligkeit (Core) – 2026-10-23 – `47a0d50`
@@ -80,3 +57,4 @@ M14 – Export/Import & Einstellungen (UI)
 - M11 Auswertung (Core) – 2026-10-23 – `6de335f`
 - M12 Auswertung (UI) – 2026-10-23 – `38b660a`
 - M13 Export/Import (Core) – 2026-10-23 – `1fb7225`
+- M14 Export/Import & Einstellungen (UI) – 2026-10-23 – `3bf0fc1`
