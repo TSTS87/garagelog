@@ -10,24 +10,29 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M03 – Fahrzeuge (Core)
+M04 – Fahrzeuge (UI)
 
 ## Zustand
-- Letzter Commit: `196f452` feat: open default garage database on startup
-- Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4)
-- Tests grün: ja (3/3: `appstreamtest`, `test_smoke`, `test_database` mit 10 Testfällen)
-- App startet: ja (offscreen 3 s ohne Fehler; legt `~/.local/share/garagelog/garage.sqlite` an, Version 1, 13 Kategorien)
+- Letzter Commit: `8a035e5` feat: derive current odometer from vehicle entries
+- Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4, keine Warnungen)
+- Tests grün: ja (5/5: `appstreamtest`, `test_smoke`, `test_database`, `test_vehiclerepository`, `test_odometer`)
+- App startet: ja (offscreen 3 s ohne Fehler)
 
 ## Offene Punkte im aktuellen Meilenstein
 - alle (noch nicht begonnen)
 
 ## Verschoben / Abweichungen vom Plan
-- keine
+- M03: `VehicleRepository::remove()` zusätzlich zur Roadmap-Liste, weil der Test „Löschen mit Einträgen schlägt fehl" eine Löschfunktion braucht
 
 ## Bekannte Probleme
-- `git push` ist in `.claude/settings.json` gesperrt → Thomas pusht selbst (VS Code „Synchronisieren" oder `git push`)
+- Noch nie nach GitHub gepusht: `origin/main` enthält nur den von GitHub erzeugten Commit `b29d6f1` (Einzeilen-README), ohne gemeinsame Historie mit lokal → erster Push braucht `--force` (Thomas muss zustimmen)
+- `git push` ist in `.claude/settings.json` unter `deny` gesperrt, CLAUDE.md verlangt aber Push nach jedem Meilenstein → Thomas muss den Eintrag entfernen, sonst pusht er selbst
+- GitHub-Auth läuft über `gh` (`gh auth setup-git`, Konto TSTS87)
 
 ## Hinweise für die nächste Session
+- Core-API für M04: `VehicleRepository(const Database&)` (create/update/byId/all(includeArchived)/archive/unarchive/remove, Fehler via `errorString()`), `Odometer(const Database&).current(id)` in Metern; Enums `VehicleType`/`Powertrain` mit `toDbString()`/`…FromDb()` in vehicle.h
+- Repositories speichern `const Database&` und holen die Verbindung pro Aufruf → Database muss länger leben als Repo/Model
+- Zeitstempel in Structs: `QDateTime` UTC, ganze Sekunden; leere QStrings = NULL in optionalen Textspalten
 - DB-Zugriff: `core::Database` (database.h) besitzt eine eindeutig benannte QSqlDatabase-Verbindung; Repositories holen sie über `connection()`. Foreign Keys sind an (geprüft)
 - `main.cpp` öffnet `Database::defaultFilePath()` vor der QML-Engine; bei Fehler `qCritical` + Exit 1 (noch kein Dialog)
 - `AppDataLocation` ergibt nur dann `~/.local/share/garagelog/`, wenn KEIN OrganizationName gesetzt ist (nur Domain gesetzt) – nicht ändern
@@ -40,3 +45,4 @@ M03 – Fahrzeuge (Core)
 ## Historie (eine Zeile pro abgeschlossenem Meilenstein)
 - M01 Projektgerüst – 2026-10-23 – `1471f96`
 - M02 Datenbank & Migration – 2026-10-23 – `196f452`
+- M03 Fahrzeuge (Core) – 2026-10-23 – `8a035e5`
