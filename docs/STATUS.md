@@ -10,13 +10,13 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M10 – Intervalle & Fälligkeit (UI)
+M11 – Auswertung (Core)
 
 ## Zustand
-- Letzter Commit: `47a0d50` feat: add maintenance intervals and due calculation to core (+ docs)
+- Letzter Commit: `2e119f6` feat: add intervals tab, due overview and status in the vehicle header (+ docs)
 - Build grün: ja (`cmake --build build`, Qt 6.12, KF 6.31, cmake 4.4, keine Warnungen)
-- Tests grün: ja (16/16, zuletzt neu: `test_intervalrepository`, `test_duecalculator`)
-- App startet: ja (offscreen; Service-Liste und -Formular per Screenshot geprüft). Sichtprüfung am echten Desktop (M04, M06, M08) und der native FileDialog stehen aus Sichtprüfung am echten Plasma-Desktop durch Thomas steht weiterhin aus (M04 + M06)
+- Tests grün: ja (17/17, zuletzt neu: `test_intervallistmodel`)
+- App startet: ja (offscreen; Intervall-Tab, -Formular, Fällig-Seite per Screenshot geprüft). Sichtprüfung am echten Desktop (M04, M06, M08, M10) und der native FileDialog stehen aus Sichtprüfung am echten Plasma-Desktop durch Thomas steht weiterhin aus (M04 + M06)
 
 ## Offene Punkte im aktuellen Meilenstein
 - alle (noch nicht begonnen)
@@ -27,6 +27,7 @@ M10 – Intervalle & Fälligkeit (UI)
 - M05: Verbrauchsformel mit Thomas präzisiert (DATA_MODEL.md): Teiltanks seit letztem Volltank zählen mit (Menge + Kosten); Tacho rückwärts → kein Wert, Eintrag wird neue Basis
 - M05: zusätzlich `core/dbvalues.h` (gemeinsame Datum/Zeit/NULL-Helfer, namespace `core::db`, neue Konvertierungen nur dort) und `quantityUnitFor(Powertrain)` in fuelentry.h
 - M06: zusätzlich Löschen von Tankeinträgen (Formular-Aktion mit `Kirigami.PromptDialog`); Plausibilität warnt auch bei Duplikat (gleiches Datum + Tacho, DATA_MODEL Invariante 1)
+- M10: Fällig-Seite zeigt nur aktive Intervalle nicht archivierter Fahrzeuge; Drawer-Eintrag „Due (n overdue)“. Intervall-Formular ohne „Neue Kategorie…“ (Kategorien legt man im Service-Formular an)
 - M09: Fälligkeitsregeln präzisiert und in DATA_MODEL.md ergänzt (Fälligkeitstag = overdue, Service ohne Tacho → nur Zeitteil, Zukunftseinträge zählen nicht); zusätzlich `IntervalRepository::allActive()` (ohne archivierte Fahrzeuge) und `DueCalculator::moreUrgent()` für die Sortierung
 - M08: Anhänge eines neuen Eintrags werden erst beim Speichern kopiert (`newAttachments` in `ServiceEntries.save`); bestehende Anhänge werden sofort (mit Rückfrage) gelöscht. `garagelog_applib` linkt jetzt KF6::I18n (Übersetzung der Builtin-Kategorien in `ServiceListModel::categoryLabel`)
 - M07: zusätzlich `CategoryRepository::byName()`, `AttachmentStore::entriesWithAttachments()` (für das Büroklammer-Icon M08); Kategorie in Benutzung → Löschen verweigert mit Klartext
@@ -39,9 +40,10 @@ M10 – Intervalle & Fälligkeit (UI)
 
 ## Hinweise für die nächste Session
 - App-Schicht `garagelog_applib` (ohne GUI testbar): QML-Singletons `Vehicles`, `FuelEntries`, `Format` (`import org.tmx.garagelog`), in main.cpp registriert; neue Models genauso
+- App-API (M10): `Intervals` (pro Fahrzeug, Properties `worstStatus`, `nextDue`, `overdueCount`) und `DueIntervals` (alle Fahrzeuge), beide `IntervalListModel`, laden bei `Vehicles.reloaded` neu. `Format.dueSummary()`, `Format.parseCount()`, Komponente `StatusDot.qml`
 - App-API (M08): `ServiceEntries` (`ServiceListModel`, wie FuelEntries; `categories()`, `addCategory()`, `attachments(id)` mit file://-URL, `removeAttachment`). `entriesChanged` → `Vehicles.reload`. Intervall-Model (M10) genauso anbinden
 - App-API (M06): `FuelEntries` (`FuelListModel`, vehicleId wird von VehiclePage gesetzt, neueste zuerst, save/get/remove/plausibility/stationSuggestions). main.cpp verbindet `entriesChanged` → `Vehicles.reload` und `Vehicles.reloaded` → `FuelEntries.reload`. Service-Model (M08) genauso anbinden. Preis-Dreisatz in `core/fuelprice.h` (Einheitspreis in Tausendstel Währung pro l/kWh, nicht gespeichert)
-- VehiclePage hat Tabs (TabBar + StackLayout); Intervalle/Auswertung sind Platzhalter im Repeater – beim Füllen ersetzen. „Hinzufügen“-Aktion folgt dem Tab
+- VehiclePage hat Tabs (TabBar + StackLayout); Auswertung ist noch Platzhalter-Item – in M12 ersetzen. „Hinzufügen“-Aktion folgt dem Tab
 - Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` + `qrc_qml.cpp.o` + `qrc_migrations_init.cpp.o`, registriert die Singletons zusätzlich als Context-Properties (sonst sieht `QQmlExpression` sie nicht), führt JS-Schritte aus und macht `grabWindow()`; nicht im Repo
 - Core-API (M09): `IntervalRepository`, `DueCalculator::evaluate(interval, today)` (DB) bzw. statisch mit `LastService` + Tacho (rein, getestet) → `DueResult` {status, last/due Datum+Tacho, remainingM/-Days, remainingFraction}; `dueStatusName()` liefert "overdue"/"soon"/"ok"/"unknown" (nicht `toString` nennen – kollidiert mit QTest)
 - Core-API (M07): `ServiceRepository` (odometerM optional, `PerformedBy` Unknown/Self/Shop = NULL/'self'/'shop'; `remove()` löscht auch Anhang-Dateien), `CategoryRepository` (all(): Builtins in Seed-Reihenfolge, dann eigene nach Name; Builtin-`name` ist Übersetzungsschlüssel), `AttachmentStore` (Ordner = Verzeichnis der DB-Datei + `/attachments`, `filePath(a)` zum Öffnen)
@@ -67,3 +69,4 @@ M10 – Intervalle & Fälligkeit (UI)
 - M07 Service (Core) – 2026-10-23 – `4cbeb67`
 - M08 Service (UI) – 2026-10-23 – `c70a9dc`
 - M09 Intervalle & Fälligkeit (Core) – 2026-10-23 – `47a0d50`
+- M10 Intervalle & Fälligkeit (UI) – 2026-10-23 – `2e119f6`
