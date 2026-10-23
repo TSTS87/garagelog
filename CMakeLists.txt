@@ -1,3 +1,7 @@
+# Top-level build definition for GarageLog.
+# Finds Qt 6 / KDE Frameworks 6 and wires up the three parts of the project:
+# src/core (static logic library), src/app (QML executable) and tests (QtTest).
+
 cmake_minimum_required(VERSION 3.21)
 project(garagelog VERSION 0.1.0 LANGUAGES CXX)
 
@@ -21,11 +25,11 @@ include(ECMQmlModule)
 find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2 Sql Test)
 find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami I18n CoreAddons Config)
 
-# Skelett: Claude Code ergänzt die Unterordner in M1.
-# add_subdirectory(src/core)
-# add_subdirectory(src/app)
-# enable_testing()
-# add_subdirectory(tests)
+add_subdirectory(src/core)
+add_subdirectory(src/app)
+
+enable_testing()
+add_subdirectory(tests)
 
 install(FILES packaging/org.tmx.GarageLog.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 install(FILES packaging/org.tmx.GarageLog.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
