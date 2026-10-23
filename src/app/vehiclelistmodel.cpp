@@ -116,6 +116,7 @@ void VehicleListModel::reload()
     if (rowCount() != oldCount) {
         Q_EMIT countChanged();
     }
+    Q_EMIT reloaded();
 }
 
 QString VehicleListModel::idAt(int row) const

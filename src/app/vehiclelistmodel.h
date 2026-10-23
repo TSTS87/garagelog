@@ -87,6 +87,8 @@ Q_SIGNALS:
     void showArchivedChanged();
     void countChanged();
     void errorStringChanged();
+    /** Emitted after every reload(); pages showing one vehicle re-read it via get(). */
+    void reloaded();
 
 private:
     /** A vehicle plus its derived odometer, cached for data(). */

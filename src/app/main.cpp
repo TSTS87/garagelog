@@ -1,20 +1,29 @@
 // Entry point of the GarageLog executable (role: app).
-// Sets application metadata, opens the default garage database, creates the
-// QML engine and loads qml/Main.qml from the embedded resources. Exits with an
-// error code if the database or QML fails to load.
+// Sets application metadata, opens the default garage database, registers the
+// models as QML singletons, creates the QML engine and loads qml/Main.qml from
+// the embedded resources. Exits with an error code if the database or QML
+// fails to load.
 
 #include <QCoreApplication>
 #include <QDebug>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlEngine>
 #include <QUrl>
 
+#include <KLocalizedQmlContext>
+#include <KLocalizedString>
+
 #include "database.h"
+#include "format.h"
+#include "vehiclelistmodel.h"
 #include "version.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    // Translation catalogue name (garagelog.mo); must be set before any i18n() call.
+    KLocalizedString::setApplicationDomain("garagelog");
 
     // Organization/app names determine QStandardPaths locations (database path from M02 on).
     QCoreApplication::setOrganizationDomain(QStringLiteral("tmx.org"));
@@ -32,7 +41,18 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // Both live on main()'s stack, after the database and before the engine,
+    // so QML never sees them destroyed.
+    garagelog::app::VehicleListModel vehicles(database);
+    garagelog::app::Format format;
+    // Singleton instances: QML uses them as Vehicles.xxx / Format.xxx after
+    // "import org.tmx.garagelog", without creating its own copies.
+    qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Vehicles", &vehicles);
+    qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Format", &format);
+
     QQmlApplicationEngine engine;
+    // Makes i18n()/i18nc() available in all QML files of this engine.
+    KLocalization::setupLocalizedContext(&engine);
     const QUrl url(QStringLiteral("qrc:/qml/Main.qml"));
 
     // A QML error leaves no root object; quit instead of running without a window.

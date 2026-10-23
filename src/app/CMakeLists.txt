@@ -24,6 +24,9 @@ qt_add_resources(garagelog "qml"
     BASE ${PROJECT_SOURCE_DIR}
     FILES
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
+        ${PROJECT_SOURCE_DIR}/qml/VehicleDrawer.qml
+        ${PROJECT_SOURCE_DIR}/qml/VehicleFormPage.qml
+        ${PROJECT_SOURCE_DIR}/qml/VehiclePage.qml
 )
 
 target_link_libraries(garagelog PRIVATE
