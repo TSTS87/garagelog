@@ -10,6 +10,8 @@
 #include <QDate>
 #include <QDir>
 
+#include <KLocalizedString>
+
 namespace garagelog::app {
 
 DataTransfer::DataTransfer(const core::Database &database, QObject *parent)
@@ -50,7 +52,7 @@ QString DataTransfer::newSubfolder(const QString &folder, const QString &base)
         name = QStringLiteral("%1-%2").arg(stem).arg(n);
     }
     if (!parent.mkpath(name)) {
-        setResult(QStringLiteral("Cannot create %1").arg(parent.filePath(name)));
+        setResult(i18n("Cannot create %1", parent.filePath(name)));
         return {};
     }
     return parent.filePath(name);
@@ -154,7 +156,7 @@ QVariantMap DataTransfer::previewCsv(const QVariantMap &mapping) const
 int DataTransfer::importCsv(const QString &vehicleId, const QVariantMap &mapping)
 {
     if (!m_csv) {
-        setResult(QStringLiteral("No CSV file loaded"));
+        setResult(i18n("No CSV file loaded"));
         return -1;
     }
     const int count = m_csv->importInto(vehicleId, toMapping(mapping));

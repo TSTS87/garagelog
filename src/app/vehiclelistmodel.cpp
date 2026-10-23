@@ -5,6 +5,8 @@
 #include "odometer.h"
 #include "vehiclerepository.h"
 
+#include <KLocalizedString>
+
 namespace garagelog::app {
 
 using core::Odometer;
@@ -185,7 +187,7 @@ QString VehicleListModel::save(const QVariantMap &values)
     const auto type = core::vehicleTypeFromDb(values.value(QStringLiteral("type")).toString());
     const auto powertrain = core::powertrainFromDb(values.value(QStringLiteral("powertrain")).toString());
     if (!type || !powertrain) {
-        setErrorString(QStringLiteral("Unknown vehicle type or powertrain"));
+        setErrorString(i18n("Unknown vehicle type or powertrain"));
         return {};
     }
 

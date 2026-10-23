@@ -8,6 +8,8 @@
 
 #include <algorithm>
 
+#include <KLocalizedString>
+
 namespace garagelog::app {
 
 using core::FuelEntry;
@@ -182,7 +184,7 @@ QString FuelListModel::save(const QVariantMap &values)
     } else {
         const auto existing = repo.byId(id);
         if (!existing) {
-            setErrorString(repo.errorString().isEmpty() ? QStringLiteral("Fuel entry not found") : repo.errorString());
+            setErrorString(repo.errorString().isEmpty() ? i18n("Fuel entry not found") : repo.errorString());
             return {};
         }
         e = *existing;
@@ -193,7 +195,7 @@ QString FuelListModel::save(const QVariantMap &values)
     const QVariant quantity = values.value(QStringLiteral("quantity"));
     const QVariant totalCostC = values.value(QStringLiteral("totalCostC"));
     if (odometerM.isNull() || quantity.isNull() || totalCostC.isNull()) {
-        setErrorString(QStringLiteral("Odometer, quantity and total price are required"));
+        setErrorString(i18n("Odometer, quantity and total price are required"));
         return {};
     }
 

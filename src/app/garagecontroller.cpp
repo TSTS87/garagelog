@@ -17,6 +17,8 @@
 #include <QUrl>
 #include <QUuid>
 
+#include <KLocalizedString>
+
 namespace garagelog::app {
 
 using core::SettingsRepository;
@@ -40,13 +42,13 @@ bool isGarageOrEmpty(const QString &path, QString &error)
         db.setDatabaseName(path);
         db.setConnectOptions(QStringLiteral("QSQLITE_OPEN_READONLY"));
         if (!db.open()) {
-            error = QStringLiteral("Cannot open %1: %2").arg(path, db.lastError().text());
+            error = i18n("Cannot open %1: %2", path, db.lastError().text());
         } else {
             QSqlQuery q(db);
             if (!q.exec(QStringLiteral("SELECT COUNT(*), SUM(name = 'schema_version') FROM sqlite_master WHERE type = 'table'")) || !q.next()) {
-                error = QStringLiteral("%1 is not an SQLite database").arg(path);
+                error = i18n("%1 is not an SQLite database", path);
             } else if (q.value(0).toInt() > 0 && q.value(1).toInt() == 0) {
-                error = QStringLiteral("%1 is not a GarageLog garage").arg(path);
+                error = i18n("%1 is not a GarageLog garage", path);
             } else {
                 ok = true;
             }
@@ -236,7 +238,7 @@ bool GarageController::openGarage(const QString &urlOrPath)
 {
     const QString path = localPath(urlOrPath);
     if (!QFileInfo(path).isFile()) {
-        setErrorString(QStringLiteral("%1 does not exist").arg(path));
+        setErrorString(i18n("%1 does not exist", path));
         return false;
     }
     QString error;
@@ -251,7 +253,7 @@ bool GarageController::newGarage(const QString &urlOrPath)
 {
     const QString path = localPath(urlOrPath);
     if (QFileInfo::exists(path)) {
-        setErrorString(QStringLiteral("%1 already exists; use “Open Garage” for existing files").arg(path));
+        setErrorString(i18n("%1 already exists; use “Open Garage” for existing files", path));
         return false;
     }
     return switchTo(path);
@@ -261,28 +263,28 @@ bool GarageController::saveGarageAs(const QString &urlOrPath)
 {
     const QString target = QFileInfo(localPath(urlOrPath)).absoluteFilePath();
     if (target == QFileInfo(m_database.filePath()).absoluteFilePath()) {
-        setErrorString(QStringLiteral("Please choose a different file than the open garage"));
+        setErrorString(i18n("Please choose a different file than the open garage"));
         return false;
     }
     if (QFileInfo(target).isDir()) {
-        setErrorString(QStringLiteral("%1 is a folder").arg(target));
+        setErrorString(i18n("%1 is a folder", target));
         return false;
     }
     if (!QDir().mkpath(QFileInfo(target).absolutePath())) {
-        setErrorString(QStringLiteral("Cannot create folder for %1").arg(target));
+        setErrorString(i18n("Cannot create folder for %1", target));
         return false;
     }
     // VACUUM INTO refuses existing files; the save dialog already asked
     // whether to overwrite.
     if (QFileInfo::exists(target) && !QFile::remove(target)) {
-        setErrorString(QStringLiteral("Cannot replace %1").arg(target));
+        setErrorString(i18n("Cannot replace %1", target));
         return false;
     }
     QSqlQuery vacuum(m_database.connection());
     vacuum.prepare(QStringLiteral("VACUUM INTO ?"));
     vacuum.addBindValue(target);
     if (!vacuum.exec()) {
-        setErrorString(QStringLiteral("Cannot copy garage: %1").arg(vacuum.lastError().text()));
+        setErrorString(i18n("Cannot copy garage: %1", vacuum.lastError().text()));
         return false;
     }
 
@@ -291,13 +293,13 @@ bool GarageController::saveGarageAs(const QString &urlOrPath)
     const QDir targetDir(QFileInfo(target).absoluteDir().filePath(core::AttachmentStore::directoryName));
     const QStringList files = source.exists() ? source.entryList(QDir::Files) : QStringList();
     if (!files.isEmpty() && !QDir().mkpath(targetDir.path())) {
-        setErrorString(QStringLiteral("Cannot create %1").arg(targetDir.path()));
+        setErrorString(i18n("Cannot create %1", targetDir.path()));
         return false;
     }
     for (const QString &name : files) {
         // Same uuid name = same file (e.g. saving twice into one folder).
         if (!targetDir.exists(name) && !QFile::copy(source.filePath(name), targetDir.filePath(name))) {
-            setErrorString(QStringLiteral("Cannot copy attachment %1").arg(name));
+            setErrorString(i18n("Cannot copy attachment %1", name));
             return false;
         }
     }
