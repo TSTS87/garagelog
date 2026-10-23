@@ -100,6 +100,20 @@ public:
      */
     Q_INVOKABLE QVariant parseDate(const QString &text) const;
 
+    /**
+     * @brief Short due text for an interval, e.g. "1.500 km left · 47 days left" or "3 days overdue".
+     * @param remainingM Metres to the due odometer (negative = overdue) or null.
+     * @param remainingDays Days to the due date (negative = overdue) or null.
+     * @param status Status text from IntervalListModel ("unknown" and "paused" get their own text).
+     */
+    Q_INVOKABLE QString dueSummary(const QVariant &remainingM, const QVariant &remainingDays, const QString &status) const;
+
+    /**
+     * @brief Parses a whole positive number such as a count of months.
+     * @return int in a QVariant; null for empty, non-integer, zero or negative input.
+     */
+    Q_INVOKABLE QVariant parseCount(const QString &text) const;
+
     /** Today's date as ISO text, the default for new entries. */
     Q_INVOKABLE QString today() const;
 

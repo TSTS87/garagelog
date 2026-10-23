@@ -1,6 +1,6 @@
 // Side bar with the vehicle list (role: qml, pure UI).
-// Lists the vehicles from the Vehicles model and offers "Add Vehicle" and
-// "Show Archived". Navigation itself is left to Main.qml via signals.
+// Lists the vehicles from the Vehicles model and offers "Due", "Add Vehicle"
+// and "Show Archived". Navigation itself is left to Main.qml via signals.
 
 import QtQuick
 import QtQuick.Layouts
@@ -19,6 +19,7 @@ Kirigami.GlobalDrawer {
 
     signal vehicleSelected(string vehicleId)
     signal addRequested()
+    signal dueRequested()
 
     // applicationWindow() is a Kirigami helper returning the ApplicationWindow
     // this item lives in; wideScreen flips when the window gets narrow.
@@ -28,6 +29,17 @@ Kirigami.GlobalDrawer {
     // Kirigami.Action is a QtQuick Action with icon, text and extras like
     // checkable/visible; the drawer renders its actions as menu entries.
     actions: [
+        Kirigami.Action {
+            // The overdue count makes reminders visible without opening the page.
+            text: DueIntervals.overdueCount > 0 ? i18n("Due (%1 overdue)", DueIntervals.overdueCount) : i18n("Due")
+            icon.name: "view-calendar-upcoming-events"
+            onTriggered: {
+                drawer.dueRequested();
+                if (drawer.modal) {
+                    drawer.close();
+                }
+            }
+        },
         Kirigami.Action {
             text: i18n("Add Vehicle")
             icon.name: "list-add"

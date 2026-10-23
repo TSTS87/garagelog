@@ -17,6 +17,7 @@
 #include "database.h"
 #include "format.h"
 #include "fuellistmodel.h"
+#include "intervallistmodel.h"
 #include "servicelistmodel.h"
 #include "vehiclelistmodel.h"
 #include "version.h"
@@ -48,6 +49,9 @@ int main(int argc, char *argv[])
     garagelog::app::VehicleListModel vehicles(database);
     garagelog::app::FuelListModel fuelEntries(database);
     garagelog::app::ServiceListModel serviceEntries(database);
+    using garagelog::app::IntervalListModel;
+    IntervalListModel intervals(database, IntervalListModel::Scope::Vehicle);
+    IntervalListModel dueIntervals(database, IntervalListModel::Scope::AllVehicles);
     garagelog::app::Format format;
     // A saved fuel entry can raise the odometer shown in the drawer and the
     // page header; an edited vehicle can switch the fuel unit (l <-> kWh).
@@ -55,11 +59,19 @@ int main(int argc, char *argv[])
     QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &fuelEntries, &garagelog::app::FuelListModel::reload);
     // Service entries can carry an odometer reading as well.
     QObject::connect(&serviceEntries, &garagelog::app::ServiceListModel::entriesChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
+    // Every fuel/service change and vehicle edit ends in Vehicles.reloaded,
+    // so the due status follows new odometers, services and archiving.
+    QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &intervals, &IntervalListModel::reload);
+    QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &dueIntervals, &IntervalListModel::reload);
+    QObject::connect(&intervals, &IntervalListModel::intervalsChanged, &dueIntervals, &IntervalListModel::reload);
+    QObject::connect(&dueIntervals, &IntervalListModel::intervalsChanged, &intervals, &IntervalListModel::reload);
     // Singleton instances: QML uses them as Vehicles.xxx / Format.xxx after
     // "import org.tmx.garagelog", without creating its own copies.
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Vehicles", &vehicles);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "FuelEntries", &fuelEntries);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "ServiceEntries", &serviceEntries);
+    qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Intervals", &intervals);
+    qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "DueIntervals", &dueIntervals);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Format", &format);
 
     QQmlApplicationEngine engine;

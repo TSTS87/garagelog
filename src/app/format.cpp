@@ -2,6 +2,8 @@
 
 #include "format.h"
 
+#include <KLocalizedString>
+
 #include <QDate>
 #include <QLocale>
 
@@ -47,6 +49,39 @@ QString Format::distanceInput(qint64 metres) const
         return locale.toString(metres / 1000);
     }
     return locale.toString(metres / 1000.0, 'f', 1);
+}
+
+QString Format::dueSummary(const QVariant &remainingM, const QVariant &remainingDays, const QString &status) const
+{
+    if (status == QLatin1String("paused")) {
+        return i18n("Paused");
+    }
+    if (status == QLatin1String("unknown")) {
+        return i18n("No matching service recorded yet");
+    }
+    QStringList parts;
+    if (!remainingM.isNull()) {
+        const qint64 m = remainingM.toLongLong();
+        parts.append(m > 0 ? i18nc("distance until due", "%1 left", distance(m)) : i18nc("distance past due", "%1 overdue", distance(-m)));
+    }
+    if (!remainingDays.isNull()) {
+        const qint64 d = remainingDays.toLongLong();
+        if (d > 0) {
+            parts.append(i18np("%1 day left", "%1 days left", d));
+        } else if (d == 0) {
+            parts.append(i18n("due today"));
+        } else {
+            parts.append(i18np("%1 day overdue", "%1 days overdue", -d));
+        }
+    }
+    return parts.join(QStringLiteral(" · "));
+}
+
+QVariant Format::parseCount(const QString &text) const
+{
+    bool ok = false;
+    const int value = QLocale().toInt(text.trimmed(), &ok);
+    return ok && value > 0 ? QVariant(value) : QVariant::fromValue(nullptr);
 }
 
 QVariant Format::parseDistance(const QString &text) const

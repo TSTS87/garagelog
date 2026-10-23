@@ -9,13 +9,15 @@ add_library(garagelog_applib STATIC
     format.h
     fuellistmodel.cpp
     fuellistmodel.h
+    intervallistmodel.cpp
+    intervallistmodel.h
     servicelistmodel.cpp
     servicelistmodel.h
     vehiclelistmodel.cpp
     vehiclelistmodel.h
 )
 target_include_directories(garagelog_applib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-# KI18n (no GUI) translates the keys of built-in service categories.
+# KI18n (no GUI) translates built-in service categories and formatted texts.
 target_link_libraries(garagelog_applib PUBLIC garagelog_core Qt6::Core KF6::I18n)
 
 add_executable(garagelog
@@ -28,11 +30,15 @@ qt_add_resources(garagelog "qml"
     PREFIX "/"
     BASE ${PROJECT_SOURCE_DIR}
     FILES
+        ${PROJECT_SOURCE_DIR}/qml/DuePage.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelTab.qml
+        ${PROJECT_SOURCE_DIR}/qml/IntervalFormPage.qml
+        ${PROJECT_SOURCE_DIR}/qml/IntervalTab.qml
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceTab.qml
+        ${PROJECT_SOURCE_DIR}/qml/StatusDot.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleDrawer.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/VehiclePage.qml

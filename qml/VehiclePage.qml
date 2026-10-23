@@ -1,7 +1,7 @@
 // Page of one vehicle (role: qml, pure UI).
-// Header with icon, name, details and current odometer, below it the tabs
-// fuel | service | intervals | statistics (SPEC §6). Fuel and service have
-// content so far; the others are filled in later milestones.
+// Header with icon, name, details, current odometer and the next due
+// interval, below it the tabs fuel | service | intervals | statistics
+// (SPEC §6). Statistics is filled in a later milestone.
 
 import QtQuick
 import QtQuick.Controls as Controls
@@ -23,6 +23,8 @@ Kirigami.Page {
     signal fuelFormRequested(string entryId)
     /** Service form for an entry; entryId "" = new entry. */
     signal serviceFormRequested(string entryId)
+    /** Interval form; intervalId "" = new interval. */
+    signal intervalFormRequested(string intervalId)
 
     function reload() {
         vehicle = Vehicles.get(vehicleId);
@@ -33,11 +35,19 @@ Kirigami.Page {
     actions: [
         Kirigami.Action {
             // One "add" button whose meaning follows the visible tab.
-            text: tabBar.currentIndex === 1 ? i18n("Add Service") : i18n("Add Entry")
+            text: [i18n("Add Entry"), i18n("Add Service"), i18n("Add Interval")][tabBar.currentIndex] ?? ""
             icon.name: "list-add"
-            visible: tabBar.currentIndex <= 1
+            visible: tabBar.currentIndex <= 2
             shortcut: StandardKey.New
-            onTriggered: tabBar.currentIndex === 1 ? page.serviceFormRequested("") : page.fuelFormRequested("")
+            onTriggered: {
+                if (tabBar.currentIndex === 0) {
+                    page.fuelFormRequested("");
+                } else if (tabBar.currentIndex === 1) {
+                    page.serviceFormRequested("");
+                } else {
+                    page.intervalFormRequested("");
+                }
+            }
         },
         Kirigami.Action {
             text: i18n("Edit Vehicle")
@@ -46,12 +56,13 @@ Kirigami.Page {
         }
     ]
 
-    // FuelEntries/ServiceEntries are singletons shared by all pages; only one
-    // vehicle page exists at a time, so this page points them at its vehicle.
+    // FuelEntries/ServiceEntries/Intervals are singletons shared by all pages;
+    // only one vehicle page exists at a time, so it points them at its vehicle.
     onVehicleIdChanged: {
         reload();
         FuelEntries.vehicleId = vehicleId;
         ServiceEntries.vehicleId = vehicleId;
+        Intervals.vehicleId = vehicleId;
     }
 
     // Connections listens to signals of an object defined elsewhere, here the
@@ -119,6 +130,24 @@ Kirigami.Page {
                 Controls.Label {
                     text: i18n("Odometer: %1", Format.distance(page.vehicle.odometerM ?? 0))
                 }
+
+                // Most urgent interval; the dot shows the worst status of all.
+                RowLayout {
+                    visible: Intervals.worstStatus !== ""
+                    spacing: Kirigami.Units.smallSpacing
+
+                    StatusDot {
+                        status: Intervals.worstStatus
+                    }
+                    Controls.Label {
+                        Layout.fillWidth: true
+                        readonly property var next: Intervals.nextDue
+                        text: next.name === undefined
+                            ? i18n("No interval with a recorded service yet")
+                            : i18n("Next due: %1 (%2)", next.name, Format.dueSummary(next.remainingM, next.remainingDays, next.status))
+                        elide: Text.ElideRight
+                    }
+                }
             }
         }
 
@@ -155,17 +184,17 @@ Kirigami.Page {
                 onFormRequested: entryId => page.serviceFormRequested(entryId)
             }
 
-            // Empty until their milestones (intervals M10, statistics M12).
-            // The Item wrapper gets the full tab size from the StackLayout, so the
-            // message can be centred inside it.
-            Repeater {
-                model: 2
-                Item {
-                    Kirigami.PlaceholderMessage {
-                        anchors.centerIn: parent
-                        width: parent.width - Kirigami.Units.gridUnit * 4
-                        text: i18n("Coming soon")
-                    }
+            IntervalTab {
+                onFormRequested: intervalId => page.intervalFormRequested(intervalId)
+            }
+
+            // Empty until statistics (M12). The Item wrapper gets the full tab
+            // size from the StackLayout, so the message can be centred inside it.
+            Item {
+                Kirigami.PlaceholderMessage {
+                    anchors.centerIn: parent
+                    width: parent.width - Kirigami.Units.gridUnit * 4
+                    text: i18n("Coming soon")
                 }
             }
         }
