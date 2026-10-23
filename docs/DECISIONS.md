@@ -33,4 +33,9 @@ Grund: Geprüft in der installierten Runtime org.kde.Platform 6.11: KQuickCharts
 Abhängigkeit: nur zur Laufzeit (QML-Import), kein CMake-`find_package`; Arch-Paket `kquickcharts` in der Build-Anleitung ergänzt.
 Alternativen: QtCharts (veraltet, nicht installiert), QtGraphs (schwergewichtig), eigenes Canvas (mehr Code, kein Theme-Support).
 
-<!-- Nächste: ADR-010 -->
+## ADR-010 (2026-10-23) Einheiten pro Garage, zuletzt geöffnete Garage in KConfig, Import nur in leere Garage
+Entscheidung: Einheiten (km/mi, l/US-gal/imp-gal) und Währung stehen in der Tabelle `settings` der Garage und wirken nur in der Anzeige (`Format`); gespeichert wird weiter in Metern/ml/Cent (ADR-003). Elektrofahrzeuge bleiben bei kWh; mit Gallonen wird Verbrauch in mpg angezeigt. Welche Garage-Datei beim Start geöffnet wird, steht außerhalb der Garage in `~/.config/garagelogrc` (KConfig, `General/GaragePath`), Rückfall auf die Standard-Garage. JSON-Import nur in eine Garage ohne Fahrzeuge („Neue Garage“ anlegen, dann importieren).
+Grund: Eine kopierte Garage behält ihre Einheiten; Einheitenwechsel kann nie Daten verfälschen. KConfig ist bereits im Tech-Stack. Zusammenführen zweier Garagen bräuchte Konfliktregeln (gleiche Fahrzeuge, Kategorienamen) – für v1.0 unnötig riskant.
+Alternativen: Einheiten global in KConfig (passt nicht zu „eine Datei = eine Garage“); Import mit Zusammenführen (später möglich, da UUIDs).
+
+<!-- Nächste: ADR-011 -->

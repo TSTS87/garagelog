@@ -176,9 +176,9 @@ void StatsModel::reload()
         }
         keepError();
 
-        // The chart axis shows l or kWh per 100 km; ml/Wh would give 4-digit labels.
+        // Raw database units; the display unit (l/100 km, mpg, ...) is Format's job.
         for (const core::ConsumptionPoint &p : stats.consumptionSeries(m_vehicleId, m_dates)) {
-            m_consumptionValues.append(p.quantityPer100Km / 1000.0);
+            m_consumptionValues.append(p.quantityPer100Km);
             m_consumptionDates.append(p.date.toString(Qt::ISODate));
         }
         keepError();

@@ -157,7 +157,7 @@ Kirigami.ScrollablePage {
 
         Controls.TextField {
             id: distanceField
-            Kirigami.FormData.label: i18n("Every (km):")
+            Kirigami.FormData.label: i18n("Every (%1):", Format.distanceLabel)
             text: form.original.everyM === undefined || form.original.everyM === null ? "" : Format.distanceInput(form.original.everyM)
             placeholderText: i18n("e.g. 15000")
             inputMethodHints: Qt.ImhDigitsOnly

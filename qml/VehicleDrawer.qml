@@ -1,6 +1,7 @@
 // Side bar with the vehicle list (role: qml, pure UI).
-// Lists the vehicles from the Vehicles model and offers "Due", "Add Vehicle"
-// and "Show Archived". Navigation itself is left to Main.qml via signals.
+// Lists the vehicles from the Vehicles model and offers "Due", "Add Vehicle",
+// "Show Archived", the "Data" menu and "Settings". Navigation and dialogs
+// are left to Main.qml via signals.
 
 import QtQuick
 import QtQuick.Layouts
@@ -20,6 +21,17 @@ Kirigami.GlobalDrawer {
     signal vehicleSelected(string vehicleId)
     signal addRequested()
     signal dueRequested()
+    signal settingsRequested()
+    /** One of "exportJson", "importJson", "exportCsv", "importCsv". */
+    signal dataRequested(string what)
+
+    /** Runs a drawer entry and closes the drawer on narrow windows. */
+    function trigger(callback) {
+        callback();
+        if (modal) {
+            close();
+        }
+    }
 
     // applicationWindow() is a Kirigami helper returning the ApplicationWindow
     // this item lives in; wideScreen flips when the window gets narrow.
@@ -51,6 +63,36 @@ Kirigami.GlobalDrawer {
             checkable: true
             checked: Vehicles.showArchived
             onToggled: Vehicles.showArchived = checked
+        },
+        // An action with children becomes a submenu in the drawer.
+        Kirigami.Action {
+            text: i18n("Data")
+            icon.name: "document-export"
+            Kirigami.Action {
+                text: i18n("Export Everything (JSON)…")
+                icon.name: "document-export"
+                onTriggered: drawer.trigger(() => drawer.dataRequested("exportJson"))
+            }
+            Kirigami.Action {
+                text: i18n("Import Export Folder (JSON)…")
+                icon.name: "document-import"
+                onTriggered: drawer.trigger(() => drawer.dataRequested("importJson"))
+            }
+            Kirigami.Action {
+                text: i18n("Export Tables (CSV)…")
+                icon.name: "text-csv"
+                onTriggered: drawer.trigger(() => drawer.dataRequested("exportCsv"))
+            }
+            Kirigami.Action {
+                text: i18n("Import Fuel Entries (CSV)…")
+                icon.name: "text-csv"
+                onTriggered: drawer.trigger(() => drawer.dataRequested("importCsv"))
+            }
+        },
+        Kirigami.Action {
+            text: i18n("Settings")
+            icon.name: "settings-configure"
+            onTriggered: drawer.trigger(() => drawer.settingsRequested())
         }
     ]
 

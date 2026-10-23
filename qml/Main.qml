@@ -1,8 +1,10 @@
 // Root QML file of GarageLog (role: qml, pure UI).
 // Main window with the vehicle drawer and the page stack. Owns navigation:
-// which page is shown (vehicle or due overview) and when a form opens (SPEC §6).
+// which page is shown (vehicle, due overview, settings) and when a form
+// opens (SPEC §6), plus the folder dialogs of the "Data" menu.
 
 import QtQuick
+import QtQuick.Dialogs
 import org.kde.kirigami as Kirigami
 import org.tmx.garagelog
 
@@ -23,6 +25,81 @@ Kirigami.ApplicationWindow {
         onVehicleSelected: vehicleId => root.showVehicle(vehicleId)
         onAddRequested: root.openForm("")
         onDueRequested: root.showDue()
+        onSettingsRequested: root.showSettings()
+        onDataRequested: what => {
+            if (what === "importCsv") {
+                root.openCsvImport();
+            } else {
+                folderDialog.purpose = what;
+                folderDialog.open();
+            }
+        }
+    }
+
+    /** First vehicle, or the placeholder if the garage has none. */
+    function showHome() {
+        if (Vehicles.count > 0) {
+            showVehicle(Vehicles.idAt(0));
+        } else {
+            showPlaceholder();
+        }
+    }
+
+    function showSettings() {
+        currentVehicleId = "";
+        pageStack.clear();
+        pageStack.push(settingsComponent);
+    }
+
+    /** CSV import as a column next to the current page, preselecting the shown vehicle. */
+    function openCsvImport() {
+        if (Vehicles.count === 0) {
+            showPassiveNotification(i18n("Add a vehicle first; fuel entries are imported into a vehicle."));
+            return;
+        }
+        pushForm(csvImportComponent, { vehicleId: currentVehicleId !== "" ? currentVehicleId : Vehicles.idAt(0) });
+    }
+
+    /** Shows the outcome of an export/import from DataTransfer as a passive notification. */
+    function reportTransfer(ok, successText) {
+        if (!ok) {
+            showPassiveNotification(DataTransfer.errorString, "long");
+            return;
+        }
+        const warnings = DataTransfer.warnings.length > 0 ? " " + i18np("(%1 warning)", "(%1 warnings)", DataTransfer.warnings.length) : "";
+        showPassiveNotification(successText + warnings, "long");
+    }
+
+    // One folder dialog for the three folder-based actions of the Data menu.
+    FolderDialog {
+        id: folderDialog
+        property string purpose: ""
+        title: purpose === "importJson" ? i18n("Choose Export Folder to Import") : i18n("Choose Folder for the Export")
+        currentFolder: Garage.folderUrl
+        onAccepted: {
+            if (purpose === "exportJson") {
+                root.reportTransfer(DataTransfer.exportJson(selectedFolder), i18n("Exported to %1", DataTransfer.lastPath));
+            } else if (purpose === "exportCsv") {
+                root.reportTransfer(DataTransfer.exportCsv(selectedFolder), i18n("Exported to %1", DataTransfer.lastPath));
+            } else if (purpose === "importJson") {
+                const ok = DataTransfer.importJson(selectedFolder);
+                root.reportTransfer(ok, i18n("Import finished"));
+                if (ok) {
+                    root.showHome();
+                }
+            }
+        }
+    }
+
+    // After switching the garage the shown vehicle no longer exists; the
+    // settings page stays open because the switch was made there.
+    Connections {
+        target: Garage
+        function onGarageChanged() {
+            if (root.pageStack.currentItem?.objectName !== "settingsPage") {
+                root.showHome();
+            }
+        }
     }
 
     /** Replaces everything in the page stack with the page of one vehicle. */
@@ -99,6 +176,19 @@ Kirigami.ApplicationWindow {
     }
 
     Component {
+        id: settingsComponent
+        SettingsPage {}
+    }
+
+    Component {
+        id: csvImportComponent
+        CsvImportPage {
+            onImported: root.pageStack.pop()
+            onCanceled: root.pageStack.pop()
+        }
+    }
+
+    Component {
         id: duePageComponent
         DuePage {
             onVehicleRequested: vehicleId => root.showVehicle(vehicleId)
@@ -156,11 +246,5 @@ Kirigami.ApplicationWindow {
         }
     }
 
-    Component.onCompleted: {
-        if (Vehicles.count > 0) {
-            showVehicle(Vehicles.idAt(0));
-        } else {
-            showPlaceholder();
-        }
-    }
+    Component.onCompleted: showHome()
 }

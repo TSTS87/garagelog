@@ -83,3 +83,7 @@ add_test(NAME test_intervallistmodel COMMAND test_intervallistmodel)
 add_executable(test_statsmodel test_statsmodel.cpp)
 target_link_libraries(test_statsmodel PRIVATE garagelog_applib Qt6::Test)
 add_test(NAME test_statsmodel COMMAND test_statsmodel)
+
+add_executable(test_garagecontroller test_garagecontroller.cpp)
+target_link_libraries(test_garagecontroller PRIVATE garagelog_applib Qt6::Test)
+add_test(NAME test_garagecontroller COMMAND test_garagecontroller)

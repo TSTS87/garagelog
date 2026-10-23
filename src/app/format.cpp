@@ -5,6 +5,7 @@
 #include <KLocalizedString>
 
 #include <QDate>
+#include <QHash>
 #include <QLocale>
 
 #include <cmath>
@@ -12,9 +13,6 @@
 namespace garagelog::app {
 
 namespace {
-
-/** Fixed until the currency setting arrives (M14). */
-const QString currencySymbol = QStringLiteral("€");
 
 /** Locale short date format, widened to a four-digit year so input is unambiguous. */
 QString dateFormat()
@@ -36,19 +34,103 @@ QLocale inputLocale()
 
 } // namespace
 
+QString Format::distanceUnit() const
+{
+    return m_distanceUnit;
+}
+
+QString Format::volumeUnit() const
+{
+    return m_volumeUnit;
+}
+
+QString Format::currency() const
+{
+    return m_currency;
+}
+
+QString Format::distanceLabel() const
+{
+    return m_distanceUnit == QLatin1String("mi") ? QStringLiteral("mi") : QStringLiteral("km");
+}
+
+QString Format::volumeLabel() const
+{
+    return m_volumeUnit == QLatin1String("l") ? QStringLiteral("l") : QStringLiteral("gal");
+}
+
+QString Format::currencySymbol() const
+{
+    return m_currencySymbol;
+}
+
+void Format::setUnits(const QString &distanceUnit, const QString &volumeUnit, const QString &currency)
+{
+    const QString d = distanceUnit == QLatin1String("mi") ? distanceUnit : QStringLiteral("km");
+    const QString v = (volumeUnit == QLatin1String("gal_us") || volumeUnit == QLatin1String("gal_uk")) ? volumeUnit : QStringLiteral("l");
+    const QString c = currency.size() == 3 ? currency.toUpper() : QStringLiteral("EUR");
+    if (d == m_distanceUnit && v == m_volumeUnit && c == m_currency) {
+        return;
+    }
+    m_distanceUnit = d;
+    m_volumeUnit = v;
+    m_currency = c;
+    m_currencySymbol = symbolForCurrency(c);
+    Q_EMIT unitsChanged();
+}
+
+QString Format::symbolForCurrency(const QString &isoCode)
+{
+    // Qt knows symbols only per locale; the first locale using the code
+    // gives it (e.g. de_DE for EUR, en_US for USD). Cached, as the scan
+    // over all locales is not free.
+    static QHash<QString, QString> cache;
+    const auto it = cache.constFind(isoCode);
+    if (it != cache.cend()) {
+        return *it;
+    }
+    QString symbol = isoCode;
+    for (const QLocale &locale : QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyTerritory)) {
+        if (locale.currencySymbol(QLocale::CurrencyIsoCode) == isoCode) {
+            symbol = locale.currencySymbol(QLocale::CurrencySymbol);
+            break;
+        }
+    }
+    cache.insert(isoCode, symbol);
+    return symbol;
+}
+
+double Format::metresPerUnit() const
+{
+    return m_distanceUnit == QLatin1String("mi") ? metresPerMile : 1000.0;
+}
+
+double Format::mlPerVolumeUnit() const
+{
+    if (m_volumeUnit == QLatin1String("gal_us")) {
+        return mlPerUsGallon;
+    }
+    if (m_volumeUnit == QLatin1String("gal_uk")) {
+        return mlPerImperialGallon;
+    }
+    return 1000.0;
+}
+
 QString Format::distance(qint64 metres) const
 {
-    // Integer division truncates, matching how an odometer never rounds up.
-    return QStringLiteral("%1 km").arg(QLocale().toString(metres / 1000));
+    // Truncated, matching how an odometer never rounds up.
+    const auto units = static_cast<qint64>(std::trunc(static_cast<double>(metres) / metresPerUnit()));
+    return QStringLiteral("%1 %2").arg(QLocale().toString(units), distanceLabel());
 }
 
 QString Format::distanceInput(qint64 metres) const
 {
     const QLocale locale = inputLocale();
-    if (metres % 1000 == 0) {
-        return locale.toString(metres / 1000);
+    const double units = static_cast<double>(metres) / metresPerUnit();
+    if (units == std::trunc(units)) {
+        return locale.toString(static_cast<qint64>(units));
     }
-    return locale.toString(metres / 1000.0, 'f', 1);
+    return locale.toString(units, 'f', 1);
 }
 
 QString Format::dueSummary(const QVariant &remainingM, const QVariant &remainingDays, const QString &status) const
@@ -86,17 +168,18 @@ QVariant Format::parseCount(const QString &text) const
 
 QVariant Format::parseDistance(const QString &text) const
 {
-    return parseScaled(text, 1000.0);
+    return parseScaled(text, metresPerUnit());
 }
 
 QString Format::money(qint64 cents) const
 {
-    return QLocale().toCurrencyString(cents / 100.0, currencySymbol, 2);
+    return QLocale().toCurrencyString(cents / 100.0, m_currencySymbol, 2);
 }
 
 QString Format::moneyPerKm(double centsPerKm) const
 {
-    return QStringLiteral("%1/km").arg(QLocale().toCurrencyString(centsPerKm / 100.0, currencySymbol, 3));
+    const double perUnit = centsPerKm * metresPerUnit() / 1000.0;
+    return QStringLiteral("%1/%2").arg(QLocale().toCurrencyString(perUnit / 100.0, m_currencySymbol, 3), distanceLabel());
 }
 
 QString Format::number(double value, int decimals) const
@@ -116,40 +199,74 @@ QVariant Format::parseMoney(const QString &text) const
 
 QString Format::quantity(qint64 amount, bool electric) const
 {
-    return QStringLiteral("%1 %2").arg(QLocale().toString(amount / 1000.0, 'f', 2), electric ? QStringLiteral("kWh") : QStringLiteral("l"));
+    const double perUnit = electric ? 1000.0 : mlPerVolumeUnit();
+    return QStringLiteral("%1 %2").arg(QLocale().toString(amount / perUnit, 'f', 2), electric ? QStringLiteral("kWh") : volumeLabel());
 }
 
-QString Format::quantityInput(qint64 amount) const
+QString Format::quantityInput(qint64 amount, bool electric) const
 {
-    // Shortest exact form: 40300 ml -> "40,3", 40305 ml -> "40,305".
-    return inputLocale().toString(amount / 1000.0, 'f', QLocale::FloatingPointShortest);
+    const double perUnit = electric ? 1000.0 : mlPerVolumeUnit();
+    // Litres/kWh: shortest exact form (40300 ml -> "40,3"). Gallons are
+    // never exact, so they get three decimals (0.3 ml precision).
+    if (perUnit == 1000.0) {
+        return inputLocale().toString(amount / perUnit, 'f', QLocale::FloatingPointShortest);
+    }
+    return inputLocale().toString(amount / perUnit, 'f', 3);
 }
 
-QVariant Format::parseQuantity(const QString &text) const
+QVariant Format::parseQuantity(const QString &text, bool electric) const
 {
-    return parseScaled(text, 1000.0);
+    return parseScaled(text, electric ? 1000.0 : mlPerVolumeUnit());
 }
 
 QString Format::unitPrice(qint64 milli, bool electric) const
 {
-    return QStringLiteral("%1/%2").arg(QLocale().toCurrencyString(milli / 1000.0, currencySymbol, 3),
-                                       electric ? QStringLiteral("kWh") : QStringLiteral("l"));
+    // milli is per l; per gallon it is that many litres more expensive.
+    const double perUnit = electric ? milli : milli * mlPerVolumeUnit() / 1000.0;
+    return QStringLiteral("%1/%2").arg(QLocale().toCurrencyString(perUnit / 1000.0, m_currencySymbol, 3),
+                                       electric ? QStringLiteral("kWh") : volumeLabel());
 }
 
-QString Format::unitPriceInput(qint64 milli) const
+QString Format::unitPriceInput(qint64 milli, bool electric) const
 {
-    return inputLocale().toString(milli / 1000.0, 'f', 3);
+    const double perUnit = electric ? milli : milli * mlPerVolumeUnit() / 1000.0;
+    return inputLocale().toString(perUnit / 1000.0, 'f', 3);
 }
 
-QVariant Format::parseUnitPrice(const QString &text) const
+QVariant Format::parseUnitPrice(const QString &text, bool electric) const
 {
-    return parseScaled(text, 1000.0);
+    // Typed per gallon, stored per litre (see fuelprice.h).
+    return parseScaled(text, electric ? 1000.0 : 1000.0 * 1000.0 / mlPerVolumeUnit());
+}
+
+double Format::consumptionValue(double per100Km, bool electric) const
+{
+    if (electric) {
+        // Wh per 100 km -> kWh per 100 of the display unit.
+        return per100Km / 1000.0 * metresPerUnit() / 1000.0;
+    }
+    if (m_volumeUnit == QLatin1String("l")) {
+        return per100Km / 1000.0;
+    }
+    // Miles per gallon is the inverse: distance per volume.
+    if (per100Km <= 0) {
+        return 0;
+    }
+    return (100'000.0 / metresPerMile) / (per100Km / mlPerVolumeUnit());
+}
+
+QString Format::consumptionUnit(bool electric) const
+{
+    if (electric) {
+        return QStringLiteral("kWh/100 %1").arg(distanceLabel());
+    }
+    return m_volumeUnit == QLatin1String("l") ? QStringLiteral("l/100 km") : QStringLiteral("mpg");
 }
 
 QString Format::consumption(double per100Km, bool electric) const
 {
-    return QStringLiteral("%1 %2").arg(QLocale().toString(per100Km / 1000.0, 'f', 2),
-                                       electric ? QStringLiteral("kWh/100 km") : QStringLiteral("l/100 km"));
+    const int decimals = (!electric && m_volumeUnit != QLatin1String("l")) ? 1 : 2;
+    return QStringLiteral("%1 %2").arg(QLocale().toString(consumptionValue(per100Km, electric), 'f', decimals), consumptionUnit(electric));
 }
 
 QString Format::date(const QString &iso) const

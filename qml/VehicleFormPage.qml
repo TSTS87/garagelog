@@ -156,7 +156,7 @@ Kirigami.ScrollablePage {
 
         Controls.TextField {
             id: odometerField
-            Kirigami.FormData.label: i18n("Odometer (km):")
+            Kirigami.FormData.label: i18n("Odometer (%1):", Format.distanceLabel)
             placeholderText: form.isNew ? i18n("Current reading, optional") : ""
             text: form.initialOdometerText
             inputMethodHints: Qt.ImhFormattedNumbersOnly

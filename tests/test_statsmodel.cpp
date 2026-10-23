@@ -22,7 +22,7 @@ using garagelog::app::StatsModel;
 using namespace garagelog::core;
 
 /**
- * @brief Covers M12 app layer: period keys, figures as QML values, chart data in l/100 km.
+ * @brief Covers M12 app layer: period keys, figures as QML values, chart data.
  */
 class TestStatsModel : public QObject
 {
@@ -49,7 +49,7 @@ private Q_SLOTS:
         QCOMPARE(all.to, today);
     }
 
-    /** reload() fills the figures, converts chart values to l/100 km and translates category names. */
+    /** reload() fills the figures, gives chart values in ml/100 km and translates category names. */
     void figures()
     {
         QTemporaryDir dir;
@@ -88,7 +88,7 @@ private Q_SLOTS:
         QCOMPARE(model.costPerKmC().toDouble(), 55'400.0 / 800.0);
         QVERIFY(!model.costPerMonthC().isNull());
         QCOMPARE(model.averageConsumption().toDouble(), 6'000.0);                  // 48 l / 800 km
-        QCOMPARE(model.consumptionValues(), QVariantList{6.0});
+        QCOMPARE(model.consumptionValues(), QVariantList{6'000.0});
         QCOMPARE(model.consumptionDates(), QVariantList{today.addDays(-30).toString(Qt::ISODate)});
 
         const QVariantList categories = model.categoryCosts();

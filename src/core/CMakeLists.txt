@@ -42,6 +42,8 @@ add_library(garagelog_core STATIC
     serviceentry.h
     servicerepository.cpp
     servicerepository.h
+    settingsrepository.cpp
+    settingsrepository.h
     statsservice.cpp
     statsservice.h
     vehicle.cpp

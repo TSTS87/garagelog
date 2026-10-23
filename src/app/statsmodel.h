@@ -47,7 +47,7 @@ class StatsModel : public QObject
     Q_PROPERTY(QVariant costPerMonthC READ costPerMonthC NOTIFY changed)
     /** ml or Wh per 100 km (double), or null; Format.consumption() formats it. */
     Q_PROPERTY(QVariant averageConsumption READ averageConsumption NOTIFY changed)
-    /** Chart values in l/100 km or kWh/100 km (doubles), oldest first. */
+    /** Chart values in ml or Wh per 100 km (doubles), oldest first; Format.consumptionValue() converts them for display. */
     Q_PROPERTY(QVariantList consumptionValues READ consumptionValues NOTIFY changed)
     /** ISO dates belonging to consumptionValues, same index. */
     Q_PROPERTY(QVariantList consumptionDates READ consumptionDates NOTIFY changed)

@@ -69,7 +69,7 @@ Controls.ScrollView {
                 model: [
                     { caption: i18n("Total cost"), value: Format.money(Stats.totalCostC),
                       detail: i18n("Fuel %1 · Service %2", Format.money(Stats.fuelCostC), Format.money(Stats.serviceCostC)) },
-                    { caption: i18n("Cost per km"), value: Stats.costPerKmC === null ? "–" : Format.moneyPerKm(Stats.costPerKmC),
+                    { caption: i18n("Cost per %1", Format.distanceLabel), value: Stats.costPerKmC === null ? "–" : Format.moneyPerKm(Stats.costPerKmC),
                       detail: Stats.distanceM === null ? i18n("no distance yet") : i18n("over %1", Format.distance(Stats.distanceM)) },
                     { caption: i18n("Cost per month"), value: Stats.costPerMonthC === null ? "–" : Format.money(Stats.costPerMonthC),
                       detail: i18n("average") },
@@ -110,86 +110,93 @@ Controls.ScrollView {
 
         Kirigami.Heading {
             level: 3
-            text: Stats.electric ? i18n("Consumption (kWh/100 km)") : i18n("Consumption (l/100 km)")
+            // Stats.electric is re-announced on every reload, also after a unit change.
+            text: i18n("Consumption (%1)", Format.consumptionUnit(Stats.electric))
         }
 
         Item {
+            id: chartBox
             Layout.fillWidth: true
             implicitHeight: Kirigami.Units.gridUnit * 12
 
-            readonly property bool hasLine: Stats.consumptionValues.length >= 2
+            readonly property bool hasLine: values.length >= 2
+            /** Chart values in the display unit (l/100 km, mpg, kWh/100 km, ...). */
+            readonly property var values: Stats.consumptionValues.map(v => Format.consumptionValue(v, Stats.electric))
 
             Controls.Label {
                 anchors.centerIn: parent
-                visible: !parent.hasLine
+                visible: !chartBox.hasLine
                 text: i18n("At least three full tanks are needed for a consumption curve.")
                 color: Kirigami.Theme.disabledTextColor
             }
 
-            // Y axis labels on the left, computed by KQuickCharts from the chart's range.
-            ChartsControls.AxisLabels {
-                id: yLabels
-                visible: parent.hasLine
-                anchors { left: parent.left; top: chart.top; bottom: chart.bottom }
-                // Fixed width: the labels are created after the first layout
-                // pass, so an implicit width would leave no room for them.
-                width: Kirigami.Units.gridUnit * 2
-                direction: ChartsControls.AxisLabels.VerticalBottomTop
-                delegate: Controls.Label {
-                    text: Format.number(ChartsControls.AxisLabels.label, 1)
-                    font: Kirigami.Theme.smallFont
+            // Hidden as a whole: AxisLabels does not recreate its labels when
+            // it becomes visible again, so it must stay visible itself.
+            Item {
+                anchors.fill: parent
+                visible: chartBox.hasLine
+
+                // Y axis labels on the left, computed by KQuickCharts from the chart's range.
+                ChartsControls.AxisLabels {
+                    id: yLabels
+                    anchors { left: parent.left; top: chart.top; bottom: chart.bottom }
+                    // Fixed width: the labels are created after the first layout
+                    // pass, so an implicit width would leave no room for them.
+                    width: Kirigami.Units.gridUnit * 2
+                    direction: ChartsControls.AxisLabels.VerticalBottomTop
+                    delegate: Controls.Label {
+                        text: Format.number(ChartsControls.AxisLabels.label, 1)
+                        font: Kirigami.Theme.smallFont
+                    }
+                    source: Charts.ChartAxisSource { chart: chart; axis: Charts.ChartAxisSource.YAxis; itemCount: 5 }
                 }
-                source: Charts.ChartAxisSource { chart: chart; axis: Charts.ChartAxisSource.YAxis; itemCount: 5 }
-            }
 
-            ChartsControls.GridLines {
-                anchors.fill: chart
-                visible: parent.hasLine
-                chart: chart
-                direction: ChartsControls.GridLines.Vertical
-                major.frequency: 1
-                major.count: 3
-                major.color: Kirigami.Theme.alternateBackgroundColor
-                minor.visible: false
-            }
-
-            // LineChart draws the values of its valueSources evenly spaced
-            // from left to right (one point per closing full tank).
-            Charts.LineChart {
-                id: chart
-                visible: parent.hasLine
-                anchors { left: yLabels.right; leftMargin: Kirigami.Units.smallSpacing; right: parent.right; top: parent.top; bottom: xLabels.top }
-
-                // Start the axis at zero so differences are not exaggerated;
-                // the top is rounded up to an even number, so the five axis
-                // labels land on readable values (0, 2.5, 5, ...).
-                yRange {
-                    automatic: false
-                    from: 0
-                    to: Math.max(2, Math.ceil(Math.max(...Stats.consumptionValues) * 1.2 / 2) * 2)
+                ChartsControls.GridLines {
+                    anchors.fill: chart
+                    chart: chart
+                    direction: ChartsControls.GridLines.Vertical
+                    major.frequency: 1
+                    major.count: 3
+                    major.color: Kirigami.Theme.alternateBackgroundColor
+                    minor.visible: false
                 }
-                lineWidth: 2
-                fillOpacity: 0.15
-                valueSources: Charts.ArraySource { array: Stats.consumptionValues }
-                colorSource: Charts.SingleValueSource { value: Kirigami.Theme.highlightColor }
-                nameSource: Charts.SingleValueSource { value: i18n("Consumption") }
-            }
 
-            // First and last date under the line, enough to read the time span.
-            RowLayout {
-                id: xLabels
-                visible: parent.hasLine
-                anchors { left: chart.left; right: chart.right; bottom: parent.bottom }
-                Controls.Label {
-                    text: Stats.consumptionDates.length > 0 ? Format.date(Stats.consumptionDates[0]) : ""
-                    font: Kirigami.Theme.smallFont
-                    color: Kirigami.Theme.disabledTextColor
+                // LineChart draws the values of its valueSources evenly spaced
+                // from left to right (one point per closing full tank).
+                Charts.LineChart {
+                    id: chart
+                    anchors { left: yLabels.right; leftMargin: Kirigami.Units.smallSpacing; right: parent.right; top: parent.top; bottom: xLabels.top }
+
+                    // Start the axis at zero so differences are not exaggerated;
+                    // the top is rounded up to an even number, so the five axis
+                    // labels land on readable values (0, 2.5, 5, ...).
+                    yRange {
+                        automatic: false
+                        from: 0
+                        to: Math.max(2, Math.ceil(Math.max(...chartBox.values) * 1.2 / 2) * 2)
+                    }
+                    lineWidth: 2
+                    fillOpacity: 0.15
+                    valueSources: Charts.ArraySource { array: chartBox.values }
+                    colorSource: Charts.SingleValueSource { value: Kirigami.Theme.highlightColor }
+                    nameSource: Charts.SingleValueSource { value: i18n("Consumption") }
                 }
-                Item { Layout.fillWidth: true }
-                Controls.Label {
-                    text: Stats.consumptionDates.length > 0 ? Format.date(Stats.consumptionDates[Stats.consumptionDates.length - 1]) : ""
-                    font: Kirigami.Theme.smallFont
-                    color: Kirigami.Theme.disabledTextColor
+
+                // First and last date under the line, enough to read the time span.
+                RowLayout {
+                    id: xLabels
+                    anchors { left: chart.left; right: chart.right; bottom: parent.bottom }
+                    Controls.Label {
+                        text: Stats.consumptionDates.length > 0 ? Format.date(Stats.consumptionDates[0]) : ""
+                        font: Kirigami.Theme.smallFont
+                        color: Kirigami.Theme.disabledTextColor
+                    }
+                    Item { Layout.fillWidth: true }
+                    Controls.Label {
+                        text: Stats.consumptionDates.length > 0 ? Format.date(Stats.consumptionDates[Stats.consumptionDates.length - 1]) : ""
+                        font: Kirigami.Theme.smallFont
+                        color: Kirigami.Theme.disabledTextColor
+                    }
                 }
             }
         }

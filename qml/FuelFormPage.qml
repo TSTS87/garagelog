@@ -24,7 +24,7 @@ Kirigami.ScrollablePage {
     // cents) or null while a field is empty or not a number.
     readonly property var dateIso: Format.parseDate(dateField.text)
     readonly property var odometerM: Format.parseDistance(odometerField.text)
-    readonly property var quantity: Format.parseQuantity(quantityField.text)
+    readonly property var quantity: Format.parseQuantity(quantityField.text, electric)
     readonly property var totalCostC: Format.parseMoney(totalField.text)
 
     readonly property bool canSave: dateIso !== null && odometerM !== null && quantity !== null && quantity > 0
@@ -55,13 +55,13 @@ Kirigami.ScrollablePage {
 
     /** Fills the calculated price field from the other two, or empties it if they are incomplete. */
     function recalculate() {
-        const unitPrice = Format.parseUnitPrice(unitPriceField.text);
+        const unitPrice = Format.parseUnitPrice(unitPriceField.text, electric);
         let result = null;
         if (calculatedField === "unitPrice") {
             if (quantity !== null && totalCostC !== null) {
                 result = FuelEntries.unitPriceFor(totalCostC, quantity);
             }
-            unitPriceField.text = result === null ? "" : Format.unitPriceInput(result);
+            unitPriceField.text = result === null ? "" : Format.unitPriceInput(result, electric);
         } else if (calculatedField === "total") {
             if (quantity !== null && unitPrice !== null) {
                 result = FuelEntries.totalCostFor(quantity, unitPrice);
@@ -71,7 +71,7 @@ Kirigami.ScrollablePage {
             if (totalCostC !== null && unitPrice !== null) {
                 result = FuelEntries.quantityFor(totalCostC, unitPrice);
             }
-            quantityField.text = result === null ? "" : Format.quantityInput(result);
+            quantityField.text = result === null ? "" : Format.quantityInput(result, electric);
         }
     }
 
@@ -183,7 +183,7 @@ Kirigami.ScrollablePage {
 
         Controls.TextField {
             id: odometerField
-            Kirigami.FormData.label: i18n("Odometer (km):")
+            Kirigami.FormData.label: i18n("Odometer (%1):", Format.distanceLabel)
             // The current reading as hint, so the user sees roughly what to expect.
             placeholderText: i18n("Currently %1", Format.distance(Vehicles.get(FuelEntries.vehicleId).odometerM ?? 0))
             text: form.isNew ? "" : Format.distanceInput(form.original.odometerM)
@@ -202,8 +202,8 @@ Kirigami.ScrollablePage {
         // the calculated value into a field does not count as an edit.
         Controls.TextField {
             id: quantityField
-            Kirigami.FormData.label: form.electric ? i18n("Energy (kWh):") : i18n("Quantity (l):")
-            text: form.isNew ? "" : Format.quantityInput(form.original.quantity)
+            Kirigami.FormData.label: form.electric ? i18n("Energy (kWh):") : i18n("Quantity (%1):", Format.volumeLabel)
+            text: form.isNew ? "" : Format.quantityInput(form.original.quantity, form.electric)
             font.italic: form.calculatedField === "quantity"
             inputMethodHints: Qt.ImhFormattedNumbersOnly
             onTextEdited: form.priceEdited("quantity")
@@ -212,7 +212,7 @@ Kirigami.ScrollablePage {
 
         Controls.TextField {
             id: totalField
-            Kirigami.FormData.label: i18n("Total price (€):")
+            Kirigami.FormData.label: i18n("Total price (%1):", Format.currencySymbol)
             text: form.isNew ? "" : Format.moneyInput(form.original.totalCostC)
             font.italic: form.calculatedField === "total"
             inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -222,10 +222,12 @@ Kirigami.ScrollablePage {
 
         Controls.TextField {
             id: unitPriceField
-            Kirigami.FormData.label: form.electric ? i18n("Price per kWh (€):") : i18n("Price per litre (€):")
+            Kirigami.FormData.label: form.electric ? i18n("Price per kWh (%1):", Format.currencySymbol)
+                : Format.volumeUnit === "l" ? i18n("Price per litre (%1):", Format.currencySymbol)
+                : i18n("Price per gallon (%1):", Format.currencySymbol)
             text: {
                 const milli = form.isNew ? null : FuelEntries.unitPriceFor(form.original.totalCostC, form.original.quantity);
-                return milli === null ? "" : Format.unitPriceInput(milli);
+                return milli === null ? "" : Format.unitPriceInput(milli, form.electric);
             }
             font.italic: form.calculatedField === "unitPrice"
             inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -239,7 +241,7 @@ Kirigami.ScrollablePage {
                 const names = {
                     quantity: form.electric ? i18n("Energy") : i18n("Quantity"),
                     total: i18n("Total price"),
-                    unitPrice: form.electric ? i18n("Price per kWh") : i18n("Price per litre")
+                    unitPrice: form.electric ? i18n("Price per kWh") : Format.volumeUnit === "l" ? i18n("Price per litre") : i18n("Price per gallon")
                 };
                 return i18n("Enter two of the three values. Calculated: %1", names[form.calculatedField]);
             }

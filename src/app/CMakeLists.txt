@@ -5,10 +5,14 @@
 # Models and helpers live in a static library so tests can use them without
 # a window; only main.cpp and the QML need the GUI modules.
 add_library(garagelog_applib STATIC
+    datatransfer.cpp
+    datatransfer.h
     format.cpp
     format.h
     fuellistmodel.cpp
     fuellistmodel.h
+    garagecontroller.cpp
+    garagecontroller.h
     intervallistmodel.cpp
     intervallistmodel.h
     servicelistmodel.cpp
@@ -35,6 +39,7 @@ qt_add_resources(garagelog "qml"
     PREFIX "/"
     BASE ${PROJECT_SOURCE_DIR}
     FILES
+        ${PROJECT_SOURCE_DIR}/qml/CsvImportPage.qml
         ${PROJECT_SOURCE_DIR}/qml/DuePage.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelTab.qml
@@ -43,6 +48,7 @@ qt_add_resources(garagelog "qml"
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceTab.qml
+        ${PROJECT_SOURCE_DIR}/qml/SettingsPage.qml
         ${PROJECT_SOURCE_DIR}/qml/StatsTab.qml
         ${PROJECT_SOURCE_DIR}/qml/StatusDot.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleDrawer.qml
@@ -58,6 +64,7 @@ target_link_libraries(garagelog PRIVATE
     Qt6::QuickControls2
     KF6::I18n
     KF6::I18nQml
+    KF6::ConfigCore
 )
 
 install(TARGETS garagelog ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

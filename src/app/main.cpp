@@ -1,5 +1,5 @@
 // Entry point of the GarageLog executable (role: app).
-// Sets application metadata, opens the default garage database, registers the
+// Sets application metadata, opens the last used garage database, registers the
 // models as QML singletons, creates the QML engine and loads qml/Main.qml from
 // the embedded resources. Exits with an error code if the database or QML
 // fails to load.
@@ -11,12 +11,16 @@
 #include <QQmlEngine>
 #include <QUrl>
 
+#include <KConfigGroup>
 #include <KLocalizedQmlContext>
 #include <KLocalizedString>
+#include <KSharedConfig>
 
 #include "database.h"
+#include "datatransfer.h"
 #include "format.h"
 #include "fuellistmodel.h"
+#include "garagecontroller.h"
 #include "intervallistmodel.h"
 #include "servicelistmodel.h"
 #include "statsmodel.h"
@@ -36,13 +40,22 @@ int main(int argc, char *argv[])
     // Must match the .desktop file name so Wayland compositors show the right icon.
     QGuiApplication::setDesktopFileName(QStringLiteral("org.tmx.GarageLog"));
 
+    // The garage chosen last on the settings page is remembered in
+    // ~/.config/garagelogrc (KConfig), outside the garage file itself.
+    KConfigGroup config(KSharedConfig::openConfig(), QStringLiteral("General"));
+    const QString defaultPath = garagelog::core::Database::defaultFilePath();
+    const QString lastPath = config.readEntry("GaragePath", defaultPath);
+
     // Declared before the engine so it outlives everything QML may later use.
-    // Without a usable database the app cannot do anything, so fail early;
-    // a user-facing error dialog comes with the garage file handling in the UI.
+    // A remembered garage that is gone (USB stick, renamed) falls back to the
+    // default one; without any usable database the app cannot do anything.
     garagelog::core::Database database;
-    if (!database.open(garagelog::core::Database::defaultFilePath())) {
-        qCritical().noquote() << "Cannot open garage database:" << database.errorString();
-        return 1;
+    if (!database.open(lastPath)) {
+        qWarning().noquote() << "Cannot open garage" << lastPath << ":" << database.errorString();
+        if (lastPath == defaultPath || !database.open(defaultPath)) {
+            qCritical().noquote() << "Cannot open garage database:" << database.errorString();
+            return 1;
+        }
     }
 
     // The models live on main()'s stack, after the database and before the engine,
@@ -55,6 +68,8 @@ int main(int argc, char *argv[])
     IntervalListModel dueIntervals(database, IntervalListModel::Scope::AllVehicles);
     garagelog::app::StatsModel stats(database);
     garagelog::app::Format format;
+    garagelog::app::GarageController garage(database, format);
+    garagelog::app::DataTransfer dataTransfer(database);
     // A saved fuel entry can raise the odometer shown in the drawer and the
     // page header; an edited vehicle can switch the fuel unit (l <-> kWh).
     QObject::connect(&fuelEntries, &garagelog::app::FuelListModel::entriesChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
@@ -68,6 +83,20 @@ int main(int argc, char *argv[])
     QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &stats, &garagelog::app::StatsModel::reload);
     QObject::connect(&intervals, &IntervalListModel::intervalsChanged, &dueIntervals, &IntervalListModel::reload);
     QObject::connect(&dueIntervals, &IntervalListModel::intervalsChanged, &intervals, &IntervalListModel::reload);
+    // After switching the garage or importing data, or when the units change,
+    // everything reloads: Vehicles.reloaded cascades to fuel, intervals and
+    // stats; ServiceEntries has no such link and is reloaded directly.
+    QObject::connect(&garage, &garagelog::app::GarageController::garageChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
+    QObject::connect(&garage, &garagelog::app::GarageController::garageChanged, &serviceEntries, &garagelog::app::ServiceListModel::reload);
+    QObject::connect(&dataTransfer, &garagelog::app::DataTransfer::dataImported, &vehicles, &garagelog::app::VehicleListModel::reload);
+    QObject::connect(&dataTransfer, &garagelog::app::DataTransfer::dataImported, &serviceEntries, &garagelog::app::ServiceListModel::reload);
+    QObject::connect(&format, &garagelog::app::Format::unitsChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
+    QObject::connect(&format, &garagelog::app::Format::unitsChanged, &serviceEntries, &garagelog::app::ServiceListModel::reload);
+    QObject::connect(&garage, &garagelog::app::GarageController::garageChanged, [&config, &database] {
+        config.writeEntry("GaragePath", database.filePath());
+        config.sync();
+    });
+
     // Singleton instances: QML uses them as Vehicles.xxx / Format.xxx after
     // "import org.tmx.garagelog", without creating its own copies.
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Vehicles", &vehicles);
@@ -77,6 +106,8 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "DueIntervals", &dueIntervals);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Stats", &stats);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Format", &format);
+    qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Garage", &garage);
+    qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "DataTransfer", &dataTransfer);
 
     QQmlApplicationEngine engine;
     // Makes i18n()/i18nc() available in all QML files of this engine.

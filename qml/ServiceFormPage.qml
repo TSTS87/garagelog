@@ -246,7 +246,7 @@ Kirigami.ScrollablePage {
 
         Controls.TextField {
             id: odometerField
-            Kirigami.FormData.label: i18n("Odometer (km):")
+            Kirigami.FormData.label: i18n("Odometer (%1):", Format.distanceLabel)
             placeholderText: i18n("Optional, currently %1", Format.distance(Vehicles.get(ServiceEntries.vehicleId).odometerM ?? 0))
             text: form.original.odometerM === undefined || form.original.odometerM === null ? "" : Format.distanceInput(form.original.odometerM)
             inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -255,7 +255,7 @@ Kirigami.ScrollablePage {
 
         Controls.TextField {
             id: costField
-            Kirigami.FormData.label: i18n("Cost (€):")
+            Kirigami.FormData.label: i18n("Cost (%1):", Format.currencySymbol)
             text: form.isNew ? "" : Format.moneyInput(form.original.costC)
             placeholderText: "0"
             inputMethodHints: Qt.ImhFormattedNumbersOnly
