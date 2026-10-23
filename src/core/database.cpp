@@ -119,4 +119,20 @@ QString Database::errorString() const
     return m_error;
 }
 
+Database::FileState Database::fileState() const
+{
+    if (m_filePath.isEmpty()) {
+        return FileState::Closed;
+    }
+    const QFileInfo file(m_filePath);
+    if (!file.exists()) {
+        return FileState::Missing;
+    }
+    // isWritable() asks the OS (access()), so it also sees ownership, not only the mode bits.
+    if (!file.isWritable() || !QFileInfo(file.absolutePath()).isWritable()) {
+        return FileState::ReadOnly;
+    }
+    return FileState::Ok;
+}
+
 } // namespace garagelog::core

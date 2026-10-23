@@ -19,6 +19,14 @@ namespace garagelog::core {
 class Database
 {
 public:
+    /** Result of fileState(): can the open garage file still be written? */
+    enum class FileState {
+        Ok,       ///< file exists and file plus folder are writable
+        Missing,  ///< deleted or moved while open; writes would go to an unlinked file and be lost on exit
+        ReadOnly, ///< file or its folder is write-protected; SQLite can read but every write fails
+        Closed,   ///< no garage is open
+    };
+
     /** File name of a garage inside the app data directory (SPEC: garage.sqlite). */
     static inline const QString defaultFileName = QStringLiteral("garage.sqlite");
 
@@ -63,6 +71,16 @@ public:
 
     /** Reason for the last failed open(). */
     QString errorString() const;
+
+    /**
+     * @brief Checks the open file on disk (cheap: two stat() calls, no SQL).
+     *
+     * The folder counts as well, because SQLite creates its journal file next
+     * to the database while writing. On Linux an open file that is deleted
+     * stays readable and writable through the connection, so a missing file
+     * is not an error SQLite would ever report by itself.
+     */
+    FileState fileState() const;
 
 private:
     /** Applies connection settings and migrations; returns false with m_error set. */

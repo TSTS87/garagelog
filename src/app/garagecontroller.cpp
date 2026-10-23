@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QSet>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -70,6 +71,10 @@ GarageController::GarageController(core::Database &database, Format &format, QOb
     , m_format(format)
 {
     loadSettings();
+    connect(&m_watcher, &QFileSystemWatcher::fileChanged, this, &GarageController::checkFile);
+    connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, &GarageController::checkFile);
+    watchFile();
+    checkFile();
 }
 
 QString GarageController::filePath() const
@@ -107,6 +112,55 @@ QStringList GarageController::currencies() const
 QString GarageController::errorString() const
 {
     return m_error;
+}
+
+QString GarageController::fileState() const
+{
+    return m_fileState;
+}
+
+void GarageController::checkFile()
+{
+    using State = core::Database::FileState;
+    QString state;
+    switch (m_database.fileState()) {
+    case State::Missing:
+        state = QStringLiteral("missing");
+        break;
+    case State::ReadOnly:
+        state = QStringLiteral("readOnly");
+        break;
+    case State::Ok:
+    case State::Closed:
+        state = QStringLiteral("ok");
+        break;
+    }
+    if (state != m_fileState) {
+        m_fileState = state;
+        Q_EMIT fileStateChanged();
+    }
+    // A watched file drops out of the watcher once it is deleted; re-adding
+    // it here picks it up again after it was restored.
+    watchFile();
+}
+
+void GarageController::watchFile()
+{
+    const QString file = m_database.filePath();
+    const QStringList wanted = file.isEmpty() ? QStringList() : QStringList{file, QFileInfo(file).absolutePath()};
+    const QStringList watched = m_watcher.files() + m_watcher.directories();
+    if (QSet<QString>(watched.begin(), watched.end()) == QSet<QString>(wanted.begin(), wanted.end())) {
+        return;
+    }
+    if (!watched.isEmpty()) {
+        m_watcher.removePaths(watched);
+    }
+    for (const QString &path : wanted) {
+        // Fails quietly for a missing file; the folder still reports its return.
+        if (QFileInfo::exists(path)) {
+            m_watcher.addPath(path);
+        }
+    }
 }
 
 void GarageController::loadSettings()
@@ -173,6 +227,7 @@ bool GarageController::switchTo(const QString &path)
     }
     setErrorString({});
     loadSettings();
+    checkFile();
     Q_EMIT garageChanged();
     return true;
 }

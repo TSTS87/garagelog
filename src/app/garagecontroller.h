@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <QFileSystemWatcher>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -24,6 +25,10 @@ class Format;
  * models keep their reference and only need a reload (garageChanged()).
  * If the new file cannot be opened, the previous one is reopened.
  * Paths may be given as file:// URLs (from FileDialog) or plain paths.
+ *
+ * It also watches the open file (M15): if it is deleted, moved or becomes
+ * write-protected, fileState changes and the window shows a warning; the
+ * data is still in the open connection, so "save as" rescues it.
  */
 class GarageController : public QObject
 {
@@ -37,6 +42,8 @@ class GarageController : public QObject
     /** ISO codes offered in the currency picker. */
     Q_PROPERTY(QStringList currencies READ currencies CONSTANT)
     Q_PROPERTY(QString errorString READ errorString NOTIFY errorStringChanged)
+    /** "ok", "missing" or "readOnly" (core::Database::FileState); "ok" also while no garage is open. */
+    Q_PROPERTY(QString fileState READ fileState NOTIFY fileStateChanged)
 
 public:
     /** @param database The app's open database; reopened in place on a switch. @param format Receives the units. */
@@ -52,6 +59,15 @@ public:
     void setCurrency(const QString &code);
     QStringList currencies() const;
     QString errorString() const;
+    QString fileState() const;
+
+    /**
+     * @brief Re-checks the garage file on disk and updates fileState.
+     *
+     * Called by the file watcher and by the window when it is activated, as
+     * a watcher can miss changes (e.g. on network file systems).
+     */
+    Q_INVOKABLE void checkFile();
 
     /** Reads units and currency of the open garage and applies them to Format (defaults km, l, EUR). */
     void loadSettings();
@@ -81,12 +97,15 @@ Q_SIGNALS:
     void garageChanged();
     void settingsChanged();
     void errorStringChanged();
+    void fileStateChanged();
 
 private:
     /** Opens @p path, falling back to the previous file on failure. */
     bool switchTo(const QString &path);
     bool writeSetting(const QString &key, const QString &value);
     void setErrorString(const QString &error);
+    /** Points the watcher at the open file and its folder (the folder sees deletes and renames). */
+    void watchFile();
 
     core::Database &m_database;
     Format &m_format;
@@ -94,6 +113,8 @@ private:
     QString m_volumeUnit;
     QString m_currency;
     QString m_error;
+    QString m_fileState = QStringLiteral("ok");
+    QFileSystemWatcher m_watcher;
 };
 
 /** Local path of a file:// URL; anything else is returned unchanged. */

@@ -38,4 +38,13 @@ Entscheidung: Einheiten (km/mi, l/US-gal/imp-gal) und Währung stehen in der Tab
 Grund: Eine kopierte Garage behält ihre Einheiten; Einheitenwechsel kann nie Daten verfälschen. KConfig ist bereits im Tech-Stack. Zusammenführen zweier Garagen bräuchte Konfliktregeln (gleiche Fahrzeuge, Kategorienamen) – für v1.0 unnötig riskant.
 Alternativen: Einheiten global in KConfig (passt nicht zu „eine Datei = eine Garage“); Import mit Zusammenführen (später möglich, da UUIDs).
 
-<!-- Nächste: ADR-011 -->
+## ADR-011 (2026-10-23) Garage-Datei überwachen statt Schreibzugriffe sperren
+Entscheidung: `Database::fileState()` prüft per `QFileInfo`, ob die offene Datei noch existiert und Datei samt Ordner beschreibbar sind (Journal liegt daneben). `GarageController` ruft das über einen `QFileSystemWatcher` (Datei + Ordner) und bei jeder Fensteraktivierung auf; `Main.qml` zeigt dann ein Banner mit „Kopie speichern…“ (`saveGarageAs`, `VACUUM INTO`). Schreibfehler einer schreibgeschützten Garage meldet SQLite selbst; sie erscheinen wie bisher in den Formularen.
+Grund: Unter Linux bleibt eine gelöschte, offene Datei über die Verbindung les- und schreibbar – SQLite meldet keinen Fehler, Änderungen gingen erst beim Beenden verloren. Gerade deshalb lassen sich die Daten aber noch per `VACUUM INTO` retten; eine Schreibsperre würde das Retten nicht verbessern, nur Code in jedem Repository kosten. Kein direkter Zugriff auf die SQLite-C-API (wäre eine neue Abhängigkeit).
+Alternativen: vor jedem Schreiben prüfen (verteilt über alle Repositories), Verbindung bei Fehlen schließen (Daten wären verloren).
+
+## ADR-012 (2026-10-23) Entwickler-Werkzeuge in `tools/`
+Entscheidung: Nicht ausgelieferte Hilfsprogramme liegen in `tools/` (eigene CMake-Ziele, nicht installiert, nicht im Flatpak). Erstes: `garagelog-gendata` und die Bibliothek `garagelog_sampledata` (Testgarage mit 10.000 Tankeinträgen, M15), die auch `test_performance` nutzt. Sie verwenden nur `garagelog_core`.
+Grund: Der Generator gehört weder in die Kern-Bibliothek (keine Produktfunktion) noch nur in die Tests (Thomas soll sich eine volle Garage ansehen können).
+
+<!-- Nächste: ADR-013 -->

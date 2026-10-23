@@ -30,7 +30,8 @@ using garagelog::app::GarageController;
 using namespace garagelog::core;
 
 /**
- * @brief Covers M14: settings storage, unit conversion, garage switching, save-as, export/import actions.
+ * @brief Covers M14: settings storage, unit conversion, garage switching, save-as, export/import actions;
+ * M15: watching the garage file for deletion and write protection.
  */
 class TestGarageController : public QObject
 {
@@ -197,6 +198,47 @@ private Q_SLOTS:
         QCOMPARE(VehicleRepository(*m_db).all().size(), 1);
         QVERIFY(QFile::exists(path(QStringLiteral("backup/attachments/")) + attachment->storedName));
         QVERIFY(!garage.saveGarageAs(copy)); // the open garage itself
+    }
+
+    /** A garage file deleted while open is reported via the watcher, and "save as" still rescues its data. */
+    void deletedGarageIsReportedAndRescued()
+    {
+        Format format;
+        GarageController garage(*m_db, format);
+        addVehicle(QStringLiteral("Golf"));
+        QCOMPARE(garage.fileState(), QStringLiteral("ok"));
+
+        QSignalSpy spy(&garage, &GarageController::fileStateChanged);
+        QVERIFY(QFile::remove(garage.filePath()));
+        // The folder watcher reports the delete through the event loop.
+        QTRY_COMPARE(garage.fileState(), QStringLiteral("missing"));
+        QCOMPARE(spy.count(), 1);
+
+        const QString rescue = path(QStringLiteral("rescue/garage.sqlite"));
+        QVERIFY2(garage.saveGarageAs(rescue), qPrintable(garage.errorString()));
+        QCOMPARE(garage.fileState(), QStringLiteral("ok"));
+        QCOMPARE(VehicleRepository(*m_db).all().size(), 1);
+    }
+
+    /** A write-protected garage is reported as read-only and can be copied to a writable place. */
+    void readOnlyGarageIsReportedAndCopied()
+    {
+        addVehicle(QStringLiteral("Golf"));
+        const QString file = m_db->filePath();
+        QVERIFY(QFile::setPermissions(file, QFile::ReadOwner));
+        // Reopen: a connection opened before the chmod could still write.
+        QVERIFY(m_db->open(file));
+        Format format;
+        GarageController garage(*m_db, format);
+        QCOMPARE(garage.fileState(), QStringLiteral("readOnly"));
+        // Writing a setting fails visibly instead of pretending to work.
+        garage.setCurrency(QStringLiteral("USD"));
+        QVERIFY(!garage.errorString().isEmpty());
+
+        QVERIFY2(garage.saveGarageAs(path(QStringLiteral("copy.sqlite"))), qPrintable(garage.errorString()));
+        QCOMPARE(garage.fileState(), QStringLiteral("ok"));
+        QCOMPARE(VehicleRepository(*m_db).all().size(), 1);
+        QVERIFY(QFile::setPermissions(file, QFile::ReadOwner | QFile::WriteOwner));
     }
 
     /** JSON export into a dated subfolder, import into a new garage; CSV mapping survives the QVariantMap roundtrip. */

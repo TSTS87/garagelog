@@ -231,6 +231,44 @@ private Q_SLOTS:
         QVERIFY(!db.isOpen());
     }
 
+    /** fileState() reports a write-protected and a deleted garage file while it is open. */
+    void fileStateFollowsTheFileOnDisk()
+    {
+        QTemporaryDir dir;
+        const QString path = dir.filePath(QStringLiteral("garage.sqlite"));
+        Database db;
+        QCOMPARE(db.fileState(), Database::FileState::Closed);
+        QVERIFY2(db.open(path), qPrintable(db.errorString()));
+        QCOMPARE(db.fileState(), Database::FileState::Ok);
+
+        QVERIFY(QFile::setPermissions(path, QFile::ReadOwner));
+        QCOMPARE(db.fileState(), Database::FileState::ReadOnly);
+        QVERIFY(QFile::setPermissions(path, QFile::ReadOwner | QFile::WriteOwner));
+
+        QVERIFY(QFile::remove(path));
+        QCOMPARE(db.fileState(), Database::FileState::Missing);
+    }
+
+    /** An up-to-date garage without write permission still opens, so its data can be read and copied. */
+    void readOnlyGarageOpens()
+    {
+        QTemporaryDir dir;
+        const QString path = dir.filePath(QStringLiteral("garage.sqlite"));
+        {
+            Database db;
+            QVERIFY(db.open(path));
+        }
+        QVERIFY(QFile::setPermissions(path, QFile::ReadOwner));
+        Database db;
+        QVERIFY2(db.open(path), qPrintable(db.errorString()));
+        QCOMPARE(db.fileState(), Database::FileState::ReadOnly);
+        QCOMPARE(scalar(db.connection(), QStringLiteral("SELECT COUNT(*) FROM service_categories")).toInt(), 13);
+        // Writing fails with an error instead of silently doing nothing.
+        QSqlQuery query(db.connection());
+        QVERIFY(!query.exec(QStringLiteral("DELETE FROM service_categories WHERE builtin = 0")));
+        QVERIFY(QFile::setPermissions(path, QFile::ReadOwner | QFile::WriteOwner));
+    }
+
     /** Misnamed .sql files are reported instead of being silently skipped. */
     void malformedMigrationNameIsRejected()
     {

@@ -1,7 +1,8 @@
 // Root QML file of GarageLog (role: qml, pure UI).
 // Main window with the vehicle drawer and the page stack. Owns navigation:
 // which page is shown (vehicle, due overview, settings) and when a form
-// opens (SPEC §6), plus the folder dialogs of the "Data" menu.
+// opens (SPEC §6), plus the folder dialogs of the "Data" menu and the
+// warning when the garage file is deleted or write-protected (M15).
 
 import QtQuick
 import QtQuick.Dialogs
@@ -19,6 +20,55 @@ Kirigami.ApplicationWindow {
     title: i18n("GarageLog")
     width: Kirigami.Units.gridUnit * 50
     height: Kirigami.Units.gridUnit * 35
+
+    // The watcher may miss changes (network shares), so look again whenever
+    // the user comes back to the window.
+    onActiveChanged: if (active) Garage.checkFile()
+
+    // header is the slot of the ApplicationWindow above all pages: the
+    // warning stays visible whatever page is open, and disappears by itself
+    // once Garage.fileState is "ok" again (file restored or copy saved).
+    header: Item {
+        visible: Garage.fileState !== "ok"
+        implicitHeight: fileMessage.implicitHeight
+
+        // Kirigami shifts the header left by the width of the docked drawer;
+        // undoing that offset here keeps the message in the window's full width.
+        Kirigami.InlineMessage {
+            id: fileMessage
+
+            readonly property bool missing: Garage.fileState === "missing"
+
+            x: -parent.x
+            width: root.width
+            visible: true
+            position: Kirigami.InlineMessage.Position.Header
+            type: missing ? Kirigami.MessageType.Error : Kirigami.MessageType.Warning
+            text: missing
+                ? i18n("The garage file %1 was deleted or moved. GarageLog still has your data open, but changes are lost when it closes. Save a copy to keep them.", Garage.filePath)
+                : i18n("The garage file %1 is write-protected. You can look at your data, but changes cannot be saved. Save a copy to keep working.", Garage.filePath)
+            actions: [
+                Kirigami.Action {
+                    text: i18n("Save Copy…")
+                    icon.name: "document-save-as"
+                    onTriggered: rescueDialog.open()
+                }
+            ]
+        }
+    }
+
+    // Copies the open garage (still readable even if deleted, Linux keeps
+    // the open file alive) and continues in the copy.
+    FileDialog {
+        id: rescueDialog
+        title: i18n("Save Garage As")
+        fileMode: FileDialog.SaveFile
+        currentFolder: Garage.folderUrl
+        defaultSuffix: "sqlite"
+        nameFilters: [i18n("GarageLog garages (*.sqlite)")]
+        onAccepted: root.showPassiveNotification(Garage.saveGarageAs(selectedFile)
+            ? i18n("Garage saved; you are now working in the copy") : Garage.errorString, "long")
+    }
 
     globalDrawer: VehicleDrawer {
         currentVehicleId: root.currentVehicleId
