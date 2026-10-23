@@ -3,13 +3,15 @@
 #include "vehiclerepository.h"
 
 #include "database.h"
+#include "dbvalues.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QTimeZone>
 #include <QUuid>
 
 namespace garagelog::core {
+
+using namespace db;
 
 namespace {
 
@@ -17,29 +19,6 @@ namespace {
 const QString selectColumns = QStringLiteral(
     "SELECT id, name, type, make, model, year, plate, powertrain, odometer_offset_m, "
     "archived, notes, created_at, updated_at FROM vehicles");
-
-/** Current time in UTC, truncated to seconds so it survives the ISO text roundtrip unchanged. */
-QDateTime nowUtc()
-{
-    return QDateTime::fromSecsSinceEpoch(QDateTime::currentSecsSinceEpoch(), QTimeZone::UTC);
-}
-
-/** UTC timestamp as stored in SQLite: YYYY-MM-DDTHH:MM:SSZ. */
-QString toDbTimestamp(const QDateTime &time)
-{
-    return time.toUTC().toString(Qt::ISODate);
-}
-
-QDateTime fromDbTimestamp(const QVariant &value)
-{
-    return QDateTime::fromString(value.toString(), Qt::ISODate).toUTC();
-}
-
-/** Empty QString -> SQL NULL, so optional text columns do not fill up with ''. */
-QVariant nullIfEmpty(const QString &text)
-{
-    return text.isEmpty() ? QVariant() : QVariant(text);
-}
 
 /**
  * Reads the current row of a query built on selectColumns.
