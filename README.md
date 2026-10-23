@@ -40,5 +40,8 @@ sudo cmake --install build
 Bug reports, translations and pull requests are welcome – see [CONTRIBUTING.md](CONTRIBUTING.md).
 Design notes: [specification](docs/SPEC.md), [data model](docs/DATA_MODEL.md), [decisions](docs/DECISIONS.md).
 
+## Support
+GarageLog is free and stays free. If it saves you time or money, you can support its development via [GitHub Sponsors](https://github.com/sponsors/TSTS87).
+
 ## License
 GarageLog is free software under the [GNU General Public License v3.0 or later](LICENSE).
