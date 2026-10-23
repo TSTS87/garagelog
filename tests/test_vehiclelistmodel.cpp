@@ -124,7 +124,7 @@ private Q_SLOTS:
         QCOMPARE(model.rowCount(), 0);
     }
 
-    /** Archived vehicles leave the list and come back with showArchived or after restoring. */
+    /** Archived vehicles leave the list and come back with showArchived or after restoring; archivedCount counts them while hidden. */
     void archiveFiltersList()
     {
         VehicleListModel model(*m_db);
@@ -133,9 +133,12 @@ private Q_SLOTS:
         const QString b = model.save(newVehicle(QStringLiteral("BMW")));
         QCOMPARE(model.rowCount(), 2);
 
+        QCOMPARE(model.archivedCount(), 0);
         QVERIFY(model.setArchived(a, true));
         QCOMPARE(model.rowCount(), 1);
         QCOMPARE(model.idAt(0), b);
+        // Counted while hidden, so the empty state can point to "Show Archived".
+        QCOMPARE(model.archivedCount(), 1);
         // The page still needs the archived vehicle's data.
         QVERIFY(model.get(a).value(QStringLiteral("archived")).toBool());
 

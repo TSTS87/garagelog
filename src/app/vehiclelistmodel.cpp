@@ -82,6 +82,11 @@ QString VehicleListModel::errorString() const
     return m_error;
 }
 
+int VehicleListModel::archivedCount() const
+{
+    return m_archivedCount;
+}
+
 QString VehicleListModel::iconForType(const QString &type)
 {
     // Breeze only ships a "car" icon; motorcycle, scooter and e-bike icons
@@ -104,7 +109,14 @@ void VehicleListModel::reload()
     const int oldCount = rowCount();
 
     QList<Row> rows;
-    for (const Vehicle &v : repo.all(m_showArchived)) {
+    int archivedCount = 0;
+    // Always read archived ones too: the empty state needs to know whether
+    // the garage is really empty or only shows no archived vehicles.
+    for (const Vehicle &v : repo.all(true)) {
+        archivedCount += v.archived ? 1 : 0;
+        if (v.archived && !m_showArchived) {
+            continue;
+        }
         // A failed odometer query shows 0 instead of hiding the vehicle.
         rows.append({v, odometer.current(v.id).value_or(0)});
     }
@@ -115,6 +127,10 @@ void VehicleListModel::reload()
     endResetModel();
     if (rowCount() != oldCount) {
         Q_EMIT countChanged();
+    }
+    if (m_archivedCount != archivedCount) {
+        m_archivedCount = archivedCount;
+        Q_EMIT archivedCountChanged();
     }
     Q_EMIT reloaded();
 }

@@ -232,15 +232,32 @@ Kirigami.ApplicationWindow {
             // PlaceholderMessage is Kirigami's standard "empty state": icon,
             // text, explanation and an optional button for the obvious next step.
             Kirigami.PlaceholderMessage {
+                // Only archived vehicles left: the garage is not empty, they are just hidden.
+                readonly property bool onlyArchived: Vehicles.archivedCount > 0
+
                 anchors.centerIn: parent
                 width: parent.width - Kirigami.Units.gridUnit * 4
                 icon.name: "car"
-                text: i18n("No vehicles yet")
-                explanation: i18n("Add your car, motorcycle or scooter to start tracking fuel and service.")
-                helpfulAction: Kirigami.Action {
+                text: onlyArchived ? i18n("All vehicles are archived") : i18n("No vehicles yet")
+                explanation: onlyArchived
+                    ? i18n("Show the archived vehicles to look at their entries, or add a new vehicle from the side bar.")
+                    : i18n("Add your car, motorcycle or scooter to start tracking fuel and service.")
+                helpfulAction: onlyArchived ? showArchivedAction : addVehicleAction
+
+                Kirigami.Action {
+                    id: addVehicleAction
                     text: i18n("Add Vehicle")
                     icon.name: "list-add"
                     onTriggered: root.openForm("")
+                }
+                Kirigami.Action {
+                    id: showArchivedAction
+                    text: i18n("Show Archived")
+                    icon.name: "archive-extract"
+                    onTriggered: {
+                        Vehicles.showArchived = true;
+                        root.showHome();
+                    }
                 }
             }
         }

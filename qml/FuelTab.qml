@@ -106,6 +106,7 @@ ColumnLayout {
             visible: list.count === 0
             icon.name: "car" // Breeze has no fuel pump icon
             text: FuelEntries.electric ? i18n("No charging entries yet") : i18n("No fuel entries yet")
+            explanation: i18n("Record every refuelling or charge; consumption is calculated between two full tanks.")
             helpfulAction: Kirigami.Action {
                 text: i18n("Add Entry")
                 icon.name: "list-add"

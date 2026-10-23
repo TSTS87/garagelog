@@ -30,6 +30,8 @@ class VehicleListModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(bool showArchived READ showArchived WRITE setShowArchived NOTIFY showArchivedChanged)
     Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
+    /** Archived vehicles in the garage, also while they are hidden; for the empty state. */
+    Q_PROPERTY(int archivedCount READ archivedCount NOTIFY archivedCountChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY errorStringChanged)
 
 public:
@@ -53,6 +55,7 @@ public:
     bool showArchived() const;
     void setShowArchived(bool show);
     QString errorString() const;
+    int archivedCount() const;
 
     /** Icon name for a vehicle type (database text); "car" for unknown text. */
     static QString iconForType(const QString &type);
@@ -86,6 +89,7 @@ public:
 Q_SIGNALS:
     void showArchivedChanged();
     void countChanged();
+    void archivedCountChanged();
     void errorStringChanged();
     /** Emitted after every reload(); pages showing one vehicle re-read it via get(). */
     void reloaded();
@@ -102,6 +106,7 @@ private:
     const core::Database &m_database;
     QList<Row> m_rows;
     bool m_showArchived = false;
+    int m_archivedCount = 0;
     QString m_error;
 };
 
