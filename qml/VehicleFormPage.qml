@@ -120,6 +120,11 @@ Kirigami.ScrollablePage {
     // attached Kirigami.FormData.label of each field and align
     // automatically; on narrow windows it switches to labels above fields.
     Kirigami.FormLayout {
+        // Key events nobody handled bubble up to the parent item; text fields
+        // save via onAccepted, this catches Enter on switches and combo boxes.
+        Keys.onReturnPressed: form.save()
+        Keys.onEnterPressed: form.save()
+
         Controls.TextField {
             id: nameField
             Kirigami.FormData.label: i18n("Name:")
@@ -132,8 +137,9 @@ Kirigami.ScrollablePage {
 
         // ComboBox with textRole/valueRole: shows the translated text but
         // currentValue yields the database key the C++ side expects.
-        Controls.ComboBox {
+        FormComboBox {
             id: typeBox
+            onSubmitted: form.save()
             Kirigami.FormData.label: i18n("Type:")
             textRole: "text"
             valueRole: "value"
@@ -145,8 +151,9 @@ Kirigami.ScrollablePage {
             currentIndex: Math.max(0, form.typeOptions.findIndex(option => option.value === (form.original.type ?? "car")))
         }
 
-        Controls.ComboBox {
+        FormComboBox {
             id: powertrainBox
+            onSubmitted: form.save()
             Kirigami.FormData.label: i18n("Powertrain:")
             textRole: "text"
             valueRole: "value"
@@ -206,11 +213,10 @@ Kirigami.ScrollablePage {
             onAccepted: form.save()
         }
 
-        Controls.TextArea {
+        NotesArea {
             id: notesField
             Kirigami.FormData.label: i18n("Notes:")
             text: form.original.notes ?? ""
-            wrapMode: TextEdit.Wrap
             implicitHeight: Kirigami.Units.gridUnit * 5
         }
     }

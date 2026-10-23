@@ -108,6 +108,8 @@ Kirigami.ScrollablePage {
                 Controls.Button {
                     text: i18n("Choose File…")
                     icon.name: "document-open"
+                    // Choosing a file is the only possible first step.
+                    focus: true
                     onClicked: fileDialog.open()
                 }
                 Controls.Label {

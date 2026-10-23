@@ -41,11 +41,13 @@ qt_add_resources(garagelog "qml"
     FILES
         ${PROJECT_SOURCE_DIR}/qml/CsvImportPage.qml
         ${PROJECT_SOURCE_DIR}/qml/DuePage.qml
+        ${PROJECT_SOURCE_DIR}/qml/FormComboBox.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelTab.qml
         ${PROJECT_SOURCE_DIR}/qml/IntervalFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/IntervalTab.qml
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
+        ${PROJECT_SOURCE_DIR}/qml/NotesArea.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceTab.qml
         ${PROJECT_SOURCE_DIR}/qml/SettingsPage.qml

@@ -112,6 +112,11 @@ Kirigami.ScrollablePage {
     }
 
     Kirigami.FormLayout {
+        // Key events nobody handled bubble up to the parent item; text fields
+        // save via onAccepted, this catches Enter on switches and combo boxes.
+        Keys.onReturnPressed: form.save()
+        Keys.onEnterPressed: form.save()
+
         // Status of an existing interval, so the form also answers "when is it due?".
         RowLayout {
             Kirigami.FormData.label: i18n("Status:")
@@ -129,8 +134,9 @@ Kirigami.ScrollablePage {
             }
         }
 
-        Controls.ComboBox {
+        FormComboBox {
             id: categoryBox
+            onSubmitted: form.save()
             Kirigami.FormData.label: i18n("Service category:")
             model: form.categories
             textRole: "name"
@@ -188,12 +194,10 @@ Kirigami.ScrollablePage {
             checked: form.original.active ?? true
         }
 
-        Controls.TextArea {
+        NotesArea {
             id: notesField
             Kirigami.FormData.label: i18n("Notes:")
             text: form.original.notes ?? ""
-            wrapMode: TextEdit.Wrap
-            implicitHeight: Kirigami.Units.gridUnit * 4
         }
     }
 }

@@ -168,6 +168,11 @@ Kirigami.ScrollablePage {
     }
 
     Kirigami.FormLayout {
+        // Key events nobody handled bubble up to the parent item; text fields
+        // save via onAccepted, this catches Enter on switches and combo boxes.
+        Keys.onReturnPressed: form.save()
+        Keys.onEnterPressed: form.save()
+
         Controls.TextField {
             id: dateField
             Kirigami.FormData.label: i18n("Date:")
@@ -276,12 +281,10 @@ Kirigami.ScrollablePage {
             onAccepted: form.save()
         }
 
-        Controls.TextArea {
+        NotesArea {
             id: notesField
             Kirigami.FormData.label: i18n("Notes:")
             text: form.original.notes ?? ""
-            wrapMode: TextEdit.Wrap
-            implicitHeight: Kirigami.Units.gridUnit * 4
         }
     }
 }

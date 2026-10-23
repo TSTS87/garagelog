@@ -202,6 +202,11 @@ Kirigami.ScrollablePage {
     }
 
     Kirigami.FormLayout {
+        // Key events nobody handled bubble up to the parent item; text fields
+        // save via onAccepted, this catches Enter on switches and combo boxes.
+        Keys.onReturnPressed: form.save()
+        Keys.onEnterPressed: form.save()
+
         Controls.TextField {
             id: dateField
             Kirigami.FormData.label: i18n("Date:")
@@ -217,8 +222,9 @@ Kirigami.ScrollablePage {
 
         // The last entry is the "New Category…" command, not a category;
         // choosing it opens the dialog and keeps the previous selection.
-        Controls.ComboBox {
+        FormComboBox {
             id: categoryBox
+            onSubmitted: form.save()
             Kirigami.FormData.label: i18n("Category:")
             readonly property var entries: form.categories.concat([{ id: "", name: i18n("New Category…") }])
             model: entries
@@ -268,8 +274,9 @@ Kirigami.ScrollablePage {
             color: Kirigami.Theme.negativeTextColor
         }
 
-        Controls.ComboBox {
+        FormComboBox {
             id: performedByBox
+            onSubmitted: form.save()
             Kirigami.FormData.label: i18n("Done by:")
             model: form.performedByOptions
             textRole: "text"
@@ -284,12 +291,10 @@ Kirigami.ScrollablePage {
             onAccepted: form.save()
         }
 
-        Controls.TextArea {
+        NotesArea {
             id: notesField
             Kirigami.FormData.label: i18n("Notes:")
             text: form.original.notes ?? ""
-            wrapMode: TextEdit.Wrap
-            implicitHeight: Kirigami.Units.gridUnit * 4
         }
 
         Kirigami.Separator {
