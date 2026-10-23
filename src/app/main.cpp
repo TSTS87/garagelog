@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QGuiApplication>
+#include <QIcon>
 #include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 #include <QQmlEngine>
@@ -48,6 +49,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion(garagelog::core::version());
     // Must match the .desktop file name so Wayland compositors show the right icon.
     QGuiApplication::setDesktopFileName(QStringLiteral("io.github.TSTS87.GarageLog"));
+    // X11 and the window list need the icon explicitly; it comes from the installed hicolor theme.
+    QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("io.github.TSTS87.GarageLog")));
 
     // The garage chosen last on the settings page is remembered in
     // ~/.config/garagelogrc (KConfig), outside the garage file itself.

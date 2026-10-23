@@ -38,3 +38,11 @@ ki18n_install(po)
 
 install(FILES packaging/io.github.TSTS87.GarageLog.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 install(FILES packaging/io.github.TSTS87.GarageLog.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
+
+# App icon: scalable SVG plus pre-rendered PNGs (tools/render-icons.sh) for the hicolor theme.
+install(FILES packaging/icons/io.github.TSTS87.GarageLog.svg DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps)
+foreach(size 48 64 128 256)
+    install(FILES packaging/icons/io.github.TSTS87.GarageLog-${size}.png
+            DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/${size}x${size}/apps
+            RENAME io.github.TSTS87.GarageLog.png)
+endforeach()
