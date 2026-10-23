@@ -7,6 +7,8 @@
 add_library(garagelog_applib STATIC
     format.cpp
     format.h
+    fuellistmodel.cpp
+    fuellistmodel.h
     vehiclelistmodel.cpp
     vehiclelistmodel.h
 )
