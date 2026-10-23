@@ -7,6 +7,8 @@ add_library(garagelog_core STATIC
     database.h
     migrationrunner.cpp
     migrationrunner.h
+    odometer.cpp
+    odometer.h
     vehicle.cpp
     vehicle.h
     vehiclerepository.cpp
