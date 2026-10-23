@@ -1,0 +1,43 @@
+# Continuous integration: builds GarageLog and runs all tests on every push and pull request.
+# "build" uses an Arch Linux container with the same packages as a local CachyOS/Arch build;
+# "flatpak" builds the development manifest against the KDE runtime, as Flathub will.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm --needed base-devel cmake ninja git extra-cmake-modules \
+            qt6-base qt6-declarative kirigami ki18n kcoreaddons kconfig kquickcharts \
+            gettext appstream desktop-file-utils
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+      - name: Build
+        run: cmake --build build
+      - name: Install (for the ECM AppStream test, which checks installed files)
+        run: cmake --install build --prefix "$RUNNER_TEMP/install"
+      - name: Test
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ctest --test-dir build --output-on-failure
+
+  flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.11
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: garagelog.flatpak
+          manifest-path: packaging/flatpak/io.github.TSTS87.GarageLog.yml
+          cache-key: flatpak-builder-${{ github.sha }}

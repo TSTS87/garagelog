@@ -2,7 +2,7 @@
 # The Flathub manifest in packaging/flathub/ builds a git tag instead.
 id: io.github.TSTS87.GarageLog
 runtime: org.kde.Platform
-runtime-version: '6.9'
+runtime-version: '6.11'
 sdk: org.kde.Sdk
 command: garagelog
 finish-args:
@@ -10,8 +10,10 @@ finish-args:
   - --socket=fallback-x11
   - --socket=wayland
   - --device=dri
-  - --filesystem=xdg-documents   # Garage-Datei und Anhänge außerhalb des Sandbox-Datenordners
-  # Kein --share=network in Phase 1 (Spec §3)
+  # Garages may live in ~/Documents; the document portal would only expose the
+  # single .sqlite file, not the attachments/ folder next to it (ADR-014).
+  - --filesystem=xdg-documents
+  # No --share=network: GarageLog works offline (SPEC §3).
 modules:
   - name: garagelog
     buildsystem: cmake-ninja
@@ -20,3 +22,8 @@ modules:
     sources:
       - type: dir
         path: ../..
+        # Local build trees must not be copied into the Flatpak build.
+        skip:
+          - build
+          - build-flatpak
+          - .flatpak-builder

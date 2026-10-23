@@ -52,4 +52,9 @@ Entscheidung: Die App-ID (Desktop-Datei, AppStream, Flatpak, Icon-Name) ist `io.
 Grund: Flathub verlangt eine App-ID, deren Domain der Entwickler kontrolliert; ohne eigene Domain belegt das GitHub-Konto TSTS87 die Kontrolle. Nach dem ersten Release wäre ein Wechsel für Nutzer schmerzhaft (Flatpak-Datenordner, Einstellungen).
 Alternativen: eigene Domain kaufen (Kosten, kein Mehrwert in Phase 1).
 
-<!-- Nächste: ADR-014 -->
+## ADR-014 (2026-10-24) Flatpak: `--filesystem=xdg-documents` statt nur Dokumentportal
+Entscheidung: Das Flatpak bekommt Lese-/Schreibzugriff auf `~/Documents` (xdg-documents), sonst keine Dateisystemrechte. Die Standardgarage liegt im Sandbox-Datenordner (`~/.var/app/io.github.TSTS87.GarageLog/data/garagelog/`).
+Grund: Eine Garage ist Datei + `attachments/`-Ordner daneben (ADR-005). Das Dokumentportal gibt nur die gewählte Einzeldatei frei, der Ordner daneben wäre unerreichbar. Garagen außerhalb von `~/Documents` funktionieren im Flatpak deshalb nur ohne Anhänge bzw. mit zusätzlicher Freigabe per Flatseal.
+Alternativen: `--filesystem=home` (zu breit für Flathub-Review), Anhänge als BLOB (widerspricht ADR-005).
+
+<!-- Nächste: ADR-015 -->
