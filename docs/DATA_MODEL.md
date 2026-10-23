@@ -127,6 +127,9 @@ oil_change, tires, brakes, chain, inspection, mot (TÜV/HU), insurance, tax, rep
   - dueOdo = lastOdo + every_m (falls every_m), dueDate = lastDate + every_months (falls every_months)
   - Status = schlechtester der beiden Teilstatus: `ok` (> 20 % Rest), `soon` (≤ 20 %), `overdue`
   - Ohne bisherigen Service: Status `unknown`, Hinweis „Letzten Service eintragen"
+  - Restmenge ≤ 0 (Fälligkeitstag bzw. -km erreicht) zählt bereits als `overdue`; ≤ 20 % = `soon` bezogen auf die Intervalllänge (Tage bzw. Meter)
+  - Letzter Service ohne Tachostand: Distanzteil unbekannt, nur der Zeitteil zählt; ist kein Teil berechenbar → `unknown`
+  - Einträge mit Datum in der Zukunft setzen das Intervall nicht zurück; Monatsarithmetik wie `QDate::addMonths` (31.1. + 1 Monat = 28./29.2.)
 - `costPerKm(vehicle, from, to)` = (Σ fuel.total_cost_c + Σ service.cost_c) / Distanz im Zeitraum
 
 ## Invarianten (Tests schreiben)

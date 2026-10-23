@@ -9,6 +9,8 @@ add_library(garagelog_core STATIC
     categoryrepository.h
     database.cpp
     database.h
+    duecalculator.cpp
+    duecalculator.h
     dbvalues.cpp
     dbvalues.h
     fuelentry.cpp
@@ -19,6 +21,9 @@ add_library(garagelog_core STATIC
     fuelrepository.h
     fuelstats.cpp
     fuelstats.h
+    intervalrepository.cpp
+    intervalrepository.h
+    maintenanceinterval.h
     migrationrunner.cpp
     migrationrunner.h
     odometer.cpp

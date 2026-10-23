@@ -41,6 +41,14 @@ add_executable(test_attachmentstore test_attachmentstore.cpp)
 target_link_libraries(test_attachmentstore PRIVATE garagelog_core Qt6::Test)
 add_test(NAME test_attachmentstore COMMAND test_attachmentstore)
 
+add_executable(test_intervalrepository test_intervalrepository.cpp)
+target_link_libraries(test_intervalrepository PRIVATE garagelog_core Qt6::Test)
+add_test(NAME test_intervalrepository COMMAND test_intervalrepository)
+
+add_executable(test_duecalculator test_duecalculator.cpp)
+target_link_libraries(test_duecalculator PRIVATE garagelog_core Qt6::Test)
+add_test(NAME test_duecalculator COMMAND test_duecalculator)
+
 # App-layer models: linked against garagelog_applib, still without a GUI.
 add_executable(test_vehiclelistmodel test_vehiclelistmodel.cpp)
 target_link_libraries(test_vehiclelistmodel PRIVATE garagelog_applib Qt6::Test)
