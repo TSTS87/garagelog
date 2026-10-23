@@ -140,6 +140,29 @@ private Q_SLOTS:
         QCOMPARE(Odometer(*m_db).current(mine), qint64(1'000'000));
     }
 
+    /** offsetFor() returns the offset that makes current() hit the desired value, also below the highest entry. */
+    void offsetForCorrection()
+    {
+        const QString id = createVehicle(300);
+        QVERIFY(insertFuel(*m_db, id, 5'000'000));
+        Odometer odometer(*m_db);
+
+        QCOMPARE(odometer.offsetFor(id, 5'250'000), qint64(250'000));
+        QCOMPARE(odometer.offsetFor(id, 4'900'000), qint64(-100'000));
+
+        // Applying the offset really yields the desired odometer.
+        QSqlQuery q(m_db->connection());
+        QVERIFY(q.exec(QStringLiteral("UPDATE vehicles SET odometer_offset_m = 250000")));
+        QCOMPARE(odometer.current(id), qint64(5'250'000));
+    }
+
+    /** For a vehicle that is not created yet (empty id) the offset is the desired value itself. */
+    void offsetForNewVehicle()
+    {
+        QCOMPARE(Odometer(*m_db).offsetFor(QString(), 42'000), qint64(42'000));
+        QVERIFY(!Odometer(*m_db).offsetFor(QStringLiteral("no-such-id"), 1));
+    }
+
     /** An unknown vehicle id yields nullopt with an error, not 0. */
     void unknownVehicle()
     {

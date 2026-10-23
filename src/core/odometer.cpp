@@ -16,6 +16,28 @@ Odometer::Odometer(const Database &database)
 
 std::optional<qint64> Odometer::current(const QString &vehicleId)
 {
+    const auto values = offsetAndMaximum(vehicleId);
+    if (!values) {
+        return std::nullopt;
+    }
+    return values->first + values->second;
+}
+
+std::optional<qint64> Odometer::offsetFor(const QString &vehicleId, qint64 desiredM)
+{
+    m_error.clear();
+    if (vehicleId.isEmpty()) {
+        return desiredM;
+    }
+    const auto values = offsetAndMaximum(vehicleId);
+    if (!values) {
+        return std::nullopt;
+    }
+    return desiredM - values->second;
+}
+
+std::optional<std::pair<qint64, qint64>> Odometer::offsetAndMaximum(const QString &vehicleId)
+{
     m_error.clear();
     QSqlQuery query(m_database.connection());
     // One query over all three sources: MAX() of an empty set is NULL, the
@@ -23,7 +45,7 @@ std::optional<qint64> Odometer::current(const QString &vehicleId)
     // Selecting from vehicles makes an unknown id return no row at all,
     // which distinguishes it from a vehicle without entries.
     query.prepare(QStringLiteral(
-        "SELECT v.odometer_offset_m + COALESCE(("
+        "SELECT v.odometer_offset_m, COALESCE(("
         "  SELECT MAX(m) FROM ("
         "    SELECT MAX(odometer_m) AS m FROM fuel_entries WHERE vehicle_id = v.id"
         "    UNION ALL SELECT MAX(odometer_m) FROM service_entries WHERE vehicle_id = v.id"
@@ -40,7 +62,7 @@ std::optional<qint64> Odometer::current(const QString &vehicleId)
         m_error = QStringLiteral("No vehicle with id %1").arg(vehicleId);
         return std::nullopt;
     }
-    return query.value(0).toLongLong();
+    return std::pair{query.value(0).toLongLong(), query.value(1).toLongLong()};
 }
 
 QString Odometer::errorString() const
