@@ -7,6 +7,10 @@ add_library(garagelog_core STATIC
     database.h
     dbvalues.cpp
     dbvalues.h
+    fuelentry.cpp
+    fuelentry.h
+    fuelrepository.cpp
+    fuelrepository.h
     migrationrunner.cpp
     migrationrunner.h
     odometer.cpp
