@@ -24,10 +24,12 @@ jobs:
         run: cmake --build build
       - name: Install (for the ECM AppStream test, which checks installed files)
         run: cmake --install build --prefix "$RUNNER_TEMP/install"
+      # Not as root: root ignores file permissions, which breaks the read-only garage tests.
       - name: Test
-        env:
-          QT_QPA_PLATFORM: offscreen
-        run: ctest --test-dir build --output-on-failure
+        run: |
+          useradd -m tester
+          chown -R tester "$GITHUB_WORKSPACE"
+          su tester -c "QT_QPA_PLATFORM=offscreen ctest --test-dir '$GITHUB_WORKSPACE/build' --output-on-failure"
 
   flatpak:
     runs-on: ubuntu-latest
