@@ -3,6 +3,10 @@
 # without a display and without QtQuick/Kirigami.
 
 add_library(garagelog_core STATIC
+    database.cpp
+    database.h
+    migrationrunner.cpp
+    migrationrunner.h
     version.cpp
     version.h
 )
