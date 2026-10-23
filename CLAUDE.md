@@ -28,7 +28,10 @@ Nicht alle Dokumente komplett lesen – das kostet Kontext. Gezielt lesen, was d
 3. In 2 Sätzen sagen, was ansteht. Dann arbeiten, Punkt für Punkt.
 4. Nach jedem Punkt: Build + Tests, Commit.
 5. Vor Ende der Session (auch wenn der Meilenstein nicht fertig ist!) `docs/STATUS.md` aktualisieren: Meilenstein, letzter Commit-Hash, Build/Tests/Start-Status, offene Punkte, Abweichungen, Hinweise für die nächste Session.
-6. Ist der Meilenstein fertig (DoD aus ROADMAP.md erfüllt): STATUS.md auf den nächsten Meilenstein setzen, Historienzeile anhängen, Commit `docs: complete M0x`, und Thomas sagen: „M0x fertig, du kannst /clear machen."
+6. Ist der Meilenstein fertig (DoD aus ROADMAP.md erfüllt): STATUS.md auf den nächsten Meilenstein setzen, Historienzeile anhängen, Commit `docs: complete M0x`, dann **alles nach GitHub pushen** (`git push origin main`, Auth läuft über `gh`), und Thomas sagen: „M0x fertig, gepusht, du kannst /clear machen."
+   - Jeder gepushte Commit hat eine aussagekräftige Message: Conventional-Commit-Zeile + Body (Englisch), der kurz erklärt, was und warum geändert wurde.
+   - Der `docs: complete M0x`-Commit fasst im Body zusammen, was der Meilenstein geliefert hat.
+   - Schlägt der Push fehl: nicht forcen, Thomas fragen.
 7. Thomas 3-Satz-Bericht auf Deutsch geben.
 
 Wenn Thomas mitten in einem Meilenstein aufhört: STATUS.md trotzdem aktualisieren und committen. Ein halb fertiger Meilenstein mit ehrlichem STATUS.md ist in Ordnung; ein veraltetes STATUS.md ist das einzige echte Problem.
