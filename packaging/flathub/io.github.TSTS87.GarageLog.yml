@@ -1,0 +1,30 @@
+# Flathub manifest: builds the release tag, not the working tree.
+# Copy this file to the root of the flathub/io.github.TSTS87.GarageLog repository;
+# for a new release update tag and commit (see packaging/flathub/README.md).
+id: io.github.TSTS87.GarageLog
+runtime: org.kde.Platform
+runtime-version: '6.11'
+sdk: org.kde.Sdk
+command: garagelog
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri
+  # Garages may live in ~/Documents; the document portal would only expose the
+  # single .sqlite file, not the attachments/ folder next to it (ADR-014).
+  - --filesystem=xdg-documents
+  # No --share=network: GarageLog works offline (SPEC §3).
+modules:
+  - name: garagelog
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+    sources:
+      - type: git
+        url: https://github.com/TSTS87/garagelog.git
+        tag: v1.0.0
+        commit: b23c57c748533648e03ce47e71e748db9d72d006
+        x-checker-data:
+          type: git
+          tag-pattern: ^v([\d.]+)$
