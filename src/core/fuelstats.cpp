@@ -72,7 +72,7 @@ QStringList FuelStats::stationSuggestions(const QString &vehicleId)
     // The repository trims and stores empty names as NULL, so GROUP BY on the
     // raw text is enough to remove duplicates.
     query.prepare(QStringLiteral(
-        "SELECT station FROM fuel_entries WHERE vehicle_id = ? AND station IS NOT NULL "
+        "SELECT station FROM fuel_entries WHERE vehicle_id = ? AND station IS NOT NULL AND station <> '' "
         "GROUP BY station ORDER BY MAX(date) DESC, MAX(created_at) DESC, station"));
     query.addBindValue(vehicleId);
     if (!query.exec()) {
