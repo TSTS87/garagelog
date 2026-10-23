@@ -1,0 +1,1102 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the garagelog package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: garagelog\n"
+"Report-Msgid-Bugs-To: https://github.com/TSTS87/garagelog/issues\n"
+"POT-Creation-Date: 2026-10-23 23:49+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: src/app/datatransfer.cpp:55 src/app/garagecontroller.cpp:296
+msgid "Cannot create %1"
+msgstr ""
+
+#: src/app/datatransfer.cpp:159
+msgid "No CSV file loaded"
+msgstr ""
+
+#: src/app/format.cpp:139 qml/StatusDot.qml:35
+msgid "Paused"
+msgstr ""
+
+#: src/app/format.cpp:142
+msgid "No matching service recorded yet"
+msgstr ""
+
+#: src/app/format.cpp:147
+msgctxt "distance until due"
+msgid "%1 left"
+msgstr ""
+
+#: src/app/format.cpp:147
+msgctxt "distance past due"
+msgid "%1 overdue"
+msgstr ""
+
+#: src/app/format.cpp:152
+msgid "%1 day left"
+msgid_plural "%1 days left"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/app/format.cpp:154
+msgid "due today"
+msgstr ""
+
+#: src/app/format.cpp:156
+msgid "%1 day overdue"
+msgid_plural "%1 days overdue"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/app/fuellistmodel.cpp:187
+msgid "Fuel entry not found"
+msgstr ""
+
+#: src/app/fuellistmodel.cpp:198
+msgid "Odometer, quantity and total price are required"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:45
+msgid "Cannot open %1: %2"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:49
+msgid "%1 is not an SQLite database"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:51
+msgid "%1 is not a GarageLog garage"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:241
+msgid "%1 does not exist"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:256
+msgid "%1 already exists; use “Open Garage” for existing files"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:266
+msgid "Please choose a different file than the open garage"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:270
+msgid "%1 is a folder"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:274
+msgid "Cannot create folder for %1"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:280
+msgid "Cannot replace %1"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:287
+msgid "Cannot copy garage: %1"
+msgstr ""
+
+#: src/app/garagecontroller.cpp:302
+msgid "Cannot copy attachment %1"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:53
+msgctxt "service category"
+msgid "Oil change"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:54
+msgctxt "service category"
+msgid "Tires"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:55
+msgctxt "service category"
+msgid "Brakes"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:56
+msgctxt "service category"
+msgid "Chain"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:57
+msgctxt "service category"
+msgid "Inspection"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:58
+msgctxt "service category, statutory test (TÜV/HU)"
+msgid "MOT / roadworthiness test"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:59
+msgctxt "service category"
+msgid "Insurance"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:60
+msgctxt "service category"
+msgid "Vehicle tax"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:61
+msgctxt "service category"
+msgid "Repair"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:62
+msgctxt "service category"
+msgid "Battery"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:63
+msgctxt "service category"
+msgid "Coolant"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:64
+msgctxt "service category"
+msgid "Filters"
+msgstr ""
+
+#: src/app/servicelistmodel.cpp:65
+msgctxt "service category"
+msgid "Other"
+msgstr ""
+
+#: src/app/statsmodel.cpp:187
+msgid "Charging"
+msgstr ""
+
+#: src/app/statsmodel.cpp:187 qml/FuelFormPage.qml:203 qml/VehiclePage.qml:161
+msgid "Fuel"
+msgstr ""
+
+#: src/app/vehiclelistmodel.cpp:190
+msgid "Unknown vehicle type or powertrain"
+msgstr ""
+
+#: qml/CsvImportPage.qml:39
+msgid "– none –"
+msgstr ""
+
+#: qml/CsvImportPage.qml:57
+msgid "Import Fuel Entries from CSV"
+msgstr ""
+
+#: qml/CsvImportPage.qml:61
+msgid "Import %1 Entries"
+msgstr ""
+
+#: qml/CsvImportPage.qml:67
+msgid "%1 entry imported"
+msgid_plural "%1 entries imported"
+msgstr[0] ""
+msgstr[1] ""
+
+#: qml/CsvImportPage.qml:73 qml/FuelFormPage.qml:116
+#: qml/IntervalFormPage.qml:79 qml/ServiceFormPage.qml:107
+#: qml/VehicleFormPage.qml:105
+msgid "Cancel"
+msgstr ""
+
+#: qml/CsvImportPage.qml:89
+msgid "Choose CSV File"
+msgstr ""
+
+#: qml/CsvImportPage.qml:91
+msgid "CSV files (*.csv *.txt)"
+msgstr ""
+
+#: qml/CsvImportPage.qml:91 qml/ServiceFormPage.qml:200 qml/SettingsPage.qml:44
+msgid "All files (*)"
+msgstr ""
+
+#: qml/CsvImportPage.qml:107
+msgid "File:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:109
+msgid "Choose File…"
+msgstr ""
+
+#: qml/CsvImportPage.qml:123
+msgid "Vehicle:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:138
+msgid "Columns"
+msgstr ""
+
+#: qml/CsvImportPage.qml:144
+msgid "Header in row:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:153 qml/FuelFormPage.qml:178
+#: qml/ServiceFormPage.qml:212
+msgid "Date:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:157
+msgid "Odometer (km):"
+msgstr ""
+
+#: qml/CsvImportPage.qml:161
+msgid "Quantity (l or kWh):"
+msgstr ""
+
+#: qml/CsvImportPage.qml:165
+msgid "Total price:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:169
+msgid "Unit price:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:173 qml/FuelFormPage.qml:261
+msgid "Full tank:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:177 qml/FuelFormPage.qml:275
+msgid "Station:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:181 qml/FuelFormPage.qml:286
+#: qml/IntervalFormPage.qml:199 qml/ServiceFormPage.qml:296
+#: qml/VehicleFormPage.qml:218
+msgid "Notes:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:186
+msgid "Date format:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:193
+msgid "Decimal separator:"
+msgstr ""
+
+#: qml/CsvImportPage.qml:194
+msgid "Point (40.5)"
+msgstr ""
+
+#: qml/CsvImportPage.qml:194
+msgid "Comma (40,5)"
+msgstr ""
+
+#: qml/CsvImportPage.qml:201
+msgid ""
+"Values must be in km, litres (or kWh) and your currency. Rows with errors "
+"are skipped."
+msgstr ""
+
+#: qml/CsvImportPage.qml:211
+msgid "Preview: %1 valid row"
+msgid_plural "Preview: %1 valid rows"
+msgstr[0] ""
+msgstr[1] ""
+
+#: qml/CsvImportPage.qml:227
+msgid "… and %1 more errors"
+msgstr ""
+
+#: qml/CsvImportPage.qml:236
+msgid "Row %1"
+msgstr ""
+
+#: qml/CsvImportPage.qml:238 qml/FuelTab.qml:76
+msgid "partial"
+msgstr ""
+
+#: qml/DuePage.qml:18 qml/VehicleDrawer.qml:46
+msgid "Due"
+msgstr ""
+
+#: qml/DuePage.qml:59
+msgctxt "%1 vehicle, %2 interval name"
+msgid "%1 · %2"
+msgstr ""
+
+#: qml/DuePage.qml:87
+msgid "Nothing to remind you of"
+msgstr ""
+
+#: qml/DuePage.qml:88
+msgid "Intervals you add to your vehicles appear here, most urgent first."
+msgstr ""
+
+#: qml/FuelFormPage.qml:99 qml/FuelTab.qml:111 qml/VehiclePage.qml:37
+msgid "Add Entry"
+msgstr ""
+
+#: qml/FuelFormPage.qml:99
+msgid "Edit Entry"
+msgstr ""
+
+#: qml/FuelFormPage.qml:103 qml/IntervalFormPage.qml:66
+#: qml/ServiceFormPage.qml:94 qml/VehicleFormPage.qml:86
+msgid "Save"
+msgstr ""
+
+#: qml/FuelFormPage.qml:111 qml/FuelFormPage.qml:156
+#: qml/IntervalFormPage.qml:74 qml/IntervalFormPage.qml:100
+#: qml/ServiceFormPage.qml:102 qml/ServiceFormPage.qml:128
+msgid "Delete"
+msgstr ""
+
+#: qml/FuelFormPage.qml:140
+msgid ""
+"The odometer is lower than in an earlier entry (%1). Please check the "
+"reading; you can still save."
+msgstr ""
+
+#: qml/FuelFormPage.qml:142
+msgid "An entry with the same date and odometer already exists."
+msgstr ""
+
+#: qml/FuelFormPage.qml:151
+msgid "Delete Entry?"
+msgstr ""
+
+#: qml/FuelFormPage.qml:152
+msgid "This entry is removed permanently. Consumption values are recalculated."
+msgstr ""
+
+#: qml/FuelFormPage.qml:185 qml/ServiceFormPage.qml:219
+msgid "Please enter a date like %1."
+msgstr ""
+
+#: qml/FuelFormPage.qml:191 qml/ServiceFormPage.qml:255
+#: qml/VehicleFormPage.qml:166
+msgid "Odometer (%1):"
+msgstr ""
+
+#: qml/FuelFormPage.qml:193
+msgid "Currently %1"
+msgstr ""
+
+#: qml/FuelFormPage.qml:203
+msgid "Charge"
+msgstr ""
+
+#: qml/FuelFormPage.qml:210
+msgid "Energy (kWh):"
+msgstr ""
+
+#: qml/FuelFormPage.qml:210
+msgid "Quantity (%1):"
+msgstr ""
+
+#: qml/FuelFormPage.qml:220
+msgid "Total price (%1):"
+msgstr ""
+
+#: qml/FuelFormPage.qml:230
+msgid "Price per kWh (%1):"
+msgstr ""
+
+#: qml/FuelFormPage.qml:231
+msgid "Price per litre (%1):"
+msgstr ""
+
+#: qml/FuelFormPage.qml:232
+msgid "Price per gallon (%1):"
+msgstr ""
+
+#: qml/FuelFormPage.qml:247
+msgid "Energy"
+msgstr ""
+
+#: qml/FuelFormPage.qml:247
+msgid "Quantity"
+msgstr ""
+
+#: qml/FuelFormPage.qml:248
+msgid "Total price"
+msgstr ""
+
+#: qml/FuelFormPage.qml:249
+msgid "Price per kWh"
+msgstr ""
+
+#: qml/FuelFormPage.qml:249
+msgid "Price per litre"
+msgstr ""
+
+#: qml/FuelFormPage.qml:249
+msgid "Price per gallon"
+msgstr ""
+
+#: qml/FuelFormPage.qml:251
+msgid "Enter two of the three values. Calculated: %1"
+msgstr ""
+
+#: qml/FuelFormPage.qml:261
+msgid "Charged to full:"
+msgstr ""
+
+#: qml/FuelFormPage.qml:267 qml/VehicleFormPage.qml:182
+msgid "Details"
+msgstr ""
+
+#: qml/FuelFormPage.qml:275
+msgid "Charging station:"
+msgstr ""
+
+#: qml/FuelTab.qml:108
+msgid "No charging entries yet"
+msgstr ""
+
+#: qml/FuelTab.qml:108
+msgid "No fuel entries yet"
+msgstr ""
+
+#: qml/FuelTab.qml:109
+msgid ""
+"Record every refuelling or charge; consumption is calculated between two "
+"full tanks."
+msgstr ""
+
+#: qml/IntervalFormPage.qml:62 qml/IntervalTab.qml:111 qml/VehiclePage.qml:37
+msgid "Add Interval"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:62
+msgid "Edit Interval"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:95
+msgid "Delete Interval?"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:96
+msgid "The rule is removed. Service entries are kept."
+msgstr ""
+
+#: qml/IntervalFormPage.qml:122
+msgid "Status:"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:131
+msgid "last service %1"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:140
+msgid "Service category:"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:149
+msgid "Service entries of this category reset the interval."
+msgstr ""
+
+#: qml/IntervalFormPage.qml:157 qml/VehicleFormPage.qml:130
+msgid "Name:"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:166
+msgid "Every (%1):"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:168
+msgid "e.g. 15000"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:176
+msgid "Every (months):"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:178
+msgid "e.g. 12"
+msgstr ""
+
+#: qml/IntervalFormPage.qml:186
+msgid "Enter a distance, a number of months, or both."
+msgstr ""
+
+#: qml/IntervalFormPage.qml:187
+msgid "Distance and months must be positive whole numbers."
+msgstr ""
+
+#: qml/IntervalFormPage.qml:193
+msgid "Active:"
+msgstr ""
+
+#: qml/IntervalTab.qml:25
+msgid "%1 month"
+msgid_plural "%1 months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: qml/IntervalTab.qml:27
+msgctxt "interval rule, %1 = '15.000 km / 12 months'"
+msgid "every %1"
+msgstr ""
+
+#: qml/IntervalTab.qml:88
+msgid "due at %1"
+msgstr ""
+
+#: qml/IntervalTab.qml:108
+msgid "No intervals yet"
+msgstr ""
+
+#: qml/IntervalTab.qml:109
+msgid ""
+"Add rules like “oil change every 15,000 km or 12 months”. The due date is "
+"calculated from the last matching service entry."
+msgstr ""
+
+#: qml/Main.qml:20 qml/Main.qml:280
+msgid "GarageLog"
+msgstr ""
+
+#: qml/Main.qml:48
+msgid ""
+"The garage file %1 was deleted or moved. GarageLog still has your data open, "
+"but changes are lost when it closes. Save a copy to keep them."
+msgstr ""
+
+#: qml/Main.qml:49
+msgid ""
+"The garage file %1 is write-protected. You can look at your data, but "
+"changes cannot be saved. Save a copy to keep working."
+msgstr ""
+
+#: qml/Main.qml:52
+msgid "Save Copy…"
+msgstr ""
+
+#: qml/Main.qml:64 qml/SettingsPage.qml:60
+msgid "Save Garage As"
+msgstr ""
+
+#: qml/Main.qml:68 qml/SettingsPage.qml:44 qml/SettingsPage.qml:54
+#: qml/SettingsPage.qml:64
+msgid "GarageLog garages (*.sqlite)"
+msgstr ""
+
+#: qml/Main.qml:70 qml/SettingsPage.qml:65
+msgid "Garage saved; you are now working in the copy"
+msgstr ""
+
+#: qml/Main.qml:107
+msgid "Add a vehicle first; fuel entries are imported into a vehicle."
+msgstr ""
+
+#: qml/Main.qml:119
+msgid "(%1 warning)"
+msgid_plural "(%1 warnings)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: qml/Main.qml:127
+msgid "Choose Export Folder to Import"
+msgstr ""
+
+#: qml/Main.qml:127
+msgid "Choose Folder for the Export"
+msgstr ""
+
+#: qml/Main.qml:131 qml/Main.qml:133
+msgid "Exported to %1"
+msgstr ""
+
+#: qml/Main.qml:136
+msgid "Import finished"
+msgstr ""
+
+#: qml/Main.qml:291
+msgid "All vehicles are archived"
+msgstr ""
+
+#: qml/Main.qml:291
+msgid "No vehicles yet"
+msgstr ""
+
+#: qml/Main.qml:293
+msgid ""
+"Show the archived vehicles to look at their entries, or add a new vehicle "
+"from the side bar."
+msgstr ""
+
+#: qml/Main.qml:294
+msgid "Add your car, motorcycle or scooter to start tracking fuel and service."
+msgstr ""
+
+#: qml/Main.qml:299 qml/VehicleDrawer.qml:56 qml/VehicleFormPage.qml:82
+msgid "Add Vehicle"
+msgstr ""
+
+#: qml/Main.qml:305 qml/VehicleDrawer.qml:61
+msgid "Show Archived"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:44
+msgid "Not specified"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:45
+msgid "Myself"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:46
+msgid "Workshop"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:90 qml/ServiceTab.qml:100 qml/VehiclePage.qml:37
+msgid "Add Service"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:90
+msgid "Edit Service"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:123
+msgid "Delete Service Entry?"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:124
+msgid "The entry and its attached files are removed permanently."
+msgstr ""
+
+#: qml/ServiceFormPage.qml:146
+msgid "New Category"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:167
+msgid "e.g. Car wash"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:176
+msgid "Remove Attachment?"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:177
+msgid "“%1” is deleted from the garage folder."
+msgstr ""
+
+#: qml/ServiceFormPage.qml:181
+msgid "Remove"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:198
+msgid "Attach Files"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:200
+msgid "Documents and images (*.pdf *.jpg *.jpeg *.png *.webp *.heic)"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:228
+msgid "Category:"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:229
+msgid "New Category…"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:246
+msgid "Description:"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:248
+msgid "e.g. Oil and filter, 5W-30"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:256
+msgid "Optional, currently %1"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:264
+msgid "Cost (%1):"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:273
+msgid "Odometer and cost must be numbers (or empty)."
+msgstr ""
+
+#: qml/ServiceFormPage.qml:280
+msgid "Done by:"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:288
+msgid "Workshop:"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:302
+msgid "Attachments"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:320
+msgid "Remove attachment"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:343
+msgid "Do not attach"
+msgstr ""
+
+#: qml/ServiceFormPage.qml:351
+msgid "Attach File…"
+msgstr ""
+
+#: qml/ServiceTab.qml:69
+msgid "workshop"
+msgstr ""
+
+#: qml/ServiceTab.qml:70
+msgid "self"
+msgstr ""
+
+#: qml/ServiceTab.qml:83
+msgid "Has attachments"
+msgstr ""
+
+#: qml/ServiceTab.qml:97
+msgid "No service entries yet"
+msgstr ""
+
+#: qml/ServiceTab.qml:98
+msgid ""
+"Record oil changes, repairs, inspections and recurring costs like insurance."
+msgstr ""
+
+#: qml/SettingsPage.qml:18 qml/VehicleDrawer.qml:93
+msgid "Settings"
+msgstr ""
+
+#: qml/SettingsPage.qml:21
+msgid "Kilometres (km)"
+msgstr ""
+
+#: qml/SettingsPage.qml:22
+msgid "Miles (mi)"
+msgstr ""
+
+#: qml/SettingsPage.qml:25
+msgid "Litres (l)"
+msgstr ""
+
+#: qml/SettingsPage.qml:26
+msgid "US gallons (gal)"
+msgstr ""
+
+#: qml/SettingsPage.qml:27
+msgid "Imperial gallons (gal)"
+msgstr ""
+
+#: qml/SettingsPage.qml:41
+msgid "Open Garage"
+msgstr ""
+
+#: qml/SettingsPage.qml:45
+msgid "Garage opened"
+msgstr ""
+
+#: qml/SettingsPage.qml:50
+msgid "New Garage"
+msgstr ""
+
+#: qml/SettingsPage.qml:55
+msgid "New garage created"
+msgstr ""
+
+#: qml/SettingsPage.qml:71
+msgid "Units"
+msgstr ""
+
+#: qml/SettingsPage.qml:78
+msgid "Distance:"
+msgstr ""
+
+#: qml/SettingsPage.qml:86
+msgid "Fuel volume:"
+msgstr ""
+
+#: qml/SettingsPage.qml:94
+msgid "Currency:"
+msgstr ""
+
+#: qml/SettingsPage.qml:102
+msgid ""
+"Stored values are not converted; only the display changes. Electric vehicles "
+"always use kWh. The currency only changes the symbol."
+msgstr ""
+
+#: qml/SettingsPage.qml:110
+msgid "Garage File"
+msgstr ""
+
+#: qml/SettingsPage.qml:116
+msgid "Open garage:"
+msgstr ""
+
+#: qml/SettingsPage.qml:124
+msgid "Open Garage…"
+msgstr ""
+
+#: qml/SettingsPage.qml:129
+msgid "New Garage…"
+msgstr ""
+
+#: qml/SettingsPage.qml:134
+msgid "Save Garage As…"
+msgstr ""
+
+#: qml/SettingsPage.qml:142
+msgid ""
+"A garage is one file plus its “attachments” folder next to it. “Save As” "
+"copies both and continues in the copy."
+msgstr ""
+
+#: qml/StatsTab.qml:25
+msgid "No statistics yet"
+msgstr ""
+
+#: qml/StatsTab.qml:26
+msgid ""
+"Costs, consumption and charts appear here once you add fuel or service "
+"entries."
+msgstr ""
+
+#: qml/StatsTab.qml:60
+msgid "This Year"
+msgstr ""
+
+#: qml/StatsTab.qml:61
+msgid "Last 12 Months"
+msgstr ""
+
+#: qml/StatsTab.qml:62
+msgid "All Time"
+msgstr ""
+
+#: qml/StatsTab.qml:78
+msgid "until %1"
+msgstr ""
+
+#: qml/StatsTab.qml:79
+msgctxt "date range"
+msgid "%1 – %2"
+msgstr ""
+
+#: qml/StatsTab.qml:93
+msgid "Total cost"
+msgstr ""
+
+#: qml/StatsTab.qml:94
+msgid "Fuel %1 · Service %2"
+msgstr ""
+
+#: qml/StatsTab.qml:95
+msgid "Cost per %1"
+msgstr ""
+
+#: qml/StatsTab.qml:96
+msgid "no distance yet"
+msgstr ""
+
+#: qml/StatsTab.qml:96
+msgid "over %1"
+msgstr ""
+
+#: qml/StatsTab.qml:97
+msgid "Cost per month"
+msgstr ""
+
+#: qml/StatsTab.qml:98
+msgid "average"
+msgstr ""
+
+#: qml/StatsTab.qml:99 qml/StatsTab.qml:205
+msgid "Consumption"
+msgstr ""
+
+#: qml/StatsTab.qml:100
+msgid "average between full tanks"
+msgstr ""
+
+#: qml/StatsTab.qml:137
+msgid "Consumption (%1)"
+msgstr ""
+
+#: qml/StatsTab.qml:152
+msgid "At least three full tanks are needed for a consumption curve."
+msgstr ""
+
+#: qml/StatsTab.qml:229
+msgid "Costs by Category"
+msgstr ""
+
+#: qml/StatsTab.qml:234
+msgid "No costs in this period."
+msgstr ""
+
+#: qml/StatusDot.qml:32
+msgid "Overdue"
+msgstr ""
+
+#: qml/StatusDot.qml:33
+msgid "Due soon"
+msgstr ""
+
+#: qml/StatusDot.qml:34
+msgid "OK"
+msgstr ""
+
+#: qml/StatusDot.qml:36
+msgid "Unknown – enter the last service"
+msgstr ""
+
+#: qml/VehicleDrawer.qml:46
+msgid "Due (%1 overdue)"
+msgstr ""
+
+#: qml/VehicleDrawer.qml:69
+msgid "Data"
+msgstr ""
+
+#: qml/VehicleDrawer.qml:72
+msgid "Export Everything (JSON)…"
+msgstr ""
+
+#: qml/VehicleDrawer.qml:77
+msgid "Import Export Folder (JSON)…"
+msgstr ""
+
+#: qml/VehicleDrawer.qml:82
+msgid "Export Tables (CSV)…"
+msgstr ""
+
+#: qml/VehicleDrawer.qml:87
+msgid "Import Fuel Entries (CSV)…"
+msgstr ""
+
+#: qml/VehicleDrawer.qml:122
+msgid "%1 · archived"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:37
+msgid "Car"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:38
+msgid "Motorcycle"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:39
+msgid "Scooter"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:40
+msgid "E-bike"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:41 qml/VehicleFormPage.qml:48
+msgid "Other"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:44
+msgid "Petrol"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:45
+msgid "Diesel"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:46
+msgid "Electric"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:47
+msgid "Hybrid"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:82 qml/VehiclePage.qml:52
+msgid "Edit Vehicle"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:94 qml/VehiclePage.qml:90
+msgid "Restore"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:94
+msgid "Archive"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:131
+msgid "e.g. Daily driver"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:143
+msgid "Type:"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:157
+msgid "Powertrain:"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:167
+msgid "Current reading, optional"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:175
+msgid "Please enter a number of kilometres."
+msgstr ""
+
+#: qml/VehicleFormPage.qml:187
+msgid "Make:"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:194
+msgid "Model:"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:201
+msgid "Year:"
+msgstr ""
+
+#: qml/VehicleFormPage.qml:211
+msgid "Licence plate:"
+msgstr ""
+
+#: qml/VehiclePage.qml:87
+msgid ""
+"This vehicle is archived. It is hidden from the vehicle list, its entries "
+"are kept."
+msgstr ""
+
+#: qml/VehiclePage.qml:131
+msgid "Odometer: %1"
+msgstr ""
+
+#: qml/VehiclePage.qml:146
+msgid "No interval with a recorded service yet"
+msgstr ""
+
+#: qml/VehiclePage.qml:147
+msgid "Next due: %1 (%2)"
+msgstr ""
+
+#: qml/VehiclePage.qml:164
+msgid "Service"
+msgstr ""
+
+#: qml/VehiclePage.qml:167
+msgid "Intervals"
+msgstr ""
+
+#: qml/VehiclePage.qml:170
+msgid "Statistics"
+msgstr ""

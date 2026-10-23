@@ -33,5 +33,8 @@ add_subdirectory(tools)
 enable_testing()
 add_subdirectory(tests)
 
+# Compiles po/<lang>/garagelog.po to .mo files and installs them to share/locale.
+ki18n_install(po)
+
 install(FILES packaging/io.github.TSTS87.GarageLog.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 install(FILES packaging/io.github.TSTS87.GarageLog.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
