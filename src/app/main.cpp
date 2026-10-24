@@ -8,6 +8,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QLoggingCategory>
@@ -67,15 +68,20 @@ int main(int argc, char *argv[])
     const QString lastPath = config.readEntry("GaragePath", defaultPath);
 
     // Declared before the engine so it outlives everything QML may later use.
-    // A remembered garage that is gone (USB stick, renamed) falls back to the
-    // default one; without any usable database the app cannot do anything.
+    // A remembered garage that is gone (USB stick, renamed) is not created
+    // again empty at the old place: the default garage opens instead and the
+    // user is told. Without any usable database the app cannot do anything.
     garagelog::core::Database database;
-    if (!database.open(lastPath)) {
-        qWarning().noquote() << "Cannot open garage" << lastPath << ":" << database.errorString();
+    using OpenMode = garagelog::core::Database::OpenMode;
+    QString startupNotice;
+    if (!database.open(lastPath, lastPath == defaultPath ? OpenMode::CreateIfMissing : OpenMode::MustExist)) {
+        // Only the file name: logs end up in bug reports, home paths should not.
+        qWarning().noquote() << "Cannot open remembered garage" << QFileInfo(lastPath).fileName();
         if (lastPath == defaultPath || !database.open(defaultPath)) {
             qCritical().noquote() << "Cannot open garage database:" << database.errorString();
             return 1;
         }
+        startupNotice = i18n("The garage %1 could not be opened, the default garage is open instead. Use “Open Garage” in the settings to choose it again.", lastPath);
     }
 
     // The models live on main()'s stack, after the database and before the engine,
@@ -89,6 +95,7 @@ int main(int argc, char *argv[])
     garagelog::app::StatsModel stats(database);
     garagelog::app::Format format;
     garagelog::app::GarageController garage(database, format);
+    garage.setStartupNotice(startupNotice);
     garagelog::app::DataTransfer dataTransfer(database);
     // A saved fuel entry can raise the odometer shown in the drawer and the
     // page header; an edited vehicle can switch the fuel unit (l <-> kWh).

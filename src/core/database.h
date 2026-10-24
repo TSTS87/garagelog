@@ -27,6 +27,30 @@ public:
         Closed,   ///< no garage is open
     };
 
+    /** What open() may do with a path that has no file yet. */
+    enum class OpenMode {
+        CreateIfMissing, ///< create file and parent folders (new garage, default garage)
+        MustExist,       ///< fail instead: a remembered or chosen garage that is gone must not come back empty
+    };
+
+    /** Result of probe(): what kind of file a path is, without changing it. */
+    enum class Probe {
+        Missing,   ///< no file at the path
+        Empty,     ///< 0-byte file, can become a new garage
+        Garage,    ///< SQLite file with a schema_version table
+        Foreign,   ///< SQLite file of another application
+        NotSqlite, ///< not readable as SQLite (text, binary, corrupt, folder)
+    };
+
+    /**
+     * @brief Looks at @p filePath on a separate read-only connection.
+     *
+     * Our migrations must never run on a foreign SQLite file, so open()
+     * and the settings page check a file with this first.
+     * @param detail Receives the SQLite error for NotSqlite (may be nullptr).
+     */
+    static Probe probe(const QString &filePath, QString *detail = nullptr);
+
     /** File name of a garage inside the app data directory (SPEC: garage.sqlite). */
     static inline const QString defaultFileName = QStringLiteral("garage.sqlite");
 
@@ -45,13 +69,16 @@ public:
 
     /**
      * @brief Opens (or creates) the SQLite file and migrates it to the newest schema.
-     * @param filePath Path to the .sqlite file; missing parent directories are created.
-     * @return true on success. false if the file cannot be opened, foreign
-     *         keys cannot be enabled or a migration fails; errorString() says
-     *         why and the connection is closed again. Calling open() on an
-     *         already open instance closes the previous file first.
+     * @param filePath Path to the .sqlite file; with CreateIfMissing missing
+     *        parent directories are created.
+     * @param mode Whether a missing file is created or is an error.
+     * @return true on success. false if the file is missing (MustExist), is
+     *         not a garage (see probe()), cannot be opened, foreign keys
+     *         cannot be enabled or a migration fails; errorString() says why.
+     *         The new file is opened on its own connection first: if that
+     *         fails, an already open garage stays open and usable.
      */
-    bool open(const QString &filePath);
+    bool open(const QString &filePath, OpenMode mode = OpenMode::CreateIfMissing);
 
     /** Closes the connection; no-op if not open. QSqlDatabase copies obtained via connection() become invalid. */
     void close();

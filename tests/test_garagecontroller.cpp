@@ -200,6 +200,49 @@ private Q_SLOTS:
         QVERIFY(!garage.saveGarageAs(copy)); // the open garage itself
     }
 
+    /** saveGarageAs() copies only attachments of this garage, replaces an existing target and leaves no temporary file. */
+    void saveAsCopiesOnlyOwnAttachments()
+    {
+        Format format;
+        GarageController garage(*m_db, format);
+        addVehicle(QStringLiteral("Golf"));
+        // A file of another garage in the same folder must not travel along.
+        QVERIFY(QDir().mkpath(path(QStringLiteral("home/attachments"))));
+        QFile foreign(path(QStringLiteral("home/attachments/other-garage.pdf")));
+        QVERIFY(foreign.open(QIODevice::WriteOnly));
+        foreign.close();
+        QFile old(path(QStringLiteral("out/copy.sqlite")));
+        QVERIFY(QDir().mkpath(path(QStringLiteral("out"))));
+        QVERIFY(old.open(QIODevice::WriteOnly));
+        old.write("old content");
+        old.close();
+
+        QVERIFY2(garage.saveGarageAs(path(QStringLiteral("out/copy.sqlite"))), qPrintable(garage.errorString()));
+        QVERIFY(!QFile::exists(path(QStringLiteral("out/attachments/other-garage.pdf"))));
+        QCOMPARE(VehicleRepository(*m_db).all().size(), 1);
+        QCOMPARE(QDir(path(QStringLiteral("out"))).entryList(QDir::Files), QStringList{QStringLiteral("copy.sqlite")});
+    }
+
+    /** A failed switch keeps the open garage usable, even if its file was deleted meanwhile (no silent empty garage). */
+    void failedSwitchKeepsOpenGarage()
+    {
+        Format format;
+        GarageController garage(*m_db, format);
+        addVehicle(QStringLiteral("Golf"));
+        const QString file = garage.filePath();
+        QVERIFY(QFile::remove(file));
+
+        QFile text(path(QStringLiteral("notes.sqlite")));
+        QVERIFY(text.open(QIODevice::WriteOnly));
+        text.write("just text, not a database");
+        text.close();
+        QVERIFY(!garage.openGarage(text.fileName()));
+        QVERIFY(!garage.newGarage(path(QStringLiteral("notes.sqlite"))));
+        QCOMPARE(garage.filePath(), file);
+        QCOMPARE(VehicleRepository(*m_db).all().size(), 1);
+        QVERIFY(!QFile::exists(file));
+    }
+
     /** A garage file deleted while open is reported via the watcher, and "save as" still rescues its data. */
     void deletedGarageIsReportedAndRescued()
     {

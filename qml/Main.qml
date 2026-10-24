@@ -338,5 +338,10 @@ Kirigami.ApplicationWindow {
         }
     }
 
-    Component.onCompleted: showHome()
+    Component.onCompleted: {
+        showHome();
+        if (Garage.startupNotice !== "") {
+            showPassiveNotification(Garage.startupNotice, "long");
+        }
+    }
 }

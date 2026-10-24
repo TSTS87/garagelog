@@ -19,6 +19,8 @@
 
 #include <KLocalizedString>
 
+#include <cstdio>
+
 namespace garagelog::app {
 
 using core::SettingsRepository;
@@ -26,37 +28,29 @@ using core::SettingsRepository;
 namespace {
 
 /**
- * true if @p path is empty or already a GarageLog garage. Checked on a
- * separate read-only connection, so a foreign SQLite file is never
- * touched by our migrations.
+ * true if @p path is empty or already a GarageLog garage; otherwise sets a
+ * translated @p error. Database::open() refuses the other cases as well,
+ * this only gives the user a readable message.
  */
 bool isGarageOrEmpty(const QString &path, QString &error)
 {
-    if (QFileInfo(path).size() == 0) {
+    using Probe = core::Database::Probe;
+    QString detail;
+    switch (core::Database::probe(path, &detail)) {
+    case Probe::Empty:
+    case Probe::Garage:
         return true;
+    case Probe::Missing:
+        error = i18n("%1 does not exist", path);
+        return false;
+    case Probe::Foreign:
+        error = i18n("%1 is not a GarageLog garage", path);
+        return false;
+    case Probe::NotSqlite:
+        error = i18n("%1 is not an SQLite database", path);
+        return false;
     }
-    const QString name = QStringLiteral("garagelog-check-") + QUuid::createUuid().toString(QUuid::WithoutBraces);
-    bool ok = false;
-    {
-        QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), name);
-        db.setDatabaseName(path);
-        db.setConnectOptions(QStringLiteral("QSQLITE_OPEN_READONLY"));
-        if (!db.open()) {
-            error = i18n("Cannot open %1: %2", path, db.lastError().text());
-        } else {
-            QSqlQuery q(db);
-            if (!q.exec(QStringLiteral("SELECT COUNT(*), SUM(name = 'schema_version') FROM sqlite_master WHERE type = 'table'")) || !q.next()) {
-                error = i18n("%1 is not an SQLite database", path);
-            } else if (q.value(0).toInt() > 0 && q.value(1).toInt() == 0) {
-                error = i18n("%1 is not a GarageLog garage", path);
-            } else {
-                ok = true;
-            }
-        }
-        db.close();
-    }
-    QSqlDatabase::removeDatabase(name);
-    return ok;
+    return false;
 }
 
 } // namespace
@@ -119,6 +113,16 @@ QString GarageController::errorString() const
 QString GarageController::fileState() const
 {
     return m_fileState;
+}
+
+QString GarageController::startupNotice() const
+{
+    return m_startupNotice;
+}
+
+void GarageController::setStartupNotice(const QString &notice)
+{
+    m_startupNotice = notice;
 }
 
 void GarageController::checkFile()
@@ -212,19 +216,16 @@ void GarageController::setCurrency(const QString &code)
     }
 }
 
-bool GarageController::switchTo(const QString &path)
+bool GarageController::switchTo(const QString &path, core::Database::OpenMode mode)
 {
     const QString previous = m_database.filePath();
     if (QFileInfo(path).absoluteFilePath() == QFileInfo(previous).absoluteFilePath()) {
         setErrorString({});
         return true;
     }
-    if (!m_database.open(path)) {
-        const QString error = m_database.errorString();
-        // open() has closed the previous file already; without reopening it
-        // every model would hit a closed connection.
-        m_database.open(previous);
-        setErrorString(error);
+    // open() keeps the previous garage open if the new one fails.
+    if (!m_database.open(path, mode)) {
+        setErrorString(m_database.errorString());
         return false;
     }
     setErrorString({});
@@ -246,7 +247,7 @@ bool GarageController::openGarage(const QString &urlOrPath)
         setErrorString(error);
         return false;
     }
-    return switchTo(path);
+    return switchTo(path, core::Database::OpenMode::MustExist);
 }
 
 bool GarageController::newGarage(const QString &urlOrPath)
@@ -256,7 +257,7 @@ bool GarageController::newGarage(const QString &urlOrPath)
         setErrorString(i18n("%1 already exists; use “Open Garage” for existing files", path));
         return false;
     }
-    return switchTo(path);
+    return switchTo(path, core::Database::OpenMode::CreateIfMissing);
 }
 
 bool GarageController::saveGarageAs(const QString &urlOrPath)
@@ -274,36 +275,65 @@ bool GarageController::saveGarageAs(const QString &urlOrPath)
         setErrorString(i18n("Cannot create folder for %1", target));
         return false;
     }
-    // VACUUM INTO refuses existing files; the save dialog already asked
-    // whether to overwrite.
-    if (QFileInfo::exists(target) && !QFile::remove(target)) {
-        setErrorString(i18n("Cannot replace %1", target));
-        return false;
-    }
+    // VACUUM INTO refuses existing files, so it writes a temporary file next
+    // to the target that replaces the target only once it is complete: a
+    // full disk must not destroy the file the user chose to overwrite.
+    const QString temporary = target + QStringLiteral(".") + QUuid::createUuid().toString(QUuid::WithoutBraces) + QStringLiteral(".tmp");
     QSqlQuery vacuum(m_database.connection());
     vacuum.prepare(QStringLiteral("VACUUM INTO ?"));
-    vacuum.addBindValue(target);
+    vacuum.addBindValue(temporary);
     if (!vacuum.exec()) {
+        QFile::remove(temporary);
         setErrorString(i18n("Cannot copy garage: %1", vacuum.lastError().text()));
         return false;
     }
 
     // Attachments go next to the copy, as AttachmentStore expects them there.
-    const QDir source(core::AttachmentStore(m_database).directory());
+    // Only files this garage refers to: the folder may be shared with other
+    // garages in the same directory, whose files must not travel along.
+    const core::AttachmentStore store(m_database);
+    QStringList names;
+    QSqlQuery query(m_database.connection());
+    if (!query.exec(QStringLiteral("SELECT stored_name FROM attachments"))) {
+        QFile::remove(temporary);
+        setErrorString(i18n("Cannot copy garage: %1", query.lastError().text()));
+        return false;
+    }
+    while (query.next()) {
+        names.append(query.value(0).toString());
+    }
     const QDir targetDir(QFileInfo(target).absoluteDir().filePath(core::AttachmentStore::directoryName));
-    const QStringList files = source.exists() ? source.entryList(QDir::Files) : QStringList();
-    if (!files.isEmpty() && !QDir().mkpath(targetDir.path())) {
+    if (!names.isEmpty() && !QDir().mkpath(targetDir.path())) {
+        QFile::remove(temporary);
         setErrorString(i18n("Cannot create %1", targetDir.path()));
         return false;
     }
-    for (const QString &name : files) {
+    for (const QString &name : names) {
+        const QString from = store.filePath(name);
+        // Unsafe names (crafted garage) and missing files are skipped; the
+        // row stays, as it does in the open garage.
+        if (from.isEmpty() || !QFileInfo::exists(from)) {
+            continue;
+        }
         // Same uuid name = same file (e.g. saving twice into one folder).
-        if (!targetDir.exists(name) && !QFile::copy(source.filePath(name), targetDir.filePath(name))) {
+        if (!targetDir.exists(name) && !QFile::copy(from, targetDir.filePath(name))) {
+            QFile::remove(temporary);
             setErrorString(i18n("Cannot copy attachment %1", name));
             return false;
         }
     }
-    return switchTo(target);
+
+    // A journal left by an earlier file of that name would be applied to
+    // the new copy by SQLite and corrupt it.
+    QFile::remove(target + QStringLiteral("-journal"));
+    // std::rename replaces an existing target atomically (POSIX), unlike
+    // QFile::rename, which refuses existing files.
+    if (std::rename(QFile::encodeName(temporary).constData(), QFile::encodeName(target).constData()) != 0) {
+        QFile::remove(temporary);
+        setErrorString(i18n("Cannot replace %1", target));
+        return false;
+    }
+    return switchTo(target, core::Database::OpenMode::MustExist);
 }
 
 void GarageController::setErrorString(const QString &error)

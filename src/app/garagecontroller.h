@@ -5,14 +5,12 @@
 
 #pragma once
 
+#include "database.h"
+
 #include <QFileSystemWatcher>
 #include <QObject>
 #include <QString>
 #include <QStringList>
-
-namespace garagelog::core {
-class Database;
-}
 
 namespace garagelog::app {
 
@@ -44,6 +42,8 @@ class GarageController : public QObject
     Q_PROPERTY(QString errorString READ errorString NOTIFY errorStringChanged)
     /** "ok", "missing" or "readOnly" (core::Database::FileState); "ok" also while no garage is open. */
     Q_PROPERTY(QString fileState READ fileState NOTIFY fileStateChanged)
+    /** Message shown once after start, e.g. when the remembered garage was gone; "" if none. */
+    Q_PROPERTY(QString startupNotice READ startupNotice CONSTANT)
 
 public:
     /** @param database The app's open database; reopened in place on a switch. @param format Receives the units. */
@@ -60,6 +60,9 @@ public:
     QStringList currencies() const;
     QString errorString() const;
     QString fileState() const;
+    QString startupNotice() const;
+    /** Set by main() before QML loads; the property is CONSTANT afterwards. */
+    void setStartupNotice(const QString &notice);
 
     /**
      * @brief Re-checks the garage file on disk and updates fileState.
@@ -100,8 +103,8 @@ Q_SIGNALS:
     void fileStateChanged();
 
 private:
-    /** Opens @p path, falling back to the previous file on failure. */
-    bool switchTo(const QString &path);
+    /** Opens @p path; on failure the previous garage stays open (Database::open()). */
+    bool switchTo(const QString &path, core::Database::OpenMode mode);
     bool writeSetting(const QString &key, const QString &value);
     void setErrorString(const QString &error);
     /** Points the watcher at the open file and its folder (the folder sees deletes and renames). */
@@ -114,6 +117,7 @@ private:
     QString m_currency;
     QString m_error;
     QString m_fileState = QStringLiteral("ok");
+    QString m_startupNotice;
     QFileSystemWatcher m_watcher;
 };
 

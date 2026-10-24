@@ -13,9 +13,18 @@
 
 namespace garagelog::core {
 
+namespace {
+
+/** Qt identifies connections by name; a UUID avoids clashes between instances. */
+QString newConnectionName(const QString &prefix)
+{
+    return prefix + QUuid::createUuid().toString(QUuid::WithoutBraces);
+}
+
+} // namespace
+
 Database::Database()
-    // Qt identifies connections by name; a UUID avoids clashes between instances.
-    : m_connectionName(QStringLiteral("garagelog-") + QUuid::createUuid().toString(QUuid::WithoutBraces))
+    : m_connectionName(newConnectionName(QStringLiteral("garagelog-")))
 {
 }
 
@@ -29,33 +38,94 @@ QString Database::defaultFilePath()
     return QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath(defaultFileName);
 }
 
-bool Database::open(const QString &filePath)
+Database::Probe Database::probe(const QString &filePath, QString *detail)
 {
-    close();
+    const QFileInfo info(filePath);
+    if (!info.exists()) {
+        return Probe::Missing;
+    }
+    if (!info.isFile()) {
+        return Probe::NotSqlite;
+    }
+    if (info.size() == 0) {
+        return Probe::Empty;
+    }
+    const QString name = newConnectionName(QStringLiteral("garagelog-probe-"));
+    Probe result = Probe::NotSqlite;
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), name);
+        db.setDatabaseName(info.absoluteFilePath());
+        db.setConnectOptions(QStringLiteral("QSQLITE_OPEN_READONLY"));
+        if (db.open()) {
+            QSqlQuery q(db);
+            // SQLite opens anything lazily; the first read of sqlite_master
+            // is what fails for text or binary files.
+            if (q.exec(QStringLiteral("SELECT COUNT(*), SUM(name = 'schema_version') FROM sqlite_master WHERE type = 'table'")) && q.next()) {
+                result = q.value(0).toInt() > 0 && q.value(1).toInt() == 0 ? Probe::Foreign : Probe::Garage;
+            } else if (detail) {
+                *detail = q.lastError().text();
+            }
+        } else if (detail) {
+            *detail = db.lastError().text();
+        }
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(name);
+    return result;
+}
+
+bool Database::open(const QString &filePath, OpenMode mode)
+{
     m_error.clear();
 
     const QFileInfo info(filePath);
-    if (!QDir().mkpath(info.absolutePath())) {
-        m_error = QStringLiteral("Cannot create directory %1").arg(info.absolutePath());
+    QString detail;
+    switch (probe(filePath, &detail)) {
+    case Probe::Missing:
+        if (mode == OpenMode::MustExist) {
+            m_error = QStringLiteral("%1 does not exist").arg(filePath);
+            return false;
+        }
+        if (!QDir().mkpath(info.absolutePath())) {
+            m_error = QStringLiteral("Cannot create directory %1").arg(info.absolutePath());
+            return false;
+        }
+        break;
+    case Probe::Foreign:
+        m_error = QStringLiteral("%1 is not a GarageLog garage").arg(filePath);
         return false;
+    case Probe::NotSqlite:
+        m_error = QStringLiteral("%1 is not an SQLite database: %2").arg(filePath, detail);
+        return false;
+    case Probe::Empty:
+    case Probe::Garage:
+        break;
     }
 
-    // Scoped so the local handle is gone before close() calls removeDatabase().
+    // Open on a new connection and only replace the current one on success,
+    // so a failed switch never leaves the app without its open garage.
+    const QString name = newConnectionName(QStringLiteral("garagelog-"));
     bool ok = false;
     {
-        QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_connectionName);
+        // Scoped so the local handle is gone before removeDatabase().
+        QSqlDatabase db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), name);
         db.setDatabaseName(info.absoluteFilePath());
         if (!db.open()) {
             m_error = QStringLiteral("Cannot open %1: %2").arg(filePath, db.lastError().text());
         } else {
             ok = prepare(db);
         }
+        if (!ok) {
+            db.close();
+        }
     }
     if (!ok) {
-        close();
+        QSqlDatabase::removeDatabase(name);
         return false;
     }
 
+    close();
+    m_connectionName = name;
     m_filePath = filePath;
     return true;
 }

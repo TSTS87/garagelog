@@ -231,6 +231,53 @@ private Q_SLOTS:
         QVERIFY(!db.isOpen());
     }
 
+    /** MustExist refuses a missing file instead of creating an empty garage in its place. */
+    void mustExistDoesNotCreate()
+    {
+        QTemporaryDir dir;
+        Database db;
+        const QString file = dir.filePath(QStringLiteral("gone/garage.sqlite"));
+        QVERIFY(!db.open(file, Database::OpenMode::MustExist));
+        QVERIFY(!QFile::exists(file));
+        QCOMPARE(Database::probe(file), Database::Probe::Missing);
+    }
+
+    /** open() never migrates a foreign SQLite or a non-SQLite file, and a failed open keeps the previous garage open. */
+    void foreignFilesAreRefusedAndKeepPrevious()
+    {
+        QTemporaryDir dir;
+        Database db;
+        const QString garage = dir.filePath(QStringLiteral("garage.sqlite"));
+        QVERIFY(db.open(garage));
+        QCOMPARE(Database::probe(garage), Database::Probe::Garage);
+
+        const QString foreign = dir.filePath(QStringLiteral("other.sqlite"));
+        {
+            QSqlDatabase raw = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), QStringLiteral("raw"));
+            raw.setDatabaseName(foreign);
+            QVERIFY(raw.open());
+            QSqlQuery q(raw);
+            QVERIFY(q.exec(QStringLiteral("CREATE TABLE foo (x)")));
+            raw.close();
+        }
+        QSqlDatabase::removeDatabase(QStringLiteral("raw"));
+        QCOMPARE(Database::probe(foreign), Database::Probe::Foreign);
+        QVERIFY(!db.open(foreign));
+
+        const QString text = dir.filePath(QStringLiteral("text.sqlite"));
+        QFile f(text);
+        QVERIFY(f.open(QIODevice::WriteOnly));
+        f.write("not a database at all, just some text that is long enough");
+        f.close();
+        QCOMPARE(Database::probe(text), Database::Probe::NotSqlite);
+        QVERIFY(!db.open(text));
+
+        QCOMPARE(db.filePath(), garage);
+        QVERIFY(db.isOpen());
+        QSqlQuery check(db.connection());
+        QVERIFY(check.exec(QStringLiteral("SELECT COUNT(*) FROM vehicles")));
+    }
+
     /** fileState() reports a write-protected and a deleted garage file while it is open. */
     void fileStateFollowsTheFileOnDisk()
     {
