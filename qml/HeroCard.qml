@@ -85,6 +85,7 @@ Rectangle {
         Controls.Label {
             Layout.fillWidth: true
             text: hero.vehicle.name ?? ""
+            textFormat: Text.PlainText
             color: "white"
             font.pointSize: Kirigami.Theme.defaultFont.pointSize * (hero.compact ? 1.5 : 2.0)
             font.weight: Font.Bold
@@ -101,6 +102,7 @@ Rectangle {
                     .filter(part => part !== undefined && part !== null && part !== "").join(" ")
                 visible: makeModelYear !== ""
                 text: makeModelYear
+                textFormat: Text.PlainText
                 color: Qt.rgba(1, 1, 1, 0.85)
                 elide: Text.ElideRight
                 Layout.maximumWidth: hero.width / 2
@@ -176,6 +178,7 @@ Rectangle {
                         Controls.Label {
                             Layout.fillWidth: true
                             text: dueText.next.name === undefined ? i18n("Next due") : i18n("Next due: %1", dueText.next.name)
+                            textFormat: Text.PlainText
                             color: "white"
                             font.weight: Font.DemiBold
                             elide: Text.ElideRight
@@ -238,6 +241,7 @@ Rectangle {
 
         Controls.Label {
             id: plateLabel
+            textFormat: Text.PlainText
             anchors.centerIn: parent
             color: "#111827"
             font.weight: Font.Bold

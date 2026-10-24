@@ -59,6 +59,9 @@ Controls.ItemDelegate {
             Controls.Label {
                 Layout.fillWidth: true
                 text: row.title
+                // Labels default to AutoText and would render HTML typed into a name or
+                // note ("<b>…</b>", <img>); everything a user typed is shown literally.
+                textFormat: Text.PlainText
                 font.weight: Font.DemiBold
                 elide: Text.ElideRight
             }
@@ -66,6 +69,7 @@ Controls.ItemDelegate {
                 Layout.fillWidth: true
                 visible: text !== ""
                 text: row.subtitle
+                textFormat: Text.PlainText
                 font: Kirigami.Theme.smallFont
                 color: Kirigami.Theme.disabledTextColor
                 elide: Text.ElideRight
@@ -85,6 +89,7 @@ Controls.ItemDelegate {
                 Layout.alignment: Qt.AlignRight
                 visible: text !== ""
                 text: row.value
+                textFormat: Text.PlainText
                 color: row.valueColor
                 font.weight: Font.Bold
                 // Tabular figures keep the amounts of all rows aligned.
@@ -94,6 +99,7 @@ Controls.ItemDelegate {
                 Layout.alignment: Qt.AlignRight
                 visible: text !== ""
                 text: row.detail
+                textFormat: Text.PlainText
                 font: Kirigami.Theme.smallFont
                 color: Kirigami.Theme.disabledTextColor
             }

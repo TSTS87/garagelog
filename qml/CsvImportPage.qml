@@ -114,6 +114,7 @@ Kirigami.ScrollablePage {
                 }
                 Controls.Label {
                     text: page.fileName
+                    textFormat: Text.PlainText
                 }
             }
 
@@ -218,6 +219,7 @@ Kirigami.ScrollablePage {
                 required property string modelData
                 Layout.fillWidth: true
                 text: modelData
+                textFormat: Text.PlainText
                 color: Kirigami.Theme.negativeTextColor
                 wrapMode: Text.WordWrap
             }

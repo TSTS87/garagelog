@@ -45,6 +45,7 @@ Card {
         Controls.Label {
             Layout.fillWidth: true
             text: tile.value
+            textFormat: Text.PlainText
             font.pointSize: Kirigami.Theme.defaultFont.pointSize * Style.figureScale
             font.weight: Font.Bold
             font.features: { "tnum": 1 }
@@ -53,6 +54,7 @@ Card {
         Controls.Label {
             Layout.fillWidth: true
             text: tile.detail
+            textFormat: Text.PlainText
             font: Kirigami.Theme.smallFont
             color: Kirigami.Theme.disabledTextColor
             elide: Text.ElideRight

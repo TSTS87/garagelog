@@ -70,6 +70,7 @@ Kirigami.GlobalDrawer {
                     Layout.fillWidth: true
                     // Only the file name; the full path is shown in the settings.
                     text: Garage.filePath.split("/").pop()
+                    textFormat: Text.PlainText
                     font: Kirigami.Theme.smallFont
                     color: Kirigami.Theme.disabledTextColor
                     elide: Text.ElideMiddle
@@ -263,6 +264,7 @@ Kirigami.GlobalDrawer {
                 Controls.Label {
                     Layout.fillWidth: true
                     text: drawerRow.text
+                    textFormat: Text.PlainText
                     font.weight: drawerRow.selected ? Font.DemiBold : Font.Normal
                     elide: Text.ElideRight
                 }
@@ -270,6 +272,7 @@ Kirigami.GlobalDrawer {
                     Layout.fillWidth: true
                     visible: drawerRow.subtitle !== ""
                     text: drawerRow.subtitle
+                    textFormat: Text.PlainText
                     font: Kirigami.Theme.smallFont
                     color: Kirigami.Theme.disabledTextColor
                     elide: Text.ElideRight

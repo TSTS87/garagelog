@@ -364,6 +364,7 @@ Kirigami.ScrollablePage {
                     required property int index
                     Controls.Label {
                         text: form.fileName(modelData)
+                        textFormat: Text.PlainText
                         font.italic: true
                     }
                     Controls.ToolButton {
