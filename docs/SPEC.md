@@ -26,7 +26,7 @@ Privatpersonen mit 1–5 Fahrzeugen (Auto, Motorrad, Roller, E-Fahrzeug, Oldtime
 - Plausibilitätsprüfung: Tachostand < vorheriger Eintrag → Warnung, nicht Blockade
 
 ### 4.3 Service-/Wartungseinträge
-- Felder: Datum, Tachostand, Art (freie Kategorie mit Vorschlägen: Ölwechsel, Reifen, Bremsen, Kette, Inspektion, TÜV/HU, Versicherung, Steuer, Reparatur, Sonstiges), Beschreibung, Kosten, Werkstatt/selbst gemacht, Notiz
+- Felder: Datum, Tachostand, Art (freie Kategorie mit 13 Vorschlägen, Liste in DATA_MODEL.md: u. a. Ölwechsel, Reifen, Bremsen, Kette, Inspektion, TÜV/HU, Versicherung, Steuer, Reparatur, Batterie, Kühlmittel, Filter, Sonstiges), Beschreibung, Kosten, Werkstatt/selbst gemacht, Notiz
 - Anhänge: Dateien (PDF/Bild) werden als Kopie in `<garage-ordner>/attachments/<uuid>.<ext>` abgelegt, nicht in die DB
 
 ### 4.4 Intervalle & Erinnerungen
@@ -37,7 +37,7 @@ Privatpersonen mit 1–5 Fahrzeugen (Auto, Motorrad, Roller, E-Fahrzeug, Oldtime
 - Keine System-Benachrichtigungen in v1.0 (nur beim Öffnen sichtbar)
 
 ### 4.5 Auswertung
-- Pro Fahrzeug: Gesamtkosten, Kosten/km, Kosten pro Monat, Verbrauchsverlauf (einfaches Liniendiagramm, QtCharts oder eigenes Canvas), Kostenverteilung nach Kategorie
+- Pro Fahrzeug: Gesamtkosten, Kosten/km, Kosten pro Monat, Verbrauchsverlauf (Liniendiagramm mit KQuickCharts, ADR-009), Kostenverteilung nach Kategorie
 - Zeitraumfilter: Jahr, letzte 12 Monate, gesamt
 
 ### 4.6 Import/Export
@@ -51,13 +51,14 @@ GPX/Touren (Phase 2), Karten (Phase 3), OBD (Phase 4), Sync, Konten, Fahrzeugdat
 ## 6. UI-Struktur (Kirigami)
 ```
 ApplicationWindow
-├─ GlobalDrawer: Fahrzeugliste (+ „Alle fällig", Einstellungen, Über)
+├─ GlobalDrawer: Fahrzeugliste (+ „Alle fällig", Daten, Einstellungen; „Über“ noch offen)
 └─ PageRow
    ├─ VehiclePage(vehicleId)   – Kopf: Name, Tacho, nächste Fälligkeit
    │   └─ Pill-Umschalter (ADR-015): Tanken | Service | Intervalle | Auswertung
    ├─ DuePage                  – alle fälligen Intervalle
    └─ SettingsPage             – Einheiten (km/mi, l/gal), Währung, Garage-Datei
-Formulare als Kirigami.OverlaySheet oder eigene Seite (Entscheidung in DECISIONS.md)
+Formulare als eigene Seite im PageRow (ADR-008), gemeinsamer Rahmen FormPage.qml
+Fahrzeug: löschen nur ohne Einträge, sonst archivieren
 ```
 
 ## 7. Qualitätskriterien für v1.0-Release
