@@ -320,49 +320,58 @@ Kirigami.ScrollablePage {
             Kirigami.FormData.label: i18n("Attachments")
         }
 
-        // Stored files: click opens them in the default application.
-        Repeater {
-            model: form.storedAttachments
-            delegate: RowLayout {
-                required property var modelData
-                Controls.Button {
-                    text: modelData.filename
-                    icon.name: "mail-attachment"
-                    flat: true
-                    // Empty url: the garage names a file outside attachments/.
-                    enabled: modelData.url !== ""
-                    // Qt.openUrlExternally goes through QDesktopServices (and
-                    // the OpenURI portal inside Flatpak).
-                    onClicked: Qt.openUrlExternally(modelData.url)
-                }
-                Controls.ToolButton {
-                    icon.name: "edit-delete"
-                    Controls.ToolTip.text: i18n("Remove attachment")
-                    Controls.ToolTip.visible: hovered
-                    onClicked: {
-                        removeAttachmentDialog.attachmentId = modelData.id;
-                        removeAttachmentDialog.filename = modelData.filename;
-                        removeAttachmentDialog.open();
+        // FormLayout lays out its direct children and keeps references to
+        // them; Repeater delegates replaced on every model change leave it
+        // with dangling items (TypeErrors in FormLayout.qml). One stable
+        // ColumnLayout as its child avoids that.
+        ColumnLayout {
+            visible: form.storedAttachments.length + form.pendingFiles.length > 0
+            spacing: 0
+
+            // Stored files: click opens them in the default application.
+            Repeater {
+                model: form.storedAttachments
+                delegate: RowLayout {
+                    required property var modelData
+                    Controls.Button {
+                        text: modelData.filename
+                        icon.name: "mail-attachment"
+                        flat: true
+                        // Empty url: the garage names a file outside attachments/.
+                        enabled: modelData.url !== ""
+                        // Qt.openUrlExternally goes through QDesktopServices (and
+                        // the OpenURI portal inside Flatpak).
+                        onClicked: Qt.openUrlExternally(modelData.url)
+                    }
+                    Controls.ToolButton {
+                        icon.name: "edit-delete"
+                        Controls.ToolTip.text: i18n("Remove attachment")
+                        Controls.ToolTip.visible: hovered
+                        onClicked: {
+                            removeAttachmentDialog.attachmentId = modelData.id;
+                            removeAttachmentDialog.filename = modelData.filename;
+                            removeAttachmentDialog.open();
+                        }
                     }
                 }
             }
-        }
 
-        // Chosen but not yet saved files, shown in italics until Save.
-        Repeater {
-            model: form.pendingFiles
-            delegate: RowLayout {
-                required property var modelData
-                required property int index
-                Controls.Label {
-                    text: form.fileName(modelData)
-                    font.italic: true
-                }
-                Controls.ToolButton {
-                    icon.name: "list-remove"
-                    Controls.ToolTip.text: i18n("Do not attach")
-                    Controls.ToolTip.visible: hovered
-                    onClicked: form.pendingFiles = form.pendingFiles.filter((_, i) => i !== index)
+            // Chosen but not yet saved files, shown in italics until Save.
+            Repeater {
+                model: form.pendingFiles
+                delegate: RowLayout {
+                    required property var modelData
+                    required property int index
+                    Controls.Label {
+                        text: form.fileName(modelData)
+                        font.italic: true
+                    }
+                    Controls.ToolButton {
+                        icon.name: "list-remove"
+                        Controls.ToolTip.text: i18n("Do not attach")
+                        Controls.ToolTip.visible: hovered
+                        onClicked: form.pendingFiles = form.pendingFiles.filter((_, i) => i !== index)
+                    }
                 }
             }
         }
