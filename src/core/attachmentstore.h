@@ -37,8 +37,27 @@ public:
     /** Absolute path of the attachments directory of the open garage (may not exist yet). */
     QString directory() const;
 
-    /** Absolute path of the stored copy of @p attachment, for opening it. */
+    /**
+     * @brief Absolute path of the stored copy of @p attachment, for opening or copying it.
+     *
+     * The stored name comes from the garage file, which may have been
+     * crafted by someone else, so it is never trusted as a path.
+     * @return "" if the stored name is not a plain file name or the file is
+     *         a symlink that points out of the attachments directory.
+     */
     QString filePath(const Attachment &attachment) const;
+
+    /** @copydoc filePath(const Attachment &) const */
+    QString filePath(const QString &storedName) const;
+
+    /**
+     * @brief True if @p storedName is a plain file name inside attachments/.
+     *
+     * Rejects empty names, path separators, a leading dot ("..", hidden
+     * files) and NUL characters. Used for every stored name read from a
+     * garage or an export before it becomes part of a path.
+     */
+    static bool isSafeStoredName(const QString &storedName);
 
     /**
      * @brief Copies @p sourcePath into the attachments directory and records it.

@@ -49,7 +49,32 @@ QString AttachmentStore::directory() const
 
 QString AttachmentStore::filePath(const Attachment &attachment) const
 {
-    return QDir(directory()).filePath(attachment.storedName);
+    return filePath(attachment.storedName);
+}
+
+QString AttachmentStore::filePath(const QString &storedName) const
+{
+    if (!isSafeStoredName(storedName)) {
+        return {};
+    }
+    const QString path = QDir(directory()).filePath(storedName);
+    // A planted symlink (attachments/x.pdf -> ~/.ssh/id_rsa) would let an
+    // export or "open" reach a file outside the garage.
+    const QFileInfo info(path);
+    if (info.isSymLink()) {
+        const QString dir = QFileInfo(directory()).canonicalFilePath();
+        const QString target = info.canonicalFilePath();
+        if (dir.isEmpty() || !target.startsWith(dir + QLatin1Char('/'))) {
+            return {};
+        }
+    }
+    return path;
+}
+
+bool AttachmentStore::isSafeStoredName(const QString &storedName)
+{
+    return !storedName.isEmpty() && !storedName.contains(QLatin1Char('/')) && !storedName.contains(QLatin1Char('\\'))
+        && !storedName.startsWith(QLatin1Char('.')) && !storedName.contains(QChar(0));
 }
 
 std::optional<Attachment> AttachmentStore::add(const QString &serviceEntryId, const QString &sourcePath)
@@ -187,16 +212,15 @@ QStringList AttachmentStore::storedNamesOf(const QString &serviceEntryId)
 
 bool AttachmentStore::removeFiles(const QStringList &storedNames)
 {
-    const QDir dir(directory());
     bool ok = true;
     for (const QString &name : storedNames) {
         // Never follow a stored name out of the directory, e.g. from a
-        // manipulated import ("../garage.sqlite").
-        if (name.isEmpty() || name.contains(QLatin1Char('/')) || name.contains(QLatin1Char('\\')) || name.startsWith(QLatin1Char('.'))) {
+        // manipulated garage ("../garage.sqlite"); filePath() returns "" then.
+        const QString path = filePath(name);
+        if (path.isEmpty()) {
             continue;
         }
-        const QString path = dir.filePath(name);
-        if (QFile::exists(path) && !QFile::remove(path)) {
+        if (QFileInfo::exists(path) && !QFile::remove(path)) {
             m_error = QStringLiteral("Cannot delete attachment file %1").arg(path);
             ok = false;
         }

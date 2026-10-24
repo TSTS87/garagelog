@@ -303,10 +303,12 @@ QVariantList ServiceListModel::attachments(const QString &entryId)
     AttachmentStore store(m_database);
     QVariantList result;
     for (const core::Attachment &a : store.byServiceEntry(entryId)) {
+        // "" for a stored name that would leave attachments/: nothing to open.
+        const QString path = store.filePath(a);
         result.append(QVariantMap{
             {QStringLiteral("id"), a.id},
             {QStringLiteral("filename"), a.filename},
-            {QStringLiteral("url"), QUrl::fromLocalFile(store.filePath(a)).toString()},
+            {QStringLiteral("url"), path.isEmpty() ? QString() : QUrl::fromLocalFile(path).toString()},
             {QStringLiteral("sizeBytes"), QVariant::fromValue(a.sizeBytes)},
             {QStringLiteral("mime"), a.mime},
         });

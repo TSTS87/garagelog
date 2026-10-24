@@ -8,6 +8,7 @@
 #include "migrationrunner.h"
 
 #include <QDir>
+#include <QFileInfo>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -50,13 +51,6 @@ QSet<QString> columnsOf(const QSqlDatabase &db, const QString &table)
         }
     }
     return columns;
-}
-
-/** Same rule as AttachmentStore::removeFiles(): a plain file name inside attachments/. */
-bool isSafeStoredName(const QString &name)
-{
-    return !name.isEmpty() && !name.contains(QLatin1Char('/')) && !name.contains(QLatin1Char('\\'))
-        && !name.startsWith(QLatin1Char('.'));
 }
 
 /** Reads and parses <dir>/garagelog.json; sets @p error on failure. */
@@ -178,11 +172,16 @@ bool JsonImporter::importFrom(const QString &directory)
                 verb = QStringLiteral("INSERT OR REPLACE");
             } else if (table == QLatin1String("attachments")) {
                 const QString name = row.value(QStringLiteral("stored_name")).toString();
-                if (!isSafeStoredName(name)) {
+                if (!AttachmentStore::isSafeStoredName(name)) {
                     return fail(QStringLiteral("Invalid attachment file name %1").arg(name));
                 }
-                if (!sourceFiles.exists(name)) {
+                const QFileInfo sourceFile(sourceFiles.filePath(name));
+                if (!sourceFile.exists() && !sourceFile.isSymLink()) {
                     m_warnings.append(QStringLiteral("Attachment file missing in export: %1").arg(name));
+                } else if (sourceFile.isSymLink() || !sourceFile.isFile()) {
+                    // A symlink in a received export could pull any file of
+                    // the user (e.g. ~/.ssh/id_rsa) into the garage.
+                    return fail(QStringLiteral("Attachment %1 is not a regular file").arg(name));
                 } else {
                     if (!QDir().mkpath(targetFiles.path())) {
                         return fail(QStringLiteral("Cannot create %1").arg(targetFiles.path()));

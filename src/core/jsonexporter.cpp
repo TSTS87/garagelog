@@ -100,13 +100,18 @@ bool JsonExporter::exportTo(const QString &directory)
     // Copy the files first: a JSON file next to an incomplete attachments
     // folder would look like a finished export.
     AttachmentStore store(m_database);
-    const QDir source(store.directory());
     if (!storedNames.isEmpty() && !dir.mkpath(AttachmentStore::directoryName)) {
         m_error = QStringLiteral("Cannot create %1").arg(dir.filePath(AttachmentStore::directoryName));
         return false;
     }
     for (const QString &name : storedNames) {
-        const QString from = source.filePath(name);
+        // The names come from the garage file; a crafted one like
+        // "../../.config/autostart/x.desktop" must not become a path.
+        const QString from = store.filePath(name);
+        if (from.isEmpty()) {
+            m_warnings.append(QStringLiteral("Attachment file name not allowed, skipped: %1").arg(name));
+            continue;
+        }
         const QString to = dir.filePath(AttachmentStore::directoryName + QLatin1Char('/') + name);
         if (!QFile::exists(from)) {
             m_warnings.append(QStringLiteral("Attachment file missing: %1").arg(from));

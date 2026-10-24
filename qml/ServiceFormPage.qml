@@ -329,6 +329,8 @@ Kirigami.ScrollablePage {
                     text: modelData.filename
                     icon.name: "mail-attachment"
                     flat: true
+                    // Empty url: the garage names a file outside attachments/.
+                    enabled: modelData.url !== ""
                     // Qt.openUrlExternally goes through QDesktopServices (and
                     // the OpenURI portal inside Flatpak).
                     onClicked: Qt.openUrlExternally(modelData.url)

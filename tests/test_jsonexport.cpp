@@ -186,6 +186,42 @@ private Q_SLOTS:
         QVERIFY(!JsonImporter(target).check(m_dir->path())); // no export there
     }
 
+    /** A crafted stored_name in the garage never makes the export write outside the export folder. */
+    void exportSkipsUnsafeStoredName()
+    {
+        QSqlQuery q(m_source->connection());
+        QVERIFY(q.exec(QStringLiteral("UPDATE attachments SET stored_name = '../../planted.txt'")));
+        // The file the traversal would copy: <garage dir>/attachments/../../planted.txt
+        QFile bait(m_dir->filePath(QStringLiteral("planted.txt")));
+        QVERIFY(bait.open(QIODevice::WriteOnly));
+        bait.close();
+
+        const QString exportDir = m_dir->filePath(QStringLiteral("x/y/export"));
+        JsonExporter exporter(*m_source);
+        QVERIFY2(exporter.exportTo(exportDir), qPrintable(exporter.errorString()));
+        QCOMPARE(exporter.warnings().size(), 1);
+        QVERIFY(exporter.warnings().first().contains(QStringLiteral("not allowed")));
+        QVERIFY(!QFile::exists(m_dir->filePath(QStringLiteral("x/planted.txt"))));
+    }
+
+    /** Import refuses an attachment that is a symlink, so it cannot pull other files of the user into the garage. */
+    void importRefusesSymlink()
+    {
+        const QString exportDir = m_dir->filePath(QStringLiteral("export"));
+        QVERIFY(JsonExporter(*m_source).exportTo(exportDir));
+        const QDir files(QDir(exportDir).filePath(AttachmentStore::directoryName));
+        const QString name = files.entryList(QDir::Files).first();
+        QVERIFY(QFile::remove(files.filePath(name)));
+        QVERIFY(QFile::link(m_dir->filePath(QStringLiteral("receipt.pdf")), files.filePath(name)));
+
+        Database target;
+        QVERIFY(target.open(m_dir->filePath(QStringLiteral("d/garage.sqlite"))));
+        JsonImporter importer(target);
+        QVERIFY(!importer.importFrom(exportDir));
+        QVERIFY(importer.errorString().contains(QStringLiteral("not a regular file")));
+        QVERIFY(VehicleRepository(target).all(true).isEmpty());
+    }
+
     /** CSV export writes one file per table with header and RFC 4180 quoting; NULL becomes empty. */
     void csvExport()
     {

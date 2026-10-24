@@ -143,6 +143,30 @@ private Q_SLOTS:
         QVERIFY(QFile::exists(m_garageDir->filePath(QStringLiteral("garage.sqlite"))));
     }
 
+    /** filePath() returns "" for stored names that would leave attachments/, including symlinks pointing outside. */
+    void filePathStaysInside()
+    {
+        AttachmentStore store(*m_db);
+        QVERIFY(store.filePath(QStringLiteral("../garage.sqlite")).isEmpty());
+        QVERIFY(store.filePath(QStringLiteral("/etc/passwd")).isEmpty());
+        QVERIFY(store.filePath(QStringLiteral("..")).isEmpty());
+        QVERIFY(store.filePath(QStringLiteral("a\\b")).isEmpty());
+        QVERIFY(store.filePath(QString()).isEmpty());
+        QVERIFY(!store.filePath(QStringLiteral("ok.pdf")).isEmpty());
+
+        QVERIFY(QDir().mkpath(store.directory()));
+        const QString secret = sourceFile(QStringLiteral("secret.txt"), "secret");
+        QVERIFY(QFile::link(secret, QDir(store.directory()).filePath(QStringLiteral("evil.pdf"))));
+        QVERIFY(store.filePath(QStringLiteral("evil.pdf")).isEmpty());
+
+        const QString inside = QDir(store.directory()).filePath(QStringLiteral("real.pdf"));
+        QFile real(inside);
+        QVERIFY(real.open(QIODevice::WriteOnly));
+        real.close();
+        QVERIFY(QFile::link(inside, QDir(store.directory()).filePath(QStringLiteral("alias.pdf"))));
+        QVERIFY(!store.filePath(QStringLiteral("alias.pdf")).isEmpty());
+    }
+
 private:
     std::unique_ptr<QTemporaryDir> m_garageDir;
     std::unique_ptr<QTemporaryDir> m_sourceDir;
