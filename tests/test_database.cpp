@@ -281,6 +281,17 @@ private Q_SLOTS:
         QSqlDatabase::removeDatabase(QStringLiteral("v1"));
     }
 
+    /** A new garage is readable by its owner only and deletes content for real (secure_delete). */
+    void newGarageIsPrivate()
+    {
+        QTemporaryDir dir;
+        Database db;
+        const QString path = dir.filePath(QStringLiteral("garage.sqlite"));
+        QVERIFY(db.open(path));
+        QCOMPARE(QFile::permissions(path) & (QFile::ReadGroup | QFile::ReadOther | QFile::WriteGroup | QFile::WriteOther), QFile::Permissions());
+        QCOMPARE(scalar(db.connection(), QStringLiteral("PRAGMA secure_delete")).toInt(), 1);
+    }
+
     /** MustExist refuses a missing file instead of creating an empty garage in its place. */
     void mustExistDoesNotCreate()
     {

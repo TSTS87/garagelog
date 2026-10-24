@@ -85,9 +85,14 @@ std::optional<Attachment> AttachmentStore::add(const QString &serviceEntryId, co
         m_error = QStringLiteral("Cannot read file %1").arg(sourcePath);
         return std::nullopt;
     }
+    const bool created = !QFileInfo::exists(directory());
     if (!QDir().mkpath(directory())) {
         m_error = QStringLiteral("Cannot create directory %1").arg(directory());
         return std::nullopt;
+    }
+    if (created) {
+        // Receipts and photos: owner only, like a new garage file.
+        QFile::setPermissions(directory(), QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
     }
 
     Attachment a;

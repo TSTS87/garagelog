@@ -287,6 +287,7 @@ bool GarageController::saveGarageAs(const QString &urlOrPath)
         setErrorString(i18n("Cannot copy garage: %1", vacuum.lastError().text()));
         return false;
     }
+    QFile::setPermissions(temporary, QFile::ReadOwner | QFile::WriteOwner);
 
     // Attachments go next to the copy, as AttachmentStore expects them there.
     // Only files this garage refers to: the folder may be shared with other
@@ -303,10 +304,13 @@ bool GarageController::saveGarageAs(const QString &urlOrPath)
         names.append(query.value(0).toString());
     }
     const QDir targetDir(QFileInfo(target).absoluteDir().filePath(core::AttachmentStore::directoryName));
-    if (!names.isEmpty() && !QDir().mkpath(targetDir.path())) {
-        QFile::remove(temporary);
-        setErrorString(i18n("Cannot create %1", targetDir.path()));
-        return false;
+    if (!names.isEmpty() && !targetDir.exists()) {
+        if (!QDir().mkpath(targetDir.path())) {
+            QFile::remove(temporary);
+            setErrorString(i18n("Cannot create %1", targetDir.path()));
+            return false;
+        }
+        QFile::setPermissions(targetDir.path(), QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
     }
     for (const QString &name : names) {
         const QString from = store.filePath(name);

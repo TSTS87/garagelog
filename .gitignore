@@ -5,3 +5,12 @@ build/
 compile_commands.json
 build-flatpak/
 repo-flatpak/
+
+# Real garages, exports and local tool state must never reach the public repo
+*.sqlite
+*.sqlite-journal
+attachments/
+garagelog-export-*/
+garagelog-csv-*/
+.claude/settings.local.json
+.claude/worktrees/

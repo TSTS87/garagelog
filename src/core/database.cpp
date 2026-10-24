@@ -5,6 +5,7 @@
 #include "migrationrunner.h"
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -80,7 +81,8 @@ bool Database::open(const QString &filePath, OpenMode mode)
 
     const QFileInfo info(filePath);
     QString detail;
-    switch (probe(filePath, &detail)) {
+    const Probe kind = probe(filePath, &detail);
+    switch (kind) {
     case Probe::Missing:
         if (mode == OpenMode::MustExist) {
             m_error = QStringLiteral("%1 does not exist").arg(filePath);
@@ -124,6 +126,12 @@ bool Database::open(const QString &filePath, OpenMode mode)
         return false;
     }
 
+    // A new garage holds plates, notes and costs: readable by the owner only
+    // (SQLite gives its journal the same mode). Existing files keep theirs.
+    if (kind == Probe::Missing) {
+        QFile::setPermissions(info.absoluteFilePath(), QFile::ReadOwner | QFile::WriteOwner);
+    }
+
     close();
     m_connectionName = name;
     m_filePath = filePath;
@@ -143,6 +151,17 @@ bool Database::prepare(QSqlDatabase &db)
     if (!query.exec(QStringLiteral("PRAGMA foreign_keys")) || !query.next() || query.value(0).toInt() != 1) {
         m_error = QStringLiteral("SQLite does not support foreign keys");
         return false;
+    }
+
+    // Deleted notes, plates and receipts would otherwise stay readable in
+    // free pages of the file, also in copies the user hands on.
+    // trusted_schema off: functions with side effects may not run from
+    // views or triggers of an opened file someone else prepared.
+    for (const QString &pragma : {QStringLiteral("PRAGMA secure_delete = ON"), QStringLiteral("PRAGMA trusted_schema = OFF")}) {
+        if (!query.exec(pragma)) {
+            m_error = QStringLiteral("Cannot configure database: %1").arg(query.lastError().text());
+            return false;
+        }
     }
 
     MigrationRunner runner;

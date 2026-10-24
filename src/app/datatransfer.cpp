@@ -9,6 +9,7 @@
 
 #include <QDate>
 #include <QDir>
+#include <QFile>
 
 #include <KLocalizedString>
 
@@ -55,6 +56,8 @@ QString DataTransfer::newSubfolder(const QString &folder, const QString &base)
         setResult(i18n("Cannot create %1", parent.filePath(name)));
         return {};
     }
+    // The export holds every entry and receipt: owner only until the user shares it.
+    QFile::setPermissions(parent.filePath(name), QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
     return parent.filePath(name);
 }
 
