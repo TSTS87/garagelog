@@ -51,8 +51,24 @@ Kirigami.ScrollablePage {
     signal saved(string vehicleId)
     signal canceled()
 
+    /**
+     * True once the form has emitted saved, removed or canceled. Enter in a
+     * text field reaches both onAccepted and the FormLayout key handler, and
+     * the page's shortcuts stay active during the pop animation, so without
+     * this a second trigger would save twice or pop the page below.
+     */
+    property bool closing: false
+
+    /** Leaves the form without saving; ignored while it is already closing. */
+    function cancel() {
+        if (!closing) {
+            closing = true;
+            canceled();
+        }
+    }
+
     function save() {
-        if (!canSave) {
+        if (closing || !canSave) {
             return;
         }
         const values = {
@@ -75,6 +91,7 @@ Kirigami.ScrollablePage {
         if (savedId === "") {
             errorText = Vehicles.errorString;
         } else {
+            closing = true;
             saved(savedId);
         }
     }
@@ -95,7 +112,7 @@ Kirigami.ScrollablePage {
             icon.name: form.original.archived ? "archive-extract" : "archive-insert"
             onTriggered: {
                 if (Vehicles.setArchived(form.vehicleId, !form.original.archived)) {
-                    form.canceled();
+                    form.cancel();
                 } else {
                     form.errorText = Vehicles.errorString;
                 }
@@ -105,7 +122,7 @@ Kirigami.ScrollablePage {
             text: i18n("Cancel")
             icon.name: "dialog-cancel"
             shortcut: "Escape"
-            onTriggered: form.canceled()
+            onTriggered: form.cancel()
         }
     ]
 

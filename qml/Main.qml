@@ -204,6 +204,17 @@ Kirigami.ApplicationWindow {
         pushForm(intervalFormComponent, { intervalId: intervalId });
     }
 
+    /**
+     * Pops a form page, but only while it is still the last page: a late
+     * signal from a page that is already animating out must not pop the
+     * vehicle page below it.
+     */
+    function closeForm(page) {
+        if (pageStack.lastItem === page) {
+            pageStack.pop();
+        }
+    }
+
     function pushForm(component, properties) {
         // At most one form at a time: drop an already open one first.
         while (pageStack.depth > 1) {
@@ -227,9 +238,10 @@ Kirigami.ApplicationWindow {
     Component {
         id: intervalFormComponent
         IntervalFormPage {
-            onSaved: root.pageStack.pop()
-            onRemoved: root.pageStack.pop()
-            onCanceled: root.pageStack.pop()
+            id: intervalForm
+            onSaved: root.closeForm(intervalForm)
+            onRemoved: root.closeForm(intervalForm)
+            onCanceled: root.closeForm(intervalForm)
         }
     }
 
@@ -241,8 +253,9 @@ Kirigami.ApplicationWindow {
     Component {
         id: csvImportComponent
         CsvImportPage {
-            onImported: root.pageStack.pop()
-            onCanceled: root.pageStack.pop()
+            id: csvImport
+            onImported: root.closeForm(csvImport)
+            onCanceled: root.closeForm(csvImport)
         }
     }
 
@@ -256,9 +269,10 @@ Kirigami.ApplicationWindow {
     Component {
         id: serviceFormComponent
         ServiceFormPage {
-            onSaved: root.pageStack.pop()
-            onRemoved: root.pageStack.pop()
-            onCanceled: root.pageStack.pop()
+            id: serviceForm
+            onSaved: root.closeForm(serviceForm)
+            onRemoved: root.closeForm(serviceForm)
+            onCanceled: root.closeForm(serviceForm)
         }
     }
 
@@ -266,17 +280,19 @@ Kirigami.ApplicationWindow {
     Component {
         id: fuelFormComponent
         FuelFormPage {
-            onSaved: root.pageStack.pop()
-            onRemoved: root.pageStack.pop()
-            onCanceled: root.pageStack.pop()
+            id: fuelForm
+            onSaved: root.closeForm(fuelForm)
+            onRemoved: root.closeForm(fuelForm)
+            onCanceled: root.closeForm(fuelForm)
         }
     }
 
     Component {
         id: formComponent
         VehicleFormPage {
+            id: vehicleForm
             onSaved: vehicleId => root.showVehicle(vehicleId)
-            onCanceled: root.pageStack.pop()
+            onCanceled: root.closeForm(vehicleForm)
         }
     }
 
