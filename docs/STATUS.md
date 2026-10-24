@@ -10,18 +10,17 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-Keiner – Phase 1 abgeschlossen (v1.0.0). Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: Thomas plant sie, bevor weitergearbeitet wird
+Keiner – Phase 1 abgeschlossen (v1.0.1). Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: Thomas plant sie, bevor weitergearbeitet wird
 
 ## Zustand
-- Letzter Commit: `fde3578` build: add Flathub manifest for v1.0.0 and submission guide (+ docs). Tag `v1.0.0` = `b23c57c`, GitHub-Release angelegt
+- Letzter Commit: `cc4f3bc` build: point the Flathub manifest at v1.0.1 (+ docs). Tags `v1.0.0` = `b23c57c`, `v1.0.1` = `c92c694` (nur neue Screenshots), beide als GitHub-Release. Repo ist öffentlich
 - Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (26/26, inkl. desktop-file-validate, appstreamcli, msgfmt)
 - App startet: ja (offscreen ~400 ms; Flatpak `io.github.TSTS87.GarageLog` lokal gebaut/installiert, erstes Bild 357 ms). CI (GitHub Actions: Arch-Container + Flatpak) grün. Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04–M18, Liste in `docs/RELEASE_CHECK_1.0.md`), ebenso native FileDialog/FolderDialog (auch über das Portal im Flatpak)
 - Testgarage für Thomas (bleibt bestehen): `~/GarageLog-Testgarage/garage.sqlite` – 10.000 Tank-, 389 Serviceeinträge, 3 Intervalle; öffnen über Einstellungen → Garage öffnen
 
 ## Offene Punkte im aktuellen Meilenstein
-- Thomas: Repo `TSTS87/garagelog` ist **privat** → öffentlich schalten (`gh repo edit --visibility public --accept-visibility-change-consequences`). Erst dann laden die metainfo-Screenshots, Homepage und Flathub-Linter werden grün (prüfen: `appstreamcli validate packaging/*.metainfo.xml`, Linter-Befehle in `packaging/flathub/README.md`)
 - Thomas: GitHub-Sponsors-Profil freischalten (Links in metainfo, README, `.github/FUNDING.yml` zeigen schon darauf)
-- Thomas: Flathub-PR einreichen (Schritte in `packaging/flathub/README.md`)
+- Thomas: Flathub-PR mit `packaging/flathub/io.github.TSTS87.GarageLog.yml` (v1.0.1) einreichen – Schritte in `packaging/flathub/README.md`
 - Thomas: offene Kriterien 3 und 5 aus `docs/RELEASE_CHECK_1.0.md` am Desktop prüfen
 
 ## Verschoben / Abweichungen vom Plan
@@ -32,7 +31,7 @@ Keiner – Phase 1 abgeschlossen (v1.0.0). Phase 2 (Touren) hat in ROADMAP.md no
 - M13/M14: JSON-Import nur in Garage ohne Fahrzeuge (ADR-010); CSV-Export in DB-Einheiten; CSV-Tankimport erwartet km/l/kWh unabhängig von den Einstellungen; Fuelio-Beispiel in `tests/data/` ist handgeschrieben
 - M14: Einheiten mi + l zeigen Verbrauch weiter in l/100 km (mpg nur mit Gallonen); Währung ändert nur das Symbol
 - M16: Fehlermeldungen aus `src/core` bleiben englisch (Core darf kein KI18n nutzen); übersetzt sind alle Texte aus `src/app` und `qml/` (de.po 255/255). App-ID jetzt `io.github.TSTS87.GarageLog` (ADR-013), QML-URI bleibt `org.tmx.garagelog`
-- M18: GitHub-Release ohne Binärpaket (nur Quellcode); Flathub-Manifest lokal nur gelintet, nicht gebaut (Repo privat → kein Clone ohne Auth)
+- M18: GitHub-Release ohne Binärpaket (nur Quellcode). v1.0.1 statt verschobenem v1.0.0-Tag für die neuen Screenshots. Flathub-Manifest baut aus GitHub, Manifest-Lint sauber; Repo-Lint meldet nur Screenshot-/Icon-Spiegelung (macht Flathubs Pipeline)
 - M15: Enter auf nicht-editierbarer ComboBox speichert nur über `FormComboBox`; schreibgeschützte Datei erst *nach* dem Öffnen: bestehende Verbindung schreibt weiter, Banner warnt trotzdem (ADR-011)
 
 ## Bekannte Probleme
@@ -51,7 +50,7 @@ Keiner – Phase 1 abgeschlossen (v1.0.0). Phase 2 (Touren) hat in ROADMAP.md no
 - Testdaten: `build/bin/garagelog-gendata <datei.sqlite> [anzahl]` (tools/, ADR-012); Startzeit messen mit `QT_LOGGING_RULES="garagelog.startup.debug=true"`
 - QML ↔ C++: Daten als ISO-Text, nie JS Date; `QVariant::fromValue(nullptr)` = JS `null`; ComboBox-Index aus Options-Array berechnen; nach Modellwechsel Binding neu setzen (`CsvImportPage.ColumnPicker`). Eigene Property nie `header` nennen (kollidiert mit `Page.header`)
 - Übersetzung: `tools/extract-messages.sh` erneuert `po/garagelog.pot` und mergt in `po/*/garagelog.po`; danach Übersetzungen ergänzen (msgfmt-CTest prüft Syntax). Icon-PNGs: `tools/render-icons.sh`. ECM-`appstreamtest` prüft die *installierte* metainfo (install_manifest.txt) → nach Änderungen `cmake --install build --prefix <scratch>`
-- Screenshots (`docs/screenshots/`): offscreen mit `QT_QPA_PLATFORMTHEME=kde` und einer `kdeglobals` mit `[Icons] Theme=breeze` im XDG_CONFIG_HOME (sonst fehlen Icons); Demo-Garage = 2× `garagelog-gendata` + Umbenennen per sqlite3
+- Screenshots (`docs/screenshots/`, seit 1.0.1): Scratch-Harness (s. oben) mit `QT_QPA_PLATFORM=wayland` in `dbus-run-session kwin_wayland --virtual --width 1440 --height 900 --exit-with-session <skript>`, Aufnahme je Schritt per `spectacle -b -n -a -o <datei>` (mit Breeze-Rahmen); Harness braucht `setDesktopFileName` fürs App-Icon. Offscreen-Variante: mit `QT_QPA_PLATFORMTHEME=kde` und einer `kdeglobals` mit `[Icons] Theme=breeze` im XDG_CONFIG_HOME (sonst fehlen Icons); Demo-Garage = 2× `garagelog-gendata` + Umbenennen per sqlite3
 - `dueStatusName()` statt `toString()` (kollidiert mit QTest). applib definiert `TRANSLATION_DOMAIN="garagelog"`
 - **Testen:** `QT_FORCE_STDERR_LOGGING=1` (sonst Logs im Journal), eigene Garage per `XDG_DATA_HOME=<scratch>/xdgN XDG_CONFIG_HOME=<scratch>/cfgN` (sonst wird `~/.config/garagelogrc` überschrieben); `rm -rf` ist gesperrt
 - Offscreen-Screenshots: Scratch-Programm gegen `build/lib/*.a` + `qrc_qml.cpp.o` + `qrc_migrations_init.cpp.o`, Singletons zusätzlich als Context-Properties, JS-Schritte per `QQmlExpression`, `grabWindow()`; nicht im Repo
@@ -67,4 +66,4 @@ Keiner – Phase 1 abgeschlossen (v1.0.0). Phase 2 (Touren) hat in ROADMAP.md no
 - M15 Politur – 2026-10-23 – `57e3f58`
 - M16 Übersetzung & Metadaten – 2026-10-23 – `140a854`
 - M17 Flatpak & CI – 2026-10-24 – `2bf0132`
-- M18 Release 1.0 – 2026-10-24 – Tag `v1.0.0` (`b23c57c`), Stand `fde3578`
+- M18 Release 1.0 – 2026-10-24 – Tag `v1.0.0` (`b23c57c`); 1.0.1 mit echten Screenshots `c92c694`, Repo öffentlich
