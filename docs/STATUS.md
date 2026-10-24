@@ -10,16 +10,19 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-M18 – Release 1.0
+Keiner – Phase 1 abgeschlossen (v1.0.0). Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: Thomas plant sie, bevor weitergearbeitet wird
 
 ## Zustand
-- Letzter Commit: `2bf0132` ci: run the tests as an unprivileged user (+ docs)
+- Letzter Commit: `fde3578` build: add Flathub manifest for v1.0.0 and submission guide (+ docs). Tag `v1.0.0` = `b23c57c`, GitHub-Release angelegt
 - Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (26/26, inkl. desktop-file-validate, appstreamcli, msgfmt)
-- App startet: ja (offscreen ~400 ms; Flatpak `io.github.TSTS87.GarageLog` lokal gebaut/installiert, erstes Bild 357 ms). CI (GitHub Actions: Arch-Container + Flatpak) grün. Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04–M16), ebenso native FileDialog/FolderDialog (auch über das Portal im Flatpak)
+- App startet: ja (offscreen ~400 ms; Flatpak `io.github.TSTS87.GarageLog` lokal gebaut/installiert, erstes Bild 357 ms). CI (GitHub Actions: Arch-Container + Flatpak) grün. Sichtprüfung am echten Plasma-Desktop durch Thomas steht aus (M04–M18, Liste in `docs/RELEASE_CHECK_1.0.md`), ebenso native FileDialog/FolderDialog (auch über das Portal im Flatpak)
 - Testgarage für Thomas (bleibt bestehen): `~/GarageLog-Testgarage/garage.sqlite` – 10.000 Tank-, 389 Serviceeinträge, 3 Intervalle; öffnen über Einstellungen → Garage öffnen
 
 ## Offene Punkte im aktuellen Meilenstein
-- alle (noch nicht begonnen)
+- Thomas: Repo `TSTS87/garagelog` ist **privat** → öffentlich schalten (`gh repo edit --visibility public --accept-visibility-change-consequences`). Erst dann laden die metainfo-Screenshots, Homepage und Flathub-Linter werden grün (prüfen: `appstreamcli validate packaging/*.metainfo.xml`, Linter-Befehle in `packaging/flathub/README.md`)
+- Thomas: GitHub-Sponsors-Profil freischalten (Links in metainfo, README, `.github/FUNDING.yml` zeigen schon darauf)
+- Thomas: Flathub-PR einreichen (Schritte in `packaging/flathub/README.md`)
+- Thomas: offene Kriterien 3 und 5 aus `docs/RELEASE_CHECK_1.0.md` am Desktop prüfen
 
 ## Verschoben / Abweichungen vom Plan
 - Breeze hat nur `car`-Icon → alle Fahrzeugtypen zeigen `car` (`VehicleListModel::iconForType()`); eigene Icons nicht in ROADMAP M15 – weiter offen, Thomas entscheidet
@@ -29,6 +32,7 @@ M18 – Release 1.0
 - M13/M14: JSON-Import nur in Garage ohne Fahrzeuge (ADR-010); CSV-Export in DB-Einheiten; CSV-Tankimport erwartet km/l/kWh unabhängig von den Einstellungen; Fuelio-Beispiel in `tests/data/` ist handgeschrieben
 - M14: Einheiten mi + l zeigen Verbrauch weiter in l/100 km (mpg nur mit Gallonen); Währung ändert nur das Symbol
 - M16: Fehlermeldungen aus `src/core` bleiben englisch (Core darf kein KI18n nutzen); übersetzt sind alle Texte aus `src/app` und `qml/` (de.po 255/255). App-ID jetzt `io.github.TSTS87.GarageLog` (ADR-013), QML-URI bleibt `org.tmx.garagelog`
+- M18: GitHub-Release ohne Binärpaket (nur Quellcode); Flathub-Manifest lokal nur gelintet, nicht gebaut (Repo privat → kein Clone ohne Auth)
 - M15: Enter auf nicht-editierbarer ComboBox speichert nur über `FormComboBox`; schreibgeschützte Datei erst *nach* dem Öffnen: bestehende Verbindung schreibt weiter, Banner warnt trotzdem (ADR-011)
 
 ## Bekannte Probleme
@@ -63,3 +67,4 @@ M18 – Release 1.0
 - M15 Politur – 2026-10-23 – `57e3f58`
 - M16 Übersetzung & Metadaten – 2026-10-23 – `140a854`
 - M17 Flatpak & CI – 2026-10-24 – `2bf0132`
+- M18 Release 1.0 – 2026-10-24 – Tag `v1.0.0` (`b23c57c`), Stand `fde3578`
