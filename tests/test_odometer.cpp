@@ -65,7 +65,7 @@ bool insertTrip(const Database &db, const QString &vehicleId, qint64 endOdometer
 } // namespace
 
 /**
- * @brief Covers M03: currentOdometer() with 0, 1 and n entries plus offset.
+ * @brief Covers M03: currentOdometer() with 0, 1 and n entries plus the manual reading (ADR-016).
  */
 class TestOdometer : public QObject
 {
@@ -85,43 +85,62 @@ private Q_SLOTS:
         m_dir.reset();
     }
 
-    /** A vehicle without entries reports its offset (0 by default). */
-    void noEntriesGivesOffset()
+    /** A vehicle without entries reports its manual reading (0 without one). */
+    void noEntriesGivesReading()
     {
-        const QString id = createVehicle(0);
+        const QString id = createVehicle(std::nullopt);
         QCOMPARE(Odometer(*m_db).current(id), qint64(0));
 
-        const QString withOffset = createVehicle(5000);
-        QCOMPARE(Odometer(*m_db).current(withOffset), qint64(5000));
+        const QString withReading = createVehicle(5000);
+        QCOMPARE(Odometer(*m_db).current(withReading), qint64(5000));
     }
 
     /** A single fuel entry is the odometer. */
     void oneEntry()
     {
-        const QString id = createVehicle(0);
+        const QString id = createVehicle(std::nullopt);
         QVERIFY(insertFuel(*m_db, id, 12'345'000));
         QCOMPARE(Odometer(*m_db).current(id), qint64(12'345'000));
     }
 
-    /** With several entries in all three tables the highest one wins, then the offset is added. */
-    void manyEntriesTakeMaximumPlusOffset()
+    /** With several entries in all three tables the highest one wins; nothing is added on top. */
+    void manyEntriesTakeMaximum()
     {
         const QString id = createVehicle(700);
         QVERIFY(insertFuel(*m_db, id, 10'000'000));
         QVERIFY(insertFuel(*m_db, id, 10'500'000));
         QVERIFY(insertService(*m_db, id, qint64(10'400'000)));
         QVERIFY(insertTrip(*m_db, id, 10'800'000));
-        QCOMPARE(Odometer(*m_db).current(id), qint64(10'800'700));
+        QCOMPARE(Odometer(*m_db).current(id), qint64(10'800'000));
 
         // A later service with a higher reading takes over from the trip.
         QVERIFY(insertService(*m_db, id, qint64(11'000'000)));
-        QCOMPARE(Odometer(*m_db).current(id), qint64(11'000'700));
+        QCOMPARE(Odometer(*m_db).current(id), qint64(11'000'000));
+    }
+
+    /** A start reading of a new vehicle is not counted twice once entries arrive (audit A4). */
+    void startReadingIsNotAddedToEntries()
+    {
+        const QString id = createVehicle(50'000'000);
+        QCOMPARE(Odometer(*m_db).current(id), qint64(50'000'000));
+        QVERIFY(insertFuel(*m_db, id, 50'500'000));
+        QCOMPARE(Odometer(*m_db).current(id), qint64(50'500'000));
+    }
+
+    /** A manual reading above the highest entry (driven without refuelling) is shown until an entry passes it. */
+    void readingAboveEntriesWins()
+    {
+        const QString id = createVehicle(5'250'000);
+        QVERIFY(insertFuel(*m_db, id, 5'000'000));
+        QCOMPARE(Odometer(*m_db).current(id), qint64(5'250'000));
+        QVERIFY(insertFuel(*m_db, id, 5'600'000));
+        QCOMPARE(Odometer(*m_db).current(id), qint64(5'600'000));
     }
 
     /** Services without odometer value (NULL) do not count, and do not turn the result into NULL. */
     void nullOdometerIgnored()
     {
-        const QString id = createVehicle(0);
+        const QString id = createVehicle(std::nullopt);
         QVERIFY(insertService(*m_db, id, QVariant()));
         QCOMPARE(Odometer(*m_db).current(id), qint64(0));
 
@@ -133,34 +152,11 @@ private Q_SLOTS:
     /** Entries of other vehicles never influence the result. */
     void otherVehiclesIgnored()
     {
-        const QString mine = createVehicle(0);
-        const QString other = createVehicle(0);
+        const QString mine = createVehicle(std::nullopt);
+        const QString other = createVehicle(std::nullopt);
         QVERIFY(insertFuel(*m_db, mine, 1'000'000));
         QVERIFY(insertFuel(*m_db, other, 9'000'000));
         QCOMPARE(Odometer(*m_db).current(mine), qint64(1'000'000));
-    }
-
-    /** offsetFor() returns the offset that makes current() hit the desired value, also below the highest entry. */
-    void offsetForCorrection()
-    {
-        const QString id = createVehicle(300);
-        QVERIFY(insertFuel(*m_db, id, 5'000'000));
-        Odometer odometer(*m_db);
-
-        QCOMPARE(odometer.offsetFor(id, 5'250'000), qint64(250'000));
-        QCOMPARE(odometer.offsetFor(id, 4'900'000), qint64(-100'000));
-
-        // Applying the offset really yields the desired odometer.
-        QSqlQuery q(m_db->connection());
-        QVERIFY(q.exec(QStringLiteral("UPDATE vehicles SET odometer_offset_m = 250000")));
-        QCOMPARE(odometer.current(id), qint64(5'250'000));
-    }
-
-    /** For a vehicle that is not created yet (empty id) the offset is the desired value itself. */
-    void offsetForNewVehicle()
-    {
-        QCOMPARE(Odometer(*m_db).offsetFor(QString(), 42'000), qint64(42'000));
-        QVERIFY(!Odometer(*m_db).offsetFor(QStringLiteral("no-such-id"), 1));
     }
 
     /** An unknown vehicle id yields nullopt with an error, not 0. */
@@ -172,12 +168,12 @@ private Q_SLOTS:
     }
 
 private:
-    QString createVehicle(qint64 offsetM)
+    QString createVehicle(std::optional<qint64> readingM)
     {
         VehicleRepository repo(*m_db);
         Vehicle v;
         v.name = QStringLiteral("Test");
-        v.odometerOffsetM = offsetM;
+        v.odometerReadingM = readingM;
         if (!repo.create(v)) {
             qWarning("%s", qPrintable(repo.errorString()));
         }

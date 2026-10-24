@@ -62,4 +62,9 @@ Entscheidung: GarageLog bekommt eine eigene Optik innerhalb von Kirigami: Fahrze
 Grund: Thomas wünscht eine moderne, unverwechselbare Optik. Recherche 2026: Bento-Raster und Kennzahlen-Kacheln sind das dominierende Dashboard-Muster, Glassmorphism gilt wegen Kontrastproblemen nur zurückhaltend als sinnvoll; Kirigami empfiehlt eigene Farben nur in Inhaltsflächen, nicht im Rahmen. Breeze hat keine Icons für Motorrad, Roller, E-Bike (STATUS, offen seit M15).
 Alternativen: eigenes QtQuick-Style-Plugin (verliert Plasma-Integration, viel Aufwand), kirigami-addons (neue Abhängigkeit, bringt nur Standardoptik), Glas-Effekte mit MultiEffect (Lesbarkeit, GPU-Last offscreen).
 
-<!-- Nächste: ADR-016 -->
+## ADR-016 (2026-10-24) Manueller Tachostand als absoluter Mindestwert statt Offset
+Entscheidung: Der im Fahrzeugformular eingegebene Tachostand wird als echter Zählerstand in `vehicles.odometer_reading_m` (Migration 0002) gespeichert; aktueller Tachostand = max(höchster Eintrag, manueller Wert). `odometer_offset_m` bleibt als Spalte (Migrationen sind additiv), ist aber immer 0. Bestehende Offsets werden per Heuristik umgerechnet (Offset > halber höchster Eintrag = Startwert, sonst Korrektur, angezeigter Wert bleibt).
+Grund: Audit 2026-10-24 (A4): Ein neues Fahrzeug mit 50.000 km plus Tankeintrag bei 50.500 km zeigte 100.500 km, weil der Startwert als Offset auf jeden späteren absoluten Eintrag addiert wurde. Nutzer tragen Zählerstände vom Tacho ab, nie Differenzen. Thomas hat diese Variante gewählt.
+Alternativen: Offset behalten und nur für neue Fahrzeuge verwerfen (Startwert ohne Einträge ginge verloren); Offset beim ersten Eintrag automatisch zurücksetzen (versteckte Magie, Tachotausch trotzdem nicht abbildbar). Korrektur nach unten (Tachotausch) geht nicht mehr über das Formular; dafür bräuchte es später eine eigene Funktion.
+
+<!-- Nächste: ADR-017 -->

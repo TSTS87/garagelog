@@ -72,6 +72,9 @@ public:
     QString errorString() const;
 
 private:
+    /** Checks the user-editable fields; sets m_error and returns false on the first problem. */
+    bool validate(const Vehicle &vehicle);
+
     /** Shared body of archive()/unarchive(). */
     bool setArchived(const QString &id, bool archived);
 

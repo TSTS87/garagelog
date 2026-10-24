@@ -83,7 +83,7 @@ Kirigami.ScrollablePage {
             notes: notesField.text
         };
         // Only a changed odometer is sent, so an untouched field never
-        // rewrites the offset (see VehicleListModel::save).
+        // rewrites the stored reading (see VehicleListModel::save).
         if (odometerChanged && odometerField.text !== "") {
             values.odometerM = Format.parseDistance(odometerField.text);
         }

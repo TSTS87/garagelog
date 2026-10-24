@@ -28,7 +28,7 @@ Vehicle fullVehicle(const QString &name)
     v.year = 2019;
     v.plate = QStringLiteral("M-AB 123");
     v.powertrain = Powertrain::Petrol;
-    v.odometerOffsetM = 1500;
+    v.odometerReadingM = 1500;
     v.notes = QStringLiteral("bought used");
     return v;
 }
@@ -147,7 +147,7 @@ private Q_SLOTS:
         v.name = QStringLiteral("Bike renamed");
         v.year.reset();
         v.plate.clear();
-        v.odometerOffsetM = -200;
+        v.odometerReadingM.reset();
         QVERIFY2(repo.update(v), qPrintable(repo.errorString()));
 
         const auto loaded = repo.byId(v.id);

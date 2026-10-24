@@ -173,7 +173,7 @@ QString VehicleListModel::save(const QVariantMap &values)
     const QString id = values.value(QStringLiteral("id")).toString();
 
     // Start from the stored row on edit, so fields the form does not show
-    // (archived, offset, timestamps) keep their values.
+    // (archived, odometer reading, timestamps) keep their values.
     Vehicle v;
     if (!id.isEmpty()) {
         const auto existing = repo.byId(id);
@@ -204,14 +204,10 @@ QString VehicleListModel::save(const QVariantMap &values)
     v.year = (!year.isNull() && year.toInt() > 0) ? std::optional<int>(year.toInt()) : std::nullopt;
 
     const QVariant odometerM = values.value(QStringLiteral("odometerM"));
+    // The typed odometer is a real reading (ADR-016): the vehicle shows it
+    // until an entry goes beyond it.
     if (values.contains(QStringLiteral("odometerM")) && !odometerM.isNull()) {
-        Odometer odometer(m_database);
-        const auto offset = odometer.offsetFor(id, odometerM.toLongLong());
-        if (!offset) {
-            setErrorString(odometer.errorString());
-            return {};
-        }
-        v.odometerOffsetM = *offset;
+        v.odometerReadingM = odometerM.toLongLong();
     }
 
     const bool ok = id.isEmpty() ? repo.create(v) : repo.update(v);

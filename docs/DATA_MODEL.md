@@ -21,7 +21,7 @@ CREATE TABLE vehicles (
   year          INTEGER,
   plate         TEXT,
   powertrain    TEXT NOT NULL CHECK (powertrain IN ('petrol','diesel','electric','hybrid','other')),
-  odometer_offset_m INTEGER NOT NULL DEFAULT 0,  -- manuelle Korrektur, wird zum höchsten Eintrag addiert
+  odometer_offset_m INTEGER NOT NULL DEFAULT 0,  -- manuelle Korrektur, wird zum höchsten Eintrag addiert (ab 0002 immer 0, ersetzt durch odometer_reading_m)
   archived      INTEGER NOT NULL DEFAULT 0,
   notes         TEXT,
   created_at    TEXT NOT NULL,
@@ -114,11 +114,20 @@ CREATE TABLE settings (
 -- Keys: distance_unit (km|mi), volume_unit (l|gal_us|gal_uk), currency (ISO-4217), locale
 ```
 
+## Migration 0002 – Tachostand als absoluter Wert (ADR-016)
+
+```sql
+ALTER TABLE vehicles ADD COLUMN odometer_reading_m INTEGER;  -- manuell eingegebener Tachostand in m; NULL = keiner
+-- Umrechnung bestehender Offsets: Offset > halber höchster Eintrag (oder keine Einträge) = Startwert → reading = Offset;
+-- sonst Korrektur → reading = höchster Eintrag + Offset. Danach odometer_offset_m = 0.
+```
+JSON-Exporte mit `schema_version` 1 werden beim Import genauso umgerechnet (`Odometer::convertOffsetsSql`).
+
 ## Mitgelieferte Service-Kategorien (Seed, builtin=1)
 oil_change, tires, brakes, chain, inspection, mot (TÜV/HU), insurance, tax, repair, battery, coolant, filters, other
 
 ## Abgeleitete Werte (nicht gespeichert, im Core berechnet)
-- `currentOdometer(vehicle)` = max(odometer_m aus fuel_entries, service_entries, trips.odometer_end_m) + odometer_offset_m
+- `currentOdometer(vehicle)` = max(odometer_m aus fuel_entries, service_entries, trips.odometer_end_m, vehicles.odometer_reading_m); 0 ohne jeden Wert. Ein manueller Wert unter dem höchsten Eintrag wirkt nicht (Korrektur nach unten = Eintrag bearbeiten)
 - `consumption(fuelEntryN)` = Σ quantity aller Einträge nach dem letzten full_tank vor N bis einschließlich N (Teiltanks zählen mit) / (odometer(N) − odometer(letzter full_tank vor N)) · 100 km; Kosten/100 km analog mit Σ total_cost_c. Nur wenn N ein Volltank ist und es einen vorherigen Volltank gibt; sonst NULL
   - Tacho rückwärts (odometer(N) ≤ odometer(vorheriger Volltank)): NULL, N wird trotzdem neue Basis für den nächsten Volltank
   - Teiltanks vor dem ersten Volltank fließen nicht ein

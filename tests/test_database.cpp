@@ -33,11 +33,20 @@ bool writeFile(const QString &path, const QByteArray &content)
     return file.open(QIODevice::WriteOnly) && file.write(content) == content.size();
 }
 
-/** Copies the embedded 0001 migration into @p dir so tests can add a fake 0002 next to it. */
-bool copyInitialMigration(const QString &dir)
+/** Copies the embedded migrations into @p dir so tests can add a fake next one; @p upTo limits the copy to 0001..upTo. */
+bool copyEmbeddedMigrations(const QString &dir, int upTo = 999)
 {
-    return QFile::copy(QStringLiteral(":/migrations/0001_initial.sql"), dir + QStringLiteral("/0001_initial.sql"));
+    const QStringList names{QStringLiteral("0001_initial.sql"), QStringLiteral("0002_odometer_reading.sql")};
+    for (int i = 0; i < names.size() && i < upTo; ++i) {
+        if (!QFile::copy(QStringLiteral(":/migrations/") + names.at(i), dir + QLatin1Char('/') + names.at(i))) {
+            return false;
+        }
+    }
+    return true;
 }
+
+/** Schema version of a freshly created garage. */
+constexpr int latest = 2;
 
 } // namespace
 
@@ -63,8 +72,8 @@ private Q_SLOTS:
         QCOMPARE(statements.at(1), QStringLiteral("INSERT INTO a VALUES ('semi;colon -- not a comment', 'it''s')"));
     }
 
-    /** Opening a non-existent file creates it (including parent dirs) and migrates it to version 1. */
-    void emptyDatabaseMigratesToVersion1()
+    /** Opening a non-existent file creates it (including parent dirs) and migrates it to the latest version. */
+    void emptyDatabaseMigratesToLatest()
     {
         QTemporaryDir dir;
         const QString path = dir.filePath(QStringLiteral("sub/garage.sqlite"));
@@ -72,8 +81,8 @@ private Q_SLOTS:
         Database db;
         QVERIFY2(db.open(path), qPrintable(db.errorString()));
         QVERIFY(QFile::exists(path));
-        QCOMPARE(MigrationRunner::schemaVersion(db.connection()), 1);
-        QCOMPARE(MigrationRunner().latestVersion(), 1);
+        QCOMPARE(MigrationRunner::schemaVersion(db.connection()), latest);
+        QCOMPARE(MigrationRunner().latestVersion(), latest);
     }
 
     /** Running the migrations again, in the same or a new connection, changes nothing. */
@@ -93,7 +102,7 @@ private Q_SLOTS:
         db.close();
         QVERIFY2(db.open(path), qPrintable(db.errorString()));
 
-        QCOMPARE(MigrationRunner::schemaVersion(db.connection()), 1);
+        QCOMPARE(MigrationRunner::schemaVersion(db.connection()), latest);
         QCOMPARE(scalar(db.connection(), QStringLiteral("SELECT COUNT(*) FROM schema_version")).toInt(), 1);
         QCOMPARE(scalar(db.connection(), QStringLiteral("SELECT COUNT(*) FROM service_categories")).toInt(), 13);
     }
@@ -178,16 +187,16 @@ private Q_SLOTS:
         QTemporaryDir dir;
         Database db;
         QVERIFY2(db.open(dir.filePath(QStringLiteral("garage.sqlite"))), qPrintable(db.errorString()));
-        QCOMPARE(MigrationRunner::schemaVersion(db.connection()), 1);
+        QCOMPARE(MigrationRunner::schemaVersion(db.connection()), latest);
 
         QTemporaryDir migrations;
-        QVERIFY(copyInitialMigration(migrations.path()));
-        QVERIFY(writeFile(migrations.filePath(QStringLiteral("0002_test.sql")), "CREATE TABLE test_upgrade (x INTEGER);\n"));
+        QVERIFY(copyEmbeddedMigrations(migrations.path()));
+        QVERIFY(writeFile(migrations.filePath(QStringLiteral("0003_test.sql")), "CREATE TABLE test_upgrade (x INTEGER);\n"));
 
         QSqlDatabase conn = db.connection();
         MigrationRunner runner(migrations.path());
         QVERIFY2(runner.run(conn), qPrintable(runner.errorString()));
-        QCOMPARE(MigrationRunner::schemaVersion(conn), 2);
+        QCOMPARE(MigrationRunner::schemaVersion(conn), latest + 1);
         QCOMPARE(scalar(conn, QStringLiteral("SELECT COUNT(*) FROM sqlite_master WHERE name = 'test_upgrade'")).toInt(), 1);
         // 0001 must not have run a second time, otherwise the seed would be duplicated or fail.
         QCOMPARE(scalar(conn, QStringLiteral("SELECT COUNT(*) FROM service_categories")).toInt(), 13);
@@ -201,15 +210,15 @@ private Q_SLOTS:
         QVERIFY2(db.open(dir.filePath(QStringLiteral("garage.sqlite"))), qPrintable(db.errorString()));
 
         QTemporaryDir migrations;
-        QVERIFY(copyInitialMigration(migrations.path()));
-        QVERIFY(writeFile(migrations.filePath(QStringLiteral("0002_broken.sql")),
+        QVERIFY(copyEmbeddedMigrations(migrations.path()));
+        QVERIFY(writeFile(migrations.filePath(QStringLiteral("0003_broken.sql")),
                           "CREATE TABLE half_done (x INTEGER);\nTHIS IS NOT SQL;\n"));
 
         QSqlDatabase conn = db.connection();
         MigrationRunner runner(migrations.path());
         QVERIFY(!runner.run(conn));
         QVERIFY(!runner.errorString().isEmpty());
-        QCOMPARE(MigrationRunner::schemaVersion(conn), 1);
+        QCOMPARE(MigrationRunner::schemaVersion(conn), latest);
         QCOMPARE(scalar(conn, QStringLiteral("SELECT COUNT(*) FROM sqlite_master WHERE name = 'half_done'")).toInt(), 0);
     }
 
@@ -229,6 +238,47 @@ private Q_SLOTS:
         QVERIFY(!db.open(path));
         QVERIFY(db.errorString().contains(QStringLiteral("newer")));
         QVERIFY(!db.isOpen());
+    }
+
+    /** Migration 0002 turns a start reading stored as offset into a reading and keeps small corrections as shown (ADR-016). */
+    void migration0002ConvertsOffsets()
+    {
+        QTemporaryDir dir;
+        QTemporaryDir onlyFirst;
+        QVERIFY(copyEmbeddedMigrations(onlyFirst.path(), 1));
+        {
+            QSqlDatabase conn = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), QStringLiteral("v1"));
+            conn.setDatabaseName(dir.filePath(QStringLiteral("garage.sqlite")));
+            QVERIFY(conn.open());
+            QVERIFY(MigrationRunner(onlyFirst.path()).run(conn));
+            QSqlQuery q(conn);
+            const QString stamp = QStringLiteral("'2026-10-23T10:00:00Z'");
+            // start: offset 50,000 km, entry at 50,500 km (old form, doubled to 100,500)
+            // fix: offset +300 km on top of 20,000 km (a later correction)
+            // none: no offset; fresh: offset 7,000 km and no entries
+            const QList<std::pair<QString, qint64>> vehicles{
+                {QStringLiteral("start"), 50'000'000}, {QStringLiteral("fix"), 300'000}, {QStringLiteral("none"), 0}, {QStringLiteral("fresh"), 7'000'000}};
+            for (const auto &[id, offset] : vehicles) {
+                QVERIFY(q.exec(QStringLiteral("INSERT INTO vehicles (id, name, type, powertrain, odometer_offset_m, created_at, updated_at) "
+                                              "VALUES ('%1', 'x', 'car', 'petrol', %2, %3, %3)")
+                                   .arg(id)
+                                   .arg(offset)
+                                   .arg(stamp)));
+            }
+            for (const QString &entry : {QStringLiteral("'f1', 'start', 50500000"), QStringLiteral("'f2', 'fix', 20000000"), QStringLiteral("'f3', 'none', 1000000")}) {
+                QVERIFY(q.exec(QStringLiteral("INSERT INTO fuel_entries (id, vehicle_id, odometer_m, date, quantity, total_cost_c, created_at, updated_at) "
+                                              "VALUES (%1, '2026-10-23', 40000, 7000, %2, %2)").arg(entry, stamp)));
+            }
+            QVERIFY2(MigrationRunner().run(conn), "migration 0002 failed");
+            auto reading = [&](const QString &id) { return scalar(conn, QStringLiteral("SELECT odometer_reading_m FROM vehicles WHERE id = '%1'").arg(id)); };
+            QCOMPARE(reading(QStringLiteral("start")).toLongLong(), 50'000'000);
+            QCOMPARE(reading(QStringLiteral("fix")).toLongLong(), 20'300'000);
+            QVERIFY(reading(QStringLiteral("none")).isNull());
+            QCOMPARE(reading(QStringLiteral("fresh")).toLongLong(), 7'000'000);
+            QCOMPARE(scalar(conn, QStringLiteral("SELECT SUM(odometer_offset_m) FROM vehicles")).toLongLong(), 0);
+            conn.close();
+        }
+        QSqlDatabase::removeDatabase(QStringLiteral("v1"));
     }
 
     /** MustExist refuses a missing file instead of creating an empty garage in its place. */

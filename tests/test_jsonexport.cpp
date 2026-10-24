@@ -153,7 +153,7 @@ private Q_SLOTS:
         QVERIFY(file.open(QIODevice::ReadOnly));
         const QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
         QCOMPARE(root.value(QStringLiteral("format")).toString(), QStringLiteral("garagelog-export"));
-        QCOMPARE(root.value(QStringLiteral("schema_version")).toInt(), 1);
+        QCOMPARE(root.value(QStringLiteral("schema_version")).toInt(), 2);
         QCOMPARE(root.value(QStringLiteral("tables")).toObject().keys().size(), exportformat::tables.size());
         QVERIFY(!exporter.exportTo(exportDir));
     }
@@ -230,6 +230,39 @@ private Q_SLOTS:
         QVERIFY(!importer.importFrom(exportDir));
         QVERIFY2(importer.errorString().contains(QStringLiteral("Invalid values in ") + table), qPrintable(importer.errorString()));
         QVERIFY(VehicleRepository(target).all(true).isEmpty());
+    }
+
+    /** An export of schema 1 is imported with its odometer offset converted like migration 0002 does (ADR-016). */
+    void importConvertsSchema1Offsets()
+    {
+        const QString exportDir = m_dir->filePath(QStringLiteral("export"));
+        QVERIFY(JsonExporter(*m_source).exportTo(exportDir));
+        QFile file(QDir(exportDir).filePath(exportformat::jsonFileName));
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+        file.close();
+        root.insert(QStringLiteral("schema_version"), 1);
+        QJsonObject tables = root.value(QStringLiteral("tables")).toObject();
+        QJsonArray vehicles = tables.value(QStringLiteral("vehicles")).toArray();
+        for (int i = 0; i < vehicles.size(); ++i) {
+            QJsonObject v = vehicles.at(i).toObject();
+            v.remove(QStringLiteral("odometer_reading_m"));
+            // The Golf has a fuel entry at 12,000 km; +300 km was a correction.
+            v.insert(QStringLiteral("odometer_offset_m"), v.value(QStringLiteral("name")).toString().startsWith(QStringLiteral("Golf")) ? 300'000 : 0);
+            vehicles.replace(i, v);
+        }
+        tables.insert(QStringLiteral("vehicles"), vehicles);
+        root.insert(QStringLiteral("tables"), tables);
+        QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        file.write(QJsonDocument(root).toJson());
+        file.close();
+
+        Database target;
+        QVERIFY(target.open(m_dir->filePath(QStringLiteral("f/garage.sqlite"))));
+        JsonImporter importer(target);
+        QVERIFY2(importer.importFrom(exportDir), qPrintable(importer.errorString()));
+        const auto golf = VehicleRepository(target).all().first();
+        QCOMPARE(golf.odometerReadingM, std::optional<qint64>(12'300'000));
     }
 
     /** A crafted stored_name in the garage never makes the export write outside the export folder. */

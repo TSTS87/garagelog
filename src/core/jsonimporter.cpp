@@ -6,6 +6,7 @@
 #include "database.h"
 #include "jsonexporter.h"
 #include "migrationrunner.h"
+#include "odometer.h"
 #include "valuelimits.h"
 
 #include <QDir>
@@ -98,7 +99,8 @@ QString validationError(QSqlDatabase &db)
     const QList<std::pair<QString, QString>> rules{
         {QStringLiteral("vehicles"),
          QStringList{optionalIntegerIn(QStringLiteral("year"), 1885, maxYear),
-                     integerIn(QStringLiteral("odometer_offset_m"), -maxDistanceM, maxDistanceM), flag.arg(QStringLiteral("archived"))}
+                     integerIn(QStringLiteral("odometer_offset_m"), -maxDistanceM, maxDistanceM),
+                     optionalIntegerIn(QStringLiteral("odometer_reading_m"), 0, maxDistanceM), flag.arg(QStringLiteral("archived"))}
              .join(QStringLiteral(" AND "))},
         {QStringLiteral("fuel_entries"),
          QStringList{isoDate(QStringLiteral("date")), integerIn(QStringLiteral("odometer_m"), 0, maxDistanceM),
@@ -195,7 +197,9 @@ bool JsonImporter::importFrom(const QString &directory)
     if (!check(directory)) {
         return false;
     }
-    const QJsonObject tables = readExport(directory, m_error).value(QStringLiteral("tables")).toObject();
+    const QJsonObject root = readExport(directory, m_error);
+    const QJsonObject tables = root.value(QStringLiteral("tables")).toObject();
+    const int exportVersion = root.value(QStringLiteral("schema_version")).toInt();
 
     QSqlDatabase db = m_database.connection();
     if (!db.transaction()) {
@@ -287,6 +291,14 @@ bool JsonImporter::importFrom(const QString &directory)
         }
     }
 
+    // Exports of schema 1 carry the old odometer offset; convert it the
+    // same way migration 0002 converted the garages of that time.
+    if (exportVersion < 2) {
+        QSqlQuery convert(db);
+        if (!convert.exec(Odometer::convertOffsetsSql)) {
+            return fail(QStringLiteral("Cannot convert odometer offsets: %1").arg(convert.lastError().text()));
+        }
+    }
     if (const QString invalid = validationError(db); !invalid.isEmpty()) {
         return fail(invalid);
     }

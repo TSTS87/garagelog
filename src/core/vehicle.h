@@ -61,7 +61,7 @@ struct Vehicle {
     std::optional<int> year;          ///< model year, nullopt = unknown
     QString plate;                    ///< licence plate
     Powertrain powertrain = Powertrain::Petrol;
-    qint64 odometerOffsetM = 0;       ///< metres added to the highest recorded odometer (see Odometer)
+    std::optional<qint64> odometerReadingM; ///< manually entered odometer in metres, nullopt = none (see Odometer)
     bool archived = false;            ///< true = hidden from the active vehicle list
     QString notes;
     QDateTime createdAt;              ///< UTC, whole seconds

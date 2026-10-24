@@ -70,4 +70,5 @@ qt_add_resources(garagelog_core "migrations"
     PREFIX "/"
     FILES
         migrations/0001_initial.sql
+        migrations/0002_odometer_reading.sql
 )

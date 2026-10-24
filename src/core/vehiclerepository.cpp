@@ -4,6 +4,7 @@
 
 #include "database.h"
 #include "dbvalues.h"
+#include "valuelimits.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -17,7 +18,7 @@ namespace {
 
 /** Column list shared by all SELECTs, matching the order readVehicle() expects. */
 const QString selectColumns = QStringLiteral(
-    "SELECT id, name, type, make, model, year, plate, powertrain, odometer_offset_m, "
+    "SELECT id, name, type, make, model, year, plate, powertrain, odometer_reading_m, "
     "archived, notes, created_at, updated_at FROM vehicles");
 
 /**
@@ -44,7 +45,9 @@ std::optional<Vehicle> readVehicle(const QSqlQuery &query)
     }
     v.plate = query.value(6).toString();
     v.powertrain = *powertrain;
-    v.odometerOffsetM = query.value(8).toLongLong();
+    if (!query.value(8).isNull()) {
+        v.odometerReadingM = query.value(8).toLongLong();
+    }
     v.archived = query.value(9).toInt() != 0;
     v.notes = query.value(10).toString();
     v.createdAt = fromDbTimestamp(query.value(11));
@@ -62,7 +65,7 @@ void bindEditableFields(QSqlQuery &query, const Vehicle &v)
     query.addBindValue(v.year ? QVariant(*v.year) : QVariant());
     query.addBindValue(nullIfEmpty(v.plate));
     query.addBindValue(toDbString(v.powertrain));
-    query.addBindValue(v.odometerOffsetM);
+    query.addBindValue(v.odometerReadingM ? QVariant(*v.odometerReadingM) : QVariant());
     query.addBindValue(v.archived ? 1 : 0);
     query.addBindValue(nullIfEmpty(v.notes));
 }
@@ -74,11 +77,22 @@ VehicleRepository::VehicleRepository(const Database &database)
 {
 }
 
+bool VehicleRepository::validate(const Vehicle &vehicle)
+{
+    if (vehicle.name.trimmed().isEmpty()) {
+        m_error = QStringLiteral("Vehicle name must not be empty");
+    } else if (vehicle.odometerReadingM && (*vehicle.odometerReadingM < 0 || *vehicle.odometerReadingM > limits::maxDistanceM)) {
+        m_error = QStringLiteral("Odometer must be between 0 and %1 km").arg(limits::maxDistanceM / 1000);
+    } else {
+        return true;
+    }
+    return false;
+}
+
 bool VehicleRepository::create(Vehicle &vehicle)
 {
     m_error.clear();
-    if (vehicle.name.trimmed().isEmpty()) {
-        m_error = QStringLiteral("Vehicle name must not be empty");
+    if (!validate(vehicle)) {
         return false;
     }
 
@@ -92,7 +106,7 @@ bool VehicleRepository::create(Vehicle &vehicle)
     QSqlQuery query(m_database.connection());
     query.prepare(QStringLiteral(
         "INSERT INTO vehicles (id, name, type, make, model, year, plate, powertrain, "
-        "odometer_offset_m, archived, notes, created_at, updated_at) "
+        "odometer_reading_m, archived, notes, created_at, updated_at) "
         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"));
     query.addBindValue(v.id);
     bindEditableFields(query, v);
@@ -110,8 +124,7 @@ bool VehicleRepository::create(Vehicle &vehicle)
 bool VehicleRepository::update(Vehicle &vehicle)
 {
     m_error.clear();
-    if (vehicle.name.trimmed().isEmpty()) {
-        m_error = QStringLiteral("Vehicle name must not be empty");
+    if (!validate(vehicle)) {
         return false;
     }
 
@@ -119,7 +132,7 @@ bool VehicleRepository::update(Vehicle &vehicle)
     QSqlQuery query(m_database.connection());
     query.prepare(QStringLiteral(
         "UPDATE vehicles SET name = ?, type = ?, make = ?, model = ?, year = ?, plate = ?, "
-        "powertrain = ?, odometer_offset_m = ?, archived = ?, notes = ?, updated_at = ? "
+        "powertrain = ?, odometer_reading_m = ?, archived = ?, notes = ?, updated_at = ? "
         "WHERE id = ?"));
     bindEditableFields(query, vehicle);
     query.addBindValue(toDbTimestamp(now));
