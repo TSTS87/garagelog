@@ -22,7 +22,7 @@ namespace garagelog::core {
  * @param totalCostC Total price in cents, >= 0.
  * @param quantity ml or Wh.
  * @return Thousandths of the currency per l or kWh, rounded half up;
- *         nullopt if @p quantity <= 0 or @p totalCostC < 0.
+ *         nullopt if @p quantity <= 0 or @p totalCostC < 0, or on 64-bit overflow.
  */
 std::optional<qint64> unitPriceMilli(qint64 totalCostC, qint64 quantity);
 
@@ -30,7 +30,7 @@ std::optional<qint64> unitPriceMilli(qint64 totalCostC, qint64 quantity);
  * @brief Total price for a quantity at a unit price.
  * @param quantity ml or Wh.
  * @param unitPriceMilli Thousandths of the currency per l or kWh.
- * @return Cents, rounded half up; nullopt if an argument is negative.
+ * @return Cents, rounded half up; nullopt if an argument is negative or on 64-bit overflow.
  */
 std::optional<qint64> totalCostFor(qint64 quantity, qint64 unitPriceMilli);
 
@@ -38,8 +38,8 @@ std::optional<qint64> totalCostFor(qint64 quantity, qint64 unitPriceMilli);
  * @brief Quantity bought for a total price at a unit price.
  * @param totalCostC Total price in cents.
  * @param unitPriceMilli Thousandths of the currency per l or kWh.
- * @return ml or Wh, rounded half up; nullopt if @p unitPriceMilli <= 0 or
- *         @p totalCostC < 0.
+ * @return ml or Wh, rounded half up; nullopt if @p unitPriceMilli <= 0,
+ *         @p totalCostC < 0 or on 64-bit overflow.
  */
 std::optional<qint64> quantityFor(qint64 totalCostC, qint64 unitPriceMilli);
 

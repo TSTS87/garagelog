@@ -3,6 +3,8 @@
 
 #include <QTest>
 
+#include <limits>
+
 #include "fuelprice.h"
 
 using namespace garagelog::core;
@@ -45,6 +47,14 @@ private Q_SLOTS:
         QCOMPARE(quantityFor(-1, 1799), std::nullopt);
         QCOMPARE(totalCostFor(-1, 1799), std::nullopt);
         QCOMPARE(totalCostFor(1000, -1), std::nullopt);
+    }
+
+    /** Products beyond 64 bits give nullopt instead of wrapping to a negative price. */
+    void overflowIsRejected()
+    {
+        QCOMPARE(unitPriceMilli(999'999'999'999'900, 10'000), std::nullopt);
+        QCOMPARE(totalCostFor(10'000'000'000'000, 10'000'000'000'000), std::nullopt);
+        QCOMPARE(quantityFor(std::numeric_limits<qint64>::max() / 2, 1), std::nullopt);
     }
 
     /** Values derived from each other roundtrip: a computed total gives back the entered unit price. */

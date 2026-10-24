@@ -4,6 +4,7 @@
 
 #include "database.h"
 #include "dbvalues.h"
+#include "valuelimits.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -76,6 +77,9 @@ bool IntervalRepository::validate(const MaintenanceInterval &interval)
         m_error = QStringLiteral("Interval needs a distance, a number of months, or both");
     } else if ((interval.everyM && *interval.everyM <= 0) || (interval.everyMonths && *interval.everyMonths <= 0)) {
         m_error = QStringLiteral("Interval distance and months must be greater than zero");
+    } else if ((interval.everyM && *interval.everyM > limits::maxDistanceM)
+               || (interval.everyMonths && *interval.everyMonths > limits::maxIntervalMonths)) {
+        m_error = QStringLiteral("Interval is too long (at most %1 months)").arg(limits::maxIntervalMonths);
     } else {
         return true;
     }

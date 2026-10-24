@@ -5,6 +5,7 @@
 #include "attachmentstore.h"
 #include "database.h"
 #include "dbvalues.h"
+#include "valuelimits.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -75,14 +76,18 @@ bool ServiceRepository::validate(const ServiceEntry &entry)
         m_error = QStringLiteral("Service entry needs a vehicle");
     } else if (entry.categoryId.isEmpty()) {
         m_error = QStringLiteral("Service entry needs a category");
-    } else if (!entry.date.isValid()) {
-        m_error = QStringLiteral("Service entry needs a valid date");
+    } else if (!limits::isStorableDate(entry.date)) {
+        m_error = QStringLiteral("Service entry needs a valid date between %1 and %2").arg(limits::minYear).arg(limits::maxYear);
     } else if (entry.odometerM && *entry.odometerM < 0) {
         m_error = QStringLiteral("Odometer must not be negative");
+    } else if (entry.odometerM && *entry.odometerM > limits::maxDistanceM) {
+        m_error = QStringLiteral("Odometer is too large");
     } else if (entry.description.trimmed().isEmpty()) {
         m_error = QStringLiteral("Service entry needs a description");
     } else if (entry.costC < 0) {
         m_error = QStringLiteral("Cost must not be negative");
+    } else if (entry.costC > limits::maxMoneyC) {
+        m_error = QStringLiteral("Cost is too large");
     } else {
         return true;
     }

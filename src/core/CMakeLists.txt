@@ -23,6 +23,7 @@ add_library(garagelog_core STATIC
     fuelentry.h
     fuelprice.cpp
     fuelprice.h
+    valuelimits.h
     fuelrepository.cpp
     fuelrepository.h
     fuelstats.cpp

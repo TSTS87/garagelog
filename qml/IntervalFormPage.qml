@@ -26,7 +26,7 @@ Kirigami.ScrollablePage {
     // Both parts are optional, but at least one is needed; text that does
     // not parse blocks saving.
     readonly property var everyM: Format.parseDistance(distanceField.text)
-    readonly property var everyMonths: Format.parseCount(monthsField.text)
+    readonly property var everyMonths: Format.parseMonths(monthsField.text)
     readonly property bool distanceEmpty: distanceField.text.trim() === ""
     readonly property bool monthsEmpty: monthsField.text.trim() === ""
     readonly property bool partsValid: (distanceEmpty || (everyM !== null && everyM > 0))

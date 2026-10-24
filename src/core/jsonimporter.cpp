@@ -6,16 +6,20 @@
 #include "database.h"
 #include "jsonexporter.h"
 #include "migrationrunner.h"
+#include "valuelimits.h"
 
 #include <QDir>
-#include <QFileInfo>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSet>
 #include <QSqlError>
 #include <QSqlQuery>
+
+#include <cmath>
+#include <limits>
 
 namespace garagelog::core {
 
@@ -32,6 +36,11 @@ QVariant toSql(const QJsonValue &value)
         return value.toBool() ? 1 : 0;
     case QJsonValue::Double: {
         const double d = value.toDouble();
+        // Casting a double outside the 64-bit range is undefined behaviour;
+        // such values stay REAL and are rejected by validationError().
+        if (!std::isfinite(d) || std::fabs(d) >= 9.0e18) {
+            return QVariant(d);
+        }
         const auto i = static_cast<qint64>(d);
         return static_cast<double>(i) == d ? QVariant(i) : QVariant(d);
     }
@@ -51,6 +60,77 @@ QSet<QString> columnsOf(const QSqlDatabase &db, const QString &table)
         }
     }
     return columns;
+}
+
+/** SQL condition: @p column holds an integer in [@p low, @p high]. */
+QString integerIn(const QString &column, qint64 low, qint64 high)
+{
+    return QStringLiteral("(typeof(%1) = 'integer' AND %1 BETWEEN %2 AND %3)").arg(column).arg(low).arg(high);
+}
+
+/** Same as integerIn(), NULL allowed. */
+QString optionalIntegerIn(const QString &column, qint64 low, qint64 high)
+{
+    return QStringLiteral("(%1 IS NULL OR %2)").arg(column, integerIn(column, low, high));
+}
+
+/** SQL condition: @p column is a real date written as YYYY-MM-DD from limits::minYear on. */
+QString isoDate(const QString &column)
+{
+    // date() normalises or rejects anything else ("2025-02-30", "kaputt"),
+    // so only a canonical, existing date compares equal to itself.
+    return QStringLiteral("(typeof(%1) = 'text' AND date(%1) IS %1 AND %1 >= '%2-01-01')").arg(column).arg(limits::minYear);
+}
+
+/**
+ * @brief Checks the imported rows against the same rules as the repositories.
+ *
+ * The importer inserts rows as they are, so a hand-edited or foreign file
+ * could otherwise bring negative odometers, text in number columns or
+ * impossible dates into statistics and due dates. Runs inside the import
+ * transaction, before the commit.
+ * @return "" if every row is valid, otherwise which table and row is not.
+ */
+QString validationError(QSqlDatabase &db)
+{
+    using namespace limits;
+    const QString flag = QStringLiteral("(typeof(%1) = 'integer' AND %1 IN (0, 1))");
+    const QList<std::pair<QString, QString>> rules{
+        {QStringLiteral("vehicles"),
+         QStringList{optionalIntegerIn(QStringLiteral("year"), 1885, maxYear),
+                     integerIn(QStringLiteral("odometer_offset_m"), -maxDistanceM, maxDistanceM), flag.arg(QStringLiteral("archived"))}
+             .join(QStringLiteral(" AND "))},
+        {QStringLiteral("fuel_entries"),
+         QStringList{isoDate(QStringLiteral("date")), integerIn(QStringLiteral("odometer_m"), 0, maxDistanceM),
+                     integerIn(QStringLiteral("quantity"), 1, maxQuantity), integerIn(QStringLiteral("total_cost_c"), 0, maxMoneyC),
+                     flag.arg(QStringLiteral("full_tank"))}
+             .join(QStringLiteral(" AND "))},
+        {QStringLiteral("service_entries"),
+         QStringList{isoDate(QStringLiteral("date")), optionalIntegerIn(QStringLiteral("odometer_m"), 0, maxDistanceM),
+                     integerIn(QStringLiteral("cost_c"), 0, maxMoneyC)}
+             .join(QStringLiteral(" AND "))},
+        {QStringLiteral("maintenance_intervals"),
+         QStringList{optionalIntegerIn(QStringLiteral("every_m"), 1, maxDistanceM), optionalIntegerIn(QStringLiteral("every_months"), 1, maxIntervalMonths),
+                     QStringLiteral("(every_m IS NOT NULL OR every_months IS NOT NULL)"), flag.arg(QStringLiteral("active"))}
+             .join(QStringLiteral(" AND "))},
+        {QStringLiteral("attachments"), optionalIntegerIn(QStringLiteral("size_bytes"), 0, std::numeric_limits<qint64>::max())},
+        {QStringLiteral("trips"),
+         QStringList{isoDate(QStringLiteral("date")), integerIn(QStringLiteral("distance_m"), 0, maxDistanceM),
+                     optionalIntegerIn(QStringLiteral("odometer_start_m"), 0, maxDistanceM),
+                     optionalIntegerIn(QStringLiteral("odometer_end_m"), 0, maxDistanceM)}
+             .join(QStringLiteral(" AND "))},
+    };
+    for (const auto &[table, condition] : rules) {
+        QSqlQuery query(db);
+        // COALESCE: a NULL condition (e.g. NULL in a NOT NULL-free column) counts as invalid.
+        if (!query.exec(QStringLiteral("SELECT id FROM %1 WHERE NOT COALESCE(%2, 0) LIMIT 1").arg(table, condition))) {
+            return QStringLiteral("Cannot check %1: %2").arg(table, query.lastError().text());
+        }
+        if (query.next()) {
+            return QStringLiteral("Invalid values in %1, row %2").arg(table, query.value(0).toString());
+        }
+    }
+    return {};
 }
 
 /** Reads and parses <dir>/garagelog.json; sets @p error on failure. */
@@ -207,6 +287,9 @@ bool JsonImporter::importFrom(const QString &directory)
         }
     }
 
+    if (const QString invalid = validationError(db); !invalid.isEmpty()) {
+        return fail(invalid);
+    }
     if (!db.commit()) {
         return fail(QStringLiteral("Cannot commit import: %1").arg(db.lastError().text()));
     }

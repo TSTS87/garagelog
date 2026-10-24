@@ -6,6 +6,7 @@
 #include "database.h"
 #include "fuelprice.h"
 #include "fuelrepository.h"
+#include "valuelimits.h"
 
 #include <QDateTime>
 #include <QFile>
@@ -31,14 +32,27 @@ bool endsData(const QStringList &row)
 /**
  * Parses "1.234,56" / "1,234.56" / "40.5 l" with the given decimal
  * separator; the other separator, spaces and unit/currency text are
- * dropped. nullopt for text without digits.
+ * dropped. nullopt for text without digits or with a letter between digits.
  */
 std::optional<double> parseNumber(const QString &text, QChar decimalSeparator)
 {
     QString clean;
-    for (const QChar c : text) {
+    int firstDigit = -1;
+    int lastDigit = -1;
+    for (int i = 0; i < text.size(); ++i) {
+        if (text.at(i).isDigit()) {
+            firstDigit = firstDigit < 0 ? i : firstDigit;
+            lastDigit = i;
+        }
+    }
+    for (int i = 0; i < text.size(); ++i) {
+        const QChar c = text.at(i);
         if (c.isDigit() || c == QLatin1Char('-') || c == decimalSeparator) {
             clean += c == decimalSeparator ? QLatin1Char('.') : c;
+        } else if (i > firstDigit && i < lastDigit && c.isLetter()) {
+            // Units sit before or after the number; a letter inside ("1e300",
+            // "12a34") would otherwise silently merge the digits around it.
+            return std::nullopt;
         }
     }
     if (!clean.contains(QRegularExpression(QStringLiteral("\\d")))) {
@@ -47,6 +61,20 @@ std::optional<double> parseNumber(const QString &text, QChar decimalSeparator)
     bool ok = false;
     const double value = clean.toDouble(&ok);
     return ok ? std::optional<double>(value) : std::nullopt;
+}
+
+/**
+ * @p value * @p factor rounded to an integer unit (ml, m, cents, milli).
+ * nullopt for a missing or negative value and above @p max: llround() of a
+ * result beyond 64 bits gives LLONG_MIN, so the limit is checked first.
+ */
+std::optional<qint64> scaled(std::optional<double> value, double factor, qint64 max)
+{
+    if (!value || *value < 0 || !std::isfinite(*value) || *value * factor > double(max)) {
+        return std::nullopt;
+    }
+    // Rounded, not truncated: 40.5 * 1000 may come out as 40499.999...
+    return std::llround(*value * factor);
 }
 
 /** Interprets the many ways apps write "full tank"; nullopt if unrecognised. */
@@ -190,7 +218,8 @@ CsvFuelPreview CsvFuelImporter::preview(const CsvFuelMapping &m) const
         return result;
     }
 
-    for (int r = m.headerRow + 1; r < m_rows.size(); ++r) {
+    // headerRow is -1 without a header line; anything lower is clamped.
+    for (int r = std::max(0, m.headerRow + 1); r < m_rows.size(); ++r) {
         const QStringList &row = m_rows.at(r);
         if (endsData(row)) {
             break;
@@ -206,16 +235,16 @@ CsvFuelPreview CsvFuelImporter::preview(const CsvFuelMapping &m) const
         if (!date.isValid()) {
             date = QDateTime::fromString(dateText, m.dateFormat).date();
         }
-        if (!date.isValid()) {
+        if (!limits::isStorableDate(date)) {
             reject(QStringLiteral("date"), dateText);
             continue;
         }
-        const auto odometerKm = parseNumber(field(row, m.odometerColumn), m.decimalSeparator);
-        if (!odometerKm || *odometerKm < 0) {
+        const auto odometerM = scaled(parseNumber(field(row, m.odometerColumn), m.decimalSeparator), 1000.0, limits::maxDistanceM);
+        if (!odometerM) {
             reject(QStringLiteral("odometer"), field(row, m.odometerColumn));
             continue;
         }
-        const auto quantity = parseNumber(field(row, m.quantityColumn), m.decimalSeparator);
+        const auto quantity = scaled(parseNumber(field(row, m.quantityColumn), m.decimalSeparator), 1000.0, limits::maxQuantity);
         if (!quantity || *quantity <= 0) {
             reject(QStringLiteral("quantity"), field(row, m.quantityColumn));
             continue;
@@ -228,20 +257,19 @@ CsvFuelPreview CsvFuelImporter::preview(const CsvFuelMapping &m) const
 
         FuelEntry e;
         e.date = date;
-        // Rounded, not truncated: 40.5 * 1000 may come out as 40499.999...
-        e.odometerM = std::llround(*odometerKm * 1000.0);
-        e.quantity = std::llround(*quantity * 1000.0);
+        e.odometerM = *odometerM;
+        e.quantity = *quantity;
         e.fullTank = *full;
         e.station = field(row, m.stationColumn);
         e.notes = field(row, m.notesColumn);
 
-        const auto total = parseNumber(field(row, m.totalCostColumn), m.decimalSeparator);
+        const auto total = scaled(parseNumber(field(row, m.totalCostColumn), m.decimalSeparator), 100.0, limits::maxMoneyC);
         if (total && *total > 0) {
-            e.totalCostC = std::llround(*total * 100.0);
+            e.totalCostC = *total;
         } else {
-            const auto unit = parseNumber(field(row, m.unitPriceColumn), m.decimalSeparator);
-            const auto calculated = unit ? totalCostFor(e.quantity, std::llround(*unit * 1000.0)) : std::nullopt;
-            if (!calculated) {
+            const auto unit = scaled(parseNumber(field(row, m.unitPriceColumn), m.decimalSeparator), 1000.0, limits::maxMoneyC * 10);
+            const auto calculated = unit ? totalCostFor(e.quantity, *unit) : std::nullopt;
+            if (!calculated || *calculated > limits::maxMoneyC) {
                 reject(QStringLiteral("price"), field(row, m.totalCostColumn) + field(row, m.unitPriceColumn));
                 continue;
             }

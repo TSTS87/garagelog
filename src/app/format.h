@@ -75,7 +75,7 @@ public:
     /**
      * @brief Parses user input in km or mi (locale decimal separator) to metres.
      * @return Metres as qint64 in a QVariant; QVariant(nullptr), i.e. JS null, for
-     *         empty, non-numeric or negative input.
+     *         empty, non-numeric or negative input or more than core::limits::maxDistanceM.
      */
     Q_INVOKABLE QVariant parseDistance(const QString &text) const;
 
@@ -91,7 +91,7 @@ public:
     /** Amount as editable text without currency, e.g. "72,50". @param cents Amount in cents. */
     Q_INVOKABLE QString moneyInput(qint64 cents) const;
 
-    /** Parses an amount in currency units to cents; null for empty, non-numeric or negative input. */
+    /** Parses an amount in currency units to cents; null for empty, non-numeric, negative or too large input (core::limits). */
     Q_INVOKABLE QVariant parseMoney(const QString &text) const;
 
     /**
@@ -104,7 +104,7 @@ public:
     /** Quantity as editable text in l/gal or kWh, as short as exact, e.g. "40,3". @param amount ml or Wh. */
     Q_INVOKABLE QString quantityInput(qint64 amount, bool electric = false) const;
 
-    /** Parses l/gal or kWh to ml or Wh; null for empty, non-numeric or negative input. */
+    /** Parses l/gal or kWh to ml or Wh; null for empty, non-numeric, negative or too large input (core::limits). */
     Q_INVOKABLE QVariant parseQuantity(const QString &text, bool electric = false) const;
 
     /**
@@ -159,10 +159,11 @@ public:
     Q_INVOKABLE QString dueSummary(const QVariant &remainingM, const QVariant &remainingDays, const QString &status) const;
 
     /**
-     * @brief Parses a whole positive number such as a count of months.
-     * @return int in a QVariant; null for empty, non-integer, zero or negative input.
+     * @brief Parses the length of an interval in months.
+     * @return int in a QVariant; null for empty, non-integer, zero, negative
+     *         input or more than core::limits::maxIntervalMonths.
      */
-    Q_INVOKABLE QVariant parseCount(const QString &text) const;
+    Q_INVOKABLE QVariant parseMonths(const QString &text) const;
 
     /** Today's date as ISO text, the default for new entries. */
     Q_INVOKABLE QString today() const;
@@ -174,9 +175,10 @@ private:
     /**
      * @brief Parses a non-negative locale number and scales it to an integer unit.
      * @param factor e.g. 100 for currency to cents, 1000 for l to ml.
+     * @param max Largest accepted result in the integer unit (core::limits).
      * @return qint64 in a QVariant, or QVariant(nullptr) (JS null) for invalid input.
      */
-    static QVariant parseScaled(const QString &text, double factor);
+    static QVariant parseScaled(const QString &text, double factor, qint64 max);
 
     /** Metres per displayed distance unit (1000 or 1609.344). */
     double metresPerUnit() const;

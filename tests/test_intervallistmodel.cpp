@@ -167,9 +167,15 @@ private Q_SLOTS:
         QCOMPARE(f.dueSummary(null, -1, QStringLiteral("overdue")), QStringLiteral("1 day overdue"));
         QCOMPARE(f.dueSummary(null, null, QStringLiteral("unknown")), QStringLiteral("No matching service recorded yet"));
         QCOMPARE(f.dueSummary(null, null, QStringLiteral("paused")), QStringLiteral("Paused"));
-        QCOMPARE(f.parseCount(QStringLiteral(" 12 ")), QVariant(12));
-        QVERIFY(f.parseCount(QStringLiteral("0")).isNull());
-        QVERIFY(f.parseCount(QStringLiteral("1,5")).isNull());
+        QCOMPARE(f.parseMonths(QStringLiteral(" 12 ")), QVariant(12));
+        QVERIFY(f.parseMonths(QStringLiteral("0")).isNull());
+        QVERIFY(f.parseMonths(QStringLiteral("1,5")).isNull());
+        QCOMPARE(f.parseMonths(QStringLiteral("1200")), QVariant(1200));
+        QVERIFY(f.parseMonths(QStringLiteral("2147483647")).isNull());
+        // An odometer beyond 64 bits must not wrap into a negative distance.
+        QVERIFY(f.parseDistance(QStringLiteral("9999999999999999")).isNull());
+        QVERIFY(f.parseMoney(QStringLiteral("99999999999999")).isNull());
+        QCOMPARE(f.parseDistance(QStringLiteral("10000000")), QVariant::fromValue<qint64>(10'000'000'000));
     }
 
 private:

@@ -140,6 +140,34 @@ private Q_SLOTS:
         QVERIFY(!p.entries.at(1).fullTank);
     }
 
+    /** Numbers beyond the limits and impossible years are rejected in the preview, so preview and import agree. */
+    void absurdValuesAreRejected()
+    {
+        CsvFuelImporter importer(*m_db);
+        importer.load(QStringLiteral("date,odometer,quantity,total\n"
+                                     "2026-01-01,1000,40,70\n"
+                                     "2026-01-02,1e300,40,70\n"
+                                     "2026-01-03,99999999999999999999,40,70\n"
+                                     "2026-01-04,1100,40,99999999999999999999\n"
+                                     "0001-01-01,1200,40,70\n"));
+        const CsvFuelMapping m = importer.suggestMapping();
+        const CsvFuelPreview p = importer.preview(m);
+        QCOMPARE(p.entries.size(), 1);
+        QCOMPARE(p.errors.size(), 4);
+        QVERIFY2(importer.importInto(m_vehicleId, m), qPrintable(importer.errorString()));
+    }
+
+    /** A negative header row (only reachable through the API) is clamped instead of reading before the first row. */
+    void negativeHeaderRowIsClamped()
+    {
+        CsvFuelImporter importer(*m_db);
+        importer.load(QStringLiteral("date,odometer,quantity,total\n2026-01-01,1000,40,70\n"));
+        CsvFuelMapping m = importer.suggestMapping();
+        m.headerRow = -5;
+        const CsvFuelPreview p = importer.preview(m);
+        QCOMPARE(p.entries.size(), 1);
+    }
+
     /** Without the required columns the preview explains what is missing instead of guessing. */
     void incompleteMapping()
     {

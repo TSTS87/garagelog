@@ -4,6 +4,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSqlQuery>
@@ -184,6 +185,51 @@ private Q_SLOTS:
         QVERIFY(VehicleRepository(target).all(true).isEmpty());
 
         QVERIFY(!JsonImporter(target).check(m_dir->path())); // no export there
+    }
+
+    /** Import refuses rows the repositories would never write (negative odometer, broken date, text in a number column). */
+    void importRejectsInvalidValues_data()
+    {
+        QTest::addColumn<QString>("table");
+        QTest::addColumn<QString>("column");
+        QTest::addColumn<QJsonValue>("value");
+        QTest::newRow("negative odometer") << "fuel_entries" << "odometer_m" << QJsonValue(-5);
+        QTest::newRow("broken date") << "fuel_entries" << "date" << QJsonValue(QStringLiteral("kaputt"));
+        QTest::newRow("impossible date") << "service_entries" << "date" << QJsonValue(QStringLiteral("2025-02-30"));
+        QTest::newRow("text quantity") << "fuel_entries" << "quantity" << QJsonValue(QStringLiteral("lots"));
+        QTest::newRow("huge cost") << "fuel_entries" << "total_cost_c" << QJsonValue(1.5e300);
+        QTest::newRow("huge offset") << "vehicles" << "odometer_offset_m" << QJsonValue(1e30);
+        QTest::newRow("negative interval") << "maintenance_intervals" << "every_months" << QJsonValue(-5);
+    }
+
+    void importRejectsInvalidValues()
+    {
+        QFETCH(QString, table);
+        QFETCH(QString, column);
+        QFETCH(QJsonValue, value);
+        const QString exportDir = m_dir->filePath(QStringLiteral("export"));
+        QVERIFY(JsonExporter(*m_source).exportTo(exportDir));
+        QFile file(QDir(exportDir).filePath(exportformat::jsonFileName));
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+        file.close();
+        QJsonObject tables = root.value(QStringLiteral("tables")).toObject();
+        QJsonArray rows = tables.value(table).toArray();
+        QJsonObject row = rows.at(0).toObject();
+        row.insert(column, value);
+        rows.replace(0, row);
+        tables.insert(table, rows);
+        root.insert(QStringLiteral("tables"), tables);
+        QVERIFY(file.open(QIODevice::WriteOnly | QIODevice::Truncate));
+        file.write(QJsonDocument(root).toJson());
+        file.close();
+
+        Database target;
+        QVERIFY(target.open(m_dir->filePath(QStringLiteral("e/garage.sqlite"))));
+        JsonImporter importer(target);
+        QVERIFY(!importer.importFrom(exportDir));
+        QVERIFY2(importer.errorString().contains(QStringLiteral("Invalid values in ") + table), qPrintable(importer.errorString()));
+        QVERIFY(VehicleRepository(target).all(true).isEmpty());
     }
 
     /** A crafted stored_name in the garage never makes the export write outside the export folder. */

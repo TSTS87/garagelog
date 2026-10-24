@@ -4,6 +4,7 @@
 
 #include "database.h"
 #include "dbvalues.h"
+#include "valuelimits.h"
 
 #include <QSqlError>
 #include <QSqlQuery>
@@ -69,14 +70,20 @@ bool FuelRepository::validate(const FuelEntry &entry)
 {
     if (entry.vehicleId.isEmpty()) {
         m_error = QStringLiteral("Fuel entry needs a vehicle");
-    } else if (!entry.date.isValid()) {
-        m_error = QStringLiteral("Fuel entry needs a valid date");
+    } else if (!limits::isStorableDate(entry.date)) {
+        m_error = QStringLiteral("Fuel entry needs a valid date between %1 and %2").arg(limits::minYear).arg(limits::maxYear);
     } else if (entry.odometerM < 0) {
         m_error = QStringLiteral("Odometer must not be negative");
+    } else if (entry.odometerM > limits::maxDistanceM) {
+        m_error = QStringLiteral("Odometer is too large");
     } else if (entry.quantity <= 0) {
         m_error = QStringLiteral("Quantity must be greater than zero");
+    } else if (entry.quantity > limits::maxQuantity) {
+        m_error = QStringLiteral("Quantity is too large");
     } else if (entry.totalCostC < 0) {
         m_error = QStringLiteral("Total cost must not be negative");
+    } else if (entry.totalCostC > limits::maxMoneyC) {
+        m_error = QStringLiteral("Total cost is too large");
     } else {
         return true;
     }

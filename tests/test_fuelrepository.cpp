@@ -12,6 +12,7 @@
 #include "database.h"
 #include "fuelentry.h"
 #include "fuelrepository.h"
+#include "valuelimits.h"
 #include "vehiclerepository.h"
 
 using namespace garagelog::core;
@@ -181,6 +182,10 @@ private Q_SLOTS:
         QTest::newRow("negative odometer") << 2;
         QTest::newRow("zero quantity") << 3;
         QTest::newRow("negative cost") << 4;
+        QTest::newRow("year 1") << 5;
+        QTest::newRow("odometer above limit") << 6;
+        QTest::newRow("quantity above limit") << 7;
+        QTest::newRow("cost above limit") << 8;
     }
 
     void invalidFieldsAreRejected()
@@ -194,6 +199,10 @@ private Q_SLOTS:
         case 2: e.odometerM = -1; break;
         case 3: e.quantity = 0; break;
         case 4: e.totalCostC = -1; break;
+        case 5: e.date = QDate(1, 1, 1); break;
+        case 6: e.odometerM = limits::maxDistanceM + 1; break;
+        case 7: e.quantity = limits::maxQuantity + 1; break;
+        case 8: e.totalCostC = limits::maxMoneyC + 1; break;
         }
         QVERIFY(!repo.create(e));
         QVERIFY(e.id.isEmpty());

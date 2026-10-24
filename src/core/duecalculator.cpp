@@ -80,8 +80,11 @@ DueResult DueCalculator::evaluate(const MaintenanceInterval &interval, const std
         r.remainingM = *r.dueOdometerM - currentOdometerM;
         addPart(partStatus(*r.remainingM, *interval.everyM), double(*r.remainingM) / double(*interval.everyM));
     }
-    if (interval.everyMonths) {
-        r.dueDate = last->date.addMonths(*interval.everyMonths);
+    // addMonths() returns an invalid date when the result leaves QDate's
+    // range; the time part is then unknown instead of "billions of days".
+    const QDate dueDate = interval.everyMonths ? last->date.addMonths(*interval.everyMonths) : QDate();
+    if (dueDate.isValid()) {
+        r.dueDate = dueDate;
         r.remainingDays = today.daysTo(*r.dueDate);
         const qint64 lengthDays = std::max<qint64>(1, last->date.daysTo(*r.dueDate));
         addPart(partStatus(*r.remainingDays, lengthDays), double(*r.remainingDays) / double(lengthDays));

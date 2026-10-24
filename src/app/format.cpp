@@ -2,6 +2,8 @@
 
 #include "format.h"
 
+#include "valuelimits.h"
+
 #include <KLocalizedString>
 
 #include <QDate>
@@ -159,16 +161,16 @@ QString Format::dueSummary(const QVariant &remainingM, const QVariant &remaining
     return parts.join(QStringLiteral(" · "));
 }
 
-QVariant Format::parseCount(const QString &text) const
+QVariant Format::parseMonths(const QString &text) const
 {
     bool ok = false;
     const int value = QLocale().toInt(text.trimmed(), &ok);
-    return ok && value > 0 ? QVariant(value) : QVariant::fromValue(nullptr);
+    return ok && value > 0 && value <= core::limits::maxIntervalMonths ? QVariant(value) : QVariant::fromValue(nullptr);
 }
 
 QVariant Format::parseDistance(const QString &text) const
 {
-    return parseScaled(text, metresPerUnit());
+    return parseScaled(text, metresPerUnit(), core::limits::maxDistanceM);
 }
 
 QString Format::money(qint64 cents) const
@@ -194,7 +196,7 @@ QString Format::moneyInput(qint64 cents) const
 
 QVariant Format::parseMoney(const QString &text) const
 {
-    return parseScaled(text, 100.0);
+    return parseScaled(text, 100.0, core::limits::maxMoneyC);
 }
 
 QString Format::quantity(qint64 amount, bool electric) const
@@ -216,7 +218,7 @@ QString Format::quantityInput(qint64 amount, bool electric) const
 
 QVariant Format::parseQuantity(const QString &text, bool electric) const
 {
-    return parseScaled(text, electric ? 1000.0 : mlPerVolumeUnit());
+    return parseScaled(text, electric ? 1000.0 : mlPerVolumeUnit(), core::limits::maxQuantity);
 }
 
 QString Format::unitPrice(qint64 milli, bool electric) const
@@ -236,7 +238,7 @@ QString Format::unitPriceInput(qint64 milli, bool electric) const
 QVariant Format::parseUnitPrice(const QString &text, bool electric) const
 {
     // Typed per gallon, stored per litre (see fuelprice.h).
-    return parseScaled(text, electric ? 1000.0 : 1000.0 * 1000.0 / mlPerVolumeUnit());
+    return parseScaled(text, electric ? 1000.0 : 1000.0 * 1000.0 / mlPerVolumeUnit(), core::limits::maxMoneyC * 10);
 }
 
 double Format::consumptionValue(double per100Km, bool electric) const
@@ -293,7 +295,7 @@ QVariant Format::parseDate(const QString &text) const
         d = QDate::fromString(trimmed, Qt::ISODate);
     }
     // A two-digit year typed into the four-digit format parses as year 0026.
-    if (!d.isValid() || d.year() < 1900) {
+    if (!core::limits::isStorableDate(d)) {
         return QVariant::fromValue(nullptr);
     }
     return d.toString(Qt::ISODate);
@@ -304,11 +306,13 @@ QString Format::today() const
     return QDate::currentDate().toString(Qt::ISODate);
 }
 
-QVariant Format::parseScaled(const QString &text, double factor)
+QVariant Format::parseScaled(const QString &text, double factor, qint64 max)
 {
     bool ok = false;
     const double value = QLocale().toDouble(text.trimmed(), &ok);
-    if (!ok || value < 0 || !std::isfinite(value)) {
+    // The limit is checked on the scaled double: llround() of a value beyond
+    // 64 bits returns LLONG_MIN, which would turn "1e16 km" into a negative odometer.
+    if (!ok || value < 0 || !std::isfinite(value) || value * factor > double(max)) {
         // An empty QVariant would arrive in JS as undefined; nullptr arrives as null,
         // which is what QML compares against.
         return QVariant::fromValue(nullptr);
