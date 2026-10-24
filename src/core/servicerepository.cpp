@@ -179,6 +179,9 @@ QList<ServiceEntry> ServiceRepository::byVehicle(const QString &vehicleId)
     QSqlQuery query(m_database.connection());
     // SQLite sorts NULL first, so odometer-less costs come before the
     // workshop visit of the same day; created_at keeps the rest stable.
+    // Read once front to back: without forward-only Qt caches every row a
+    // second time, which doubles the memory for thousands of entries.
+    query.setForwardOnly(true);
     query.prepare(selectColumns + QStringLiteral(" WHERE vehicle_id = ? ORDER BY date, odometer_m, created_at"));
     query.addBindValue(vehicleId);
     if (!query.exec()) {

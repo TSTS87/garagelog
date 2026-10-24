@@ -158,6 +158,23 @@ private Q_SLOTS:
         QVERIFY(stats.errorString().isEmpty());
     }
 
+    /** summary() gives exactly what the single functions give, for a closed and an open-start period. */
+    void summaryMatchesSingleFunctions()
+    {
+        StatsService stats(*m_db);
+        for (const Period &p : {year2026, Period{QDate(), QDate(2026, 6, 30)}}) {
+            const StatsSummary s = stats.summary(m_vehicleId, p);
+            QVERIFY(stats.errorString().isEmpty());
+            QCOMPARE(s.totals, stats.totalCost(m_vehicleId, p));
+            QCOMPARE(s.distanceM, stats.distance(m_vehicleId, p));
+            QCOMPARE(s.costPerKmC, stats.costPerKm(m_vehicleId, p));
+            QCOMPARE(s.costPerMonthC, stats.costPerMonth(m_vehicleId, p));
+            QCOMPARE(s.categories, stats.costByCategory(m_vehicleId, p));
+            QCOMPARE(s.consumption, stats.consumptionSeries(m_vehicleId, p));
+            QCOMPARE(s.averageConsumption, stats.averageConsumption(m_vehicleId, p));
+        }
+    }
+
 private:
     std::unique_ptr<QTemporaryDir> m_dir;
     std::unique_ptr<Database> m_db;

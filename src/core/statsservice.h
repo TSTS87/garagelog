@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "fuelentry.h"
 #include "serviceentry.h"
 
 #include <QDate>
@@ -57,6 +58,17 @@ struct ConsumptionPoint {
     double costPer100KmC = 0;    ///< cents per 100 km
 
     bool operator==(const ConsumptionPoint &) const = default;
+};
+
+/** Every key figure of the statistics tab for one vehicle and period; see StatsService for each value. */
+struct StatsSummary {
+    CostTotals totals;                        ///< cents
+    std::optional<qint64> distanceM;          ///< see StatsService::distance()
+    std::optional<double> costPerKmC;         ///< cents per km
+    std::optional<double> costPerMonthC;      ///< cents per month
+    QList<CategoryCost> categories;           ///< highest first
+    QList<ConsumptionPoint> consumption;      ///< oldest first
+    std::optional<double> averageConsumption; ///< ml or Wh per 100 km
 };
 
 /**
@@ -122,10 +134,28 @@ public:
      */
     std::optional<double> averageConsumption(const QString &vehicleId, const Period &period);
 
+    /**
+     * @brief All figures above at once, as the statistics tab needs them.
+     *
+     * Reads totals, distance and the fuel entries once instead of once per
+     * figure (the single functions each repeat those reads), which matters
+     * with thousands of entries because the tab reloads after every save.
+     */
+    StatsSummary summary(const QString &vehicleId, const Period &period);
+
     /** Reason for the last failed read. */
     QString errorString() const;
 
 private:
+    /** Date of the first fuel or service entry; nullopt without entries or on error (m_error set). */
+    std::optional<QDate> firstEntryDate(const QString &vehicleId);
+    /** costByCategory() with the totals already known. */
+    QList<CategoryCost> categoriesFor(const QString &vehicleId, const Period &period, const CostTotals &totals);
+    /** costPerMonth() with the totals already known. */
+    std::optional<double> perMonth(const QString &vehicleId, const Period &period, const CostTotals &totals);
+    /** All fuel entries of the vehicle; empty with m_error set on failure. */
+    QList<FuelEntry> fuelEntries(const QString &vehicleId);
+
     const Database &m_database;
     QString m_error;
 };

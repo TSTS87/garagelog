@@ -125,56 +125,113 @@ std::optional<qint64> StatsService::distance(const QString &vehicleId, const Per
     return end - base;
 }
 
+namespace {
+
+/** Cents per km for a total over a distance in metres (> 0). */
+double perKm(const CostTotals &totals, qint64 metres)
+{
+    return static_cast<double>(totals.totalC()) * 1000.0 / static_cast<double>(metres);
+}
+
+/** The consumption points of the entries whose segment ends in @p period. */
+QList<ConsumptionPoint> seriesIn(const QList<FuelEntry> &entries, const QList<std::optional<Consumption>> &consumption,
+                                 const Period &period)
+{
+    QList<ConsumptionPoint> result;
+    for (qsizetype i = 0; i < entries.size(); ++i) {
+        if (consumption.at(i) && period.contains(entries.at(i).date)) {
+            result.append({entries.at(i).date, entries.at(i).odometerM, consumption.at(i)->quantityPer100Km,
+                           consumption.at(i)->costPer100KmC});
+        }
+    }
+    return result;
+}
+
+/** Distance-weighted average of the segments ending in @p period; nullopt without any. */
+std::optional<double> averageIn(const QList<FuelEntry> &entries, const QList<std::optional<Consumption>> &consumption,
+                                const Period &period)
+{
+    // Weighted by distance: summing quantities and distances is exact,
+    // averaging the per-segment values would overweight short segments.
+    qint64 quantity = 0;
+    qint64 metres = 0;
+    for (qsizetype i = 0; i < entries.size(); ++i) {
+        if (consumption.at(i) && period.contains(entries.at(i).date)) {
+            quantity += consumption.at(i)->quantity;
+            metres += consumption.at(i)->distanceM;
+        }
+    }
+    if (metres <= 0) {
+        return std::nullopt;
+    }
+    return static_cast<double>(quantity) * 100'000.0 / static_cast<double>(metres);
+}
+
+} // namespace
+
 std::optional<double> StatsService::costPerKm(const QString &vehicleId, const Period &period)
 {
     const auto metres = distance(vehicleId, period);
     if (!metres) {
         return std::nullopt;
     }
-    const CostTotals totals = totalCost(vehicleId, period);
-    return static_cast<double>(totals.totalC()) * 1000.0 / static_cast<double>(*metres);
+    return perKm(totalCost(vehicleId, period), *metres);
 }
 
 std::optional<double> StatsService::costPerMonth(const QString &vehicleId, const Period &period)
 {
     m_error.clear();
-    if (!period.to.isValid()) {
-        return std::nullopt;
-    }
-    QDate start = period.from;
-    if (!start.isValid()) {
-        QSqlQuery query(m_database.connection());
-        query.prepare(QStringLiteral(
-            "SELECT MIN(date) FROM (SELECT date FROM fuel_entries WHERE vehicle_id = ? "
-            "UNION ALL SELECT date FROM service_entries WHERE vehicle_id = ?)"));
-        query.addBindValue(vehicleId);
-        query.addBindValue(vehicleId);
-        if (!query.exec() || !query.next()) {
-            m_error = QStringLiteral("Cannot read first entry: %1").arg(query.lastError().text());
-            return std::nullopt;
-        }
-        if (query.value(0).isNull()) {
-            return std::nullopt;
-        }
-        start = fromDbDate(query.value(0));
-    }
     const CostTotals totals = totalCost(vehicleId, period);
     if (!m_error.isEmpty()) {
         return std::nullopt;
     }
-    const double months = std::max(1.0, static_cast<double>(start.daysTo(period.to) + 1) / daysPerMonth);
+    return perMonth(vehicleId, period, totals);
+}
+
+std::optional<QDate> StatsService::firstEntryDate(const QString &vehicleId)
+{
+    QSqlQuery query(m_database.connection());
+    query.prepare(QStringLiteral(
+        "SELECT MIN(date) FROM (SELECT date FROM fuel_entries WHERE vehicle_id = ? "
+        "UNION ALL SELECT date FROM service_entries WHERE vehicle_id = ?)"));
+    query.addBindValue(vehicleId);
+    query.addBindValue(vehicleId);
+    if (!query.exec() || !query.next()) {
+        m_error = QStringLiteral("Cannot read first entry: %1").arg(query.lastError().text());
+        return std::nullopt;
+    }
+    if (query.value(0).isNull()) {
+        return std::nullopt;
+    }
+    return fromDbDate(query.value(0));
+}
+
+std::optional<double> StatsService::perMonth(const QString &vehicleId, const Period &period, const CostTotals &totals)
+{
+    if (!period.to.isValid()) {
+        return std::nullopt;
+    }
+    const auto start = period.from.isValid() ? std::optional<QDate>(period.from) : firstEntryDate(vehicleId);
+    if (!start) {
+        return std::nullopt;
+    }
+    const double months = std::max(1.0, static_cast<double>(start->daysTo(period.to) + 1) / daysPerMonth);
     return static_cast<double>(totals.totalC()) / months;
 }
 
 QList<CategoryCost> StatsService::costByCategory(const QString &vehicleId, const Period &period)
 {
     m_error.clear();
-    QList<CategoryCost> result;
-
     const CostTotals totals = totalCost(vehicleId, period);
     if (!m_error.isEmpty()) {
         return {};
     }
+    return categoriesFor(vehicleId, period, totals);
+}
+
+QList<CategoryCost> StatsService::categoriesFor(const QString &vehicleId, const Period &period, const CostTotals &totals)
+{
+    QList<CategoryCost> result;
     if (totals.fuelC > 0) {
         result.append({true, ServiceCategory(), totals.fuelC});
     }
@@ -202,53 +259,61 @@ QList<CategoryCost> StatsService::costByCategory(const QString &vehicleId, const
     return result;
 }
 
-QList<ConsumptionPoint> StatsService::consumptionSeries(const QString &vehicleId, const Period &period)
+QList<FuelEntry> StatsService::fuelEntries(const QString &vehicleId)
 {
-    m_error.clear();
     // Segments may start before the period, so all entries are needed.
     FuelRepository repo(m_database);
-    const QList<FuelEntry> entries = repo.byVehicle(vehicleId);
+    QList<FuelEntry> entries = repo.byVehicle(vehicleId);
     if (!repo.errorString().isEmpty()) {
         m_error = repo.errorString();
         return {};
     }
-    const auto consumption = FuelStats::consumption(entries);
+    return entries;
+}
 
-    QList<ConsumptionPoint> result;
-    for (qsizetype i = 0; i < entries.size(); ++i) {
-        if (consumption.at(i) && period.contains(entries.at(i).date)) {
-            result.append({entries.at(i).date, entries.at(i).odometerM, consumption.at(i)->quantityPer100Km,
-                           consumption.at(i)->costPer100KmC});
-        }
-    }
-    return result;
+QList<ConsumptionPoint> StatsService::consumptionSeries(const QString &vehicleId, const Period &period)
+{
+    m_error.clear();
+    const QList<FuelEntry> entries = fuelEntries(vehicleId);
+    return seriesIn(entries, FuelStats::consumption(entries), period);
 }
 
 std::optional<double> StatsService::averageConsumption(const QString &vehicleId, const Period &period)
 {
     m_error.clear();
-    FuelRepository repo(m_database);
-    const QList<FuelEntry> entries = repo.byVehicle(vehicleId);
-    if (!repo.errorString().isEmpty()) {
-        m_error = repo.errorString();
-        return std::nullopt;
-    }
-    const auto consumption = FuelStats::consumption(entries);
+    const QList<FuelEntry> entries = fuelEntries(vehicleId);
+    return averageIn(entries, FuelStats::consumption(entries), period);
+}
 
-    // Weighted by distance: summing quantities and distances is exact,
-    // averaging the per-segment values would overweight short segments.
-    qint64 quantity = 0;
-    qint64 metres = 0;
-    for (qsizetype i = 0; i < entries.size(); ++i) {
-        if (consumption.at(i) && period.contains(entries.at(i).date)) {
-            quantity += consumption.at(i)->quantity;
-            metres += consumption.at(i)->distanceM;
+StatsSummary StatsService::summary(const QString &vehicleId, const Period &period)
+{
+    m_error.clear();
+    StatsSummary s;
+    // Each step keeps the first error; the rest still runs so the tab shows what it can.
+    QString firstError;
+    auto keep = [&] {
+        if (firstError.isEmpty()) {
+            firstError = m_error;
         }
+    };
+    s.totals = totalCost(vehicleId, period);
+    keep();
+    s.distanceM = distance(vehicleId, period);
+    keep();
+    if (s.distanceM) {
+        s.costPerKmC = perKm(s.totals, *s.distanceM);
     }
-    if (metres <= 0) {
-        return std::nullopt;
-    }
-    return static_cast<double>(quantity) * 100'000.0 / static_cast<double>(metres);
+    s.costPerMonthC = perMonth(vehicleId, period, s.totals);
+    keep();
+    s.categories = categoriesFor(vehicleId, period, s.totals);
+    keep();
+    const QList<FuelEntry> entries = fuelEntries(vehicleId);
+    keep();
+    const auto consumption = FuelStats::consumption(entries);
+    s.consumption = seriesIn(entries, consumption, period);
+    s.averageConsumption = averageIn(entries, consumption, period);
+    m_error = firstError;
+    return s;
 }
 
 QString StatsService::errorString() const

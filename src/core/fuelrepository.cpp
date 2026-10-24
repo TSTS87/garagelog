@@ -177,6 +177,9 @@ QList<FuelEntry> FuelRepository::byVehicle(const QString &vehicleId)
     QSqlQuery query(m_database.connection());
     // Matches idx_fuel_vehicle_date; created_at makes the order of exact
     // duplicates (same day and odometer) stable.
+    // Read once front to back: without forward-only Qt caches every row a
+    // second time, which doubles the memory for thousands of entries.
+    query.setForwardOnly(true);
     query.prepare(selectColumns
                   + QStringLiteral(" WHERE vehicle_id = ? ORDER BY date, odometer_m, created_at"));
     query.addBindValue(vehicleId);

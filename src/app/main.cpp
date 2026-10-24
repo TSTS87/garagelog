@@ -98,9 +98,11 @@ int main(int argc, char *argv[])
     garage.setStartupNotice(startupNotice);
     garagelog::app::DataTransfer dataTransfer(database);
     // A saved fuel entry can raise the odometer shown in the drawer and the
-    // page header; an edited vehicle can switch the fuel unit (l <-> kWh).
+    // page header. FuelEntries reloads itself after its own changes; it only
+    // needs a reload when an edited vehicle switches the fuel unit (l <-> kWh),
+    // not after every Vehicles.reload (that read 10k entries twice per save).
     QObject::connect(&fuelEntries, &garagelog::app::FuelListModel::entriesChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
-    QObject::connect(&vehicles, &garagelog::app::VehicleListModel::reloaded, &fuelEntries, &garagelog::app::FuelListModel::reload);
+    QObject::connect(&vehicles, &garagelog::app::VehicleListModel::vehicleSaved, &fuelEntries, &garagelog::app::FuelListModel::reload);
     // Service entries can carry an odometer reading as well.
     QObject::connect(&serviceEntries, &garagelog::app::ServiceListModel::entriesChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
     // Every fuel/service change and vehicle edit ends in Vehicles.reloaded,
@@ -111,14 +113,17 @@ int main(int argc, char *argv[])
     QObject::connect(&intervals, &IntervalListModel::intervalsChanged, &dueIntervals, &IntervalListModel::reload);
     QObject::connect(&dueIntervals, &IntervalListModel::intervalsChanged, &intervals, &IntervalListModel::reload);
     // After switching the garage or importing data, or when the units change,
-    // everything reloads: Vehicles.reloaded cascades to fuel, intervals and
-    // stats; ServiceEntries has no such link and is reloaded directly.
+    // everything reloads: Vehicles.reloaded cascades to intervals and stats;
+    // FuelEntries and ServiceEntries are reloaded directly.
     QObject::connect(&garage, &garagelog::app::GarageController::garageChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
     QObject::connect(&garage, &garagelog::app::GarageController::garageChanged, &serviceEntries, &garagelog::app::ServiceListModel::reload);
+    QObject::connect(&garage, &garagelog::app::GarageController::garageChanged, &fuelEntries, &garagelog::app::FuelListModel::reload);
     QObject::connect(&dataTransfer, &garagelog::app::DataTransfer::dataImported, &vehicles, &garagelog::app::VehicleListModel::reload);
     QObject::connect(&dataTransfer, &garagelog::app::DataTransfer::dataImported, &serviceEntries, &garagelog::app::ServiceListModel::reload);
+    QObject::connect(&dataTransfer, &garagelog::app::DataTransfer::dataImported, &fuelEntries, &garagelog::app::FuelListModel::reload);
     QObject::connect(&format, &garagelog::app::Format::unitsChanged, &vehicles, &garagelog::app::VehicleListModel::reload);
     QObject::connect(&format, &garagelog::app::Format::unitsChanged, &serviceEntries, &garagelog::app::ServiceListModel::reload);
+    QObject::connect(&format, &garagelog::app::Format::unitsChanged, &fuelEntries, &garagelog::app::FuelListModel::reload);
     QObject::connect(&garage, &garagelog::app::GarageController::garageChanged, [&config, &database] {
         config.writeEntry("GaragePath", database.filePath());
         config.sync();

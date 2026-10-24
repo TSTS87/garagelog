@@ -10,6 +10,7 @@
 
 #include <memory>
 
+#include "csvfuelimporter.h"
 #include "database.h"
 #include "fuellistmodel.h"
 #include "intervallistmodel.h"
@@ -123,6 +124,28 @@ private Q_SLOTS:
         const qint64 ms = timer.elapsed() / 10;
         qInfo("plausibility %lld ms", ms);
         QVERIFY2(ms < 20, qPrintable(QStringLiteral("took %1 ms").arg(ms)));
+    }
+
+    /** The CSV preview reruns on every change in the mapping dialog, so 10,000 rows must not freeze it. */
+    void csvPreviewFast()
+    {
+        Database db;
+        QVERIFY(db.open(m_path));
+        QString text = QStringLiteral("date,odometer,quantity,total,full,station\n");
+        for (int i = 0; i < fuelCount; ++i) {
+            text += QStringLiteral("%1,%2,40.5,72.90,1,Aral\n").arg(QDate(2000, 1, 1).addDays(i).toString(Qt::ISODate)).arg(1000 + i * 500);
+        }
+        garagelog::core::CsvFuelImporter importer(db);
+        importer.load(text);
+        const auto mapping = importer.suggestMapping();
+
+        QElapsedTimer timer;
+        timer.start();
+        const auto preview = importer.preview(mapping);
+        const qint64 ms = timer.elapsed();
+        qInfo("csv preview %lld ms", ms);
+        QCOMPARE(preview.entries.size(), fuelCount);
+        QVERIFY2(ms < 250, qPrintable(QStringLiteral("took %1 ms").arg(ms)));
     }
 
 private:

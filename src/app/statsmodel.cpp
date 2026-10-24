@@ -153,37 +153,32 @@ void StatsModel::reload()
         if (const auto vehicle = core::VehicleRepository(m_database).byId(m_vehicleId)) {
             m_electric = core::quantityUnitFor(vehicle->powertrain) == core::QuantityUnit::WattHour;
         }
+        // One pass over totals, distance and fuel entries (StatsService::summary()).
         core::StatsService stats(m_database);
-        auto keepError = [&] {
-            if (m_error.isEmpty()) {
-                m_error = stats.errorString();
-            }
-        };
+        const core::StatsSummary summary = stats.summary(m_vehicleId, m_dates);
+        m_error = stats.errorString();
 
-        m_totals = stats.totalCost(m_vehicleId, m_dates);
-        keepError();
-        if (const auto d = stats.distance(m_vehicleId, m_dates)) {
-            m_distanceM = QVariant::fromValue(*d);
+        m_totals = summary.totals;
+        if (summary.distanceM) {
+            m_distanceM = QVariant::fromValue(*summary.distanceM);
         }
-        if (const auto c = stats.costPerKm(m_vehicleId, m_dates)) {
-            m_costPerKmC = *c;
+        if (summary.costPerKmC) {
+            m_costPerKmC = *summary.costPerKmC;
         }
-        if (const auto c = stats.costPerMonth(m_vehicleId, m_dates)) {
-            m_costPerMonthC = QVariant::fromValue(static_cast<qint64>(std::llround(*c)));
+        if (summary.costPerMonthC) {
+            m_costPerMonthC = QVariant::fromValue(static_cast<qint64>(std::llround(*summary.costPerMonthC)));
         }
-        if (const auto a = stats.averageConsumption(m_vehicleId, m_dates)) {
-            m_averageConsumption = *a;
+        if (summary.averageConsumption) {
+            m_averageConsumption = *summary.averageConsumption;
         }
-        keepError();
 
         // Raw database units; the display unit (l/100 km, mpg, ...) is Format's job.
-        for (const core::ConsumptionPoint &p : stats.consumptionSeries(m_vehicleId, m_dates)) {
+        for (const core::ConsumptionPoint &p : summary.consumption) {
             m_consumptionValues.append(p.quantityPer100Km);
             m_consumptionDates.append(p.date.toString(Qt::ISODate));
         }
-        keepError();
 
-        for (const core::CategoryCost &c : stats.costByCategory(m_vehicleId, m_dates)) {
+        for (const core::CategoryCost &c : summary.categories) {
             const QString name = c.isFuel ? (m_electric ? i18n("Charging") : i18n("Fuel")) : ServiceListModel::categoryLabel(c.category);
             m_categoryCosts.append(QVariantMap{
                 {QStringLiteral("name"), name},
@@ -191,7 +186,6 @@ void StatsModel::reload()
                 {QStringLiteral("isFuel"), c.isFuel},
             });
         }
-        keepError();
     }
     Q_EMIT changed();
 }

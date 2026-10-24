@@ -219,6 +219,7 @@ QString VehicleListModel::save(const QVariantMap &values)
     }
     setErrorString({});
     reload();
+    Q_EMIT vehicleSaved();
     return v.id;
 }
 

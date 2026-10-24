@@ -99,6 +99,8 @@ Q_SIGNALS:
     void errorStringChanged();
     /** Emitted after every reload(); pages showing one vehicle re-read it via get(). */
     void reloaded();
+    /** A vehicle was created or edited; its powertrain may have switched the fuel unit (l <-> kWh). */
+    void vehicleSaved();
 
 private:
     /** A vehicle plus its derived odometer, cached for data(). */
