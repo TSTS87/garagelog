@@ -115,6 +115,20 @@ Definition of Done (DoD) für jeden Meilenstein:
 - Auswertung als Bento-Raster; Seitenleiste mit Marken-Kopf, Fahrzeug-Kacheln, Zähler-Badge
 - DoD: hell + dunkel lesbar, Tastaturbedienung unverändert, keine neue Abhängigkeit, Build/Tests grün, Screenshots erneuert
 
+## M20 – Audit-Fixes (nach Audit vom 2026-10-24, auf Wunsch von Thomas)
+Reihenfolge nach Schwere; jeder Punkt mit Regressionstest, wo testbar.
+1. Formulare: Enter/Escape/Ctrl+S lösen Speichern bzw. Schließen nur einmal aus; Main.qml poppt nur die oberste Seite
+2. Tankformular: berechnetes drittes Preisfeld rechnet mit dem aktuellen Text, nicht dem vorigen
+3. Anhänge: `stored_name` überall gegen Path Traversal geprüft (Export, Öffnen, Löschen); JSON-Import lehnt Symlinks ab
+4. Garage-Datei: fehlende Garage wird nicht still neu angelegt; fehlgeschlagener Wechsel verliert die offene Garage nicht; Speichern unter atomar, nur referenzierte Anhänge
+5. Zahlen: Obergrenzen in Eingabe, Repositories, CSV-Import; kein Überlauf in Preis-/Tachorechnung; Intervallmonate begrenzt; JSON-Import validiert jede Zeile
+6. Tachostand als absoluter Mindeststand statt Offset (ADR-016, Migration 0002)
+7. CSV-Export gegen Formel-Injection; leere Fahrzeuge löschbar (SPEC §4.1); Anhang-Repeater nicht direkt im FormLayout; Nutzertexte als PlainText; Einheiten in Fehlermeldungen
+8. Performance: CSV-Vorschau ohne Regex pro Zelle, keine doppelten Reloads nach dem Speichern, Statistik in einem Durchlauf
+9. Datenschutz: `secure_delete`, private Dateirechte für neue Garagen/Exporte, `.gitignore` für Garagen/Exporte, keine Home-Pfade im Log
+10. Redundanz: gemeinsame Helfer (Variant, Pfade, Labels), Test-Fixture, Formular-/Listen-Bausteine; SPEC/STATUS-Widersprüche bereinigen
+- DoD: alle Punkte umgesetzt oder begründet verschoben, Build/Tests grün (auch unter ASAN/UBSan), Chaos-Szenarien A1–A8 ohne Befund
+
 ---
 
 ## Phase 2 – Touren (nach v1.0, eigene Meilensteine dann hier ergänzen)

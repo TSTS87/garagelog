@@ -10,7 +10,7 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-Keiner – M19 (neues Erscheinungsbild) abgeschlossen. Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: Thomas plant sie, bevor weitergearbeitet wird
+M20 – Audit-Fixes (Punkte 1–10 in ROADMAP.md). Danach: Phase 2 (Touren) hat noch keine Meilensteine, Thomas plant sie
 
 ## Zustand
 - Letzter Commit: `8ab510b` docs: show the new look in screenshots and spec (+ dieser docs-Commit). M19-Look ist noch in keinem Release; metainfo-Screenshots zeigen weiter v1.0.1. Tags `v1.0.0` = `b23c57c`, `v1.0.1` = `c92c694` (nur neue Screenshots), beide als GitHub-Release. Repo ist öffentlich
