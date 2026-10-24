@@ -9,12 +9,12 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.tmx.garagelog
 
-Kirigami.ScrollablePage {
+FormPage {
     id: form
 
     /** Interval to edit; "" = add a new one to Intervals.vehicleId. Set by Main.qml. */
     property string intervalId: ""
-    readonly property bool isNew: intervalId === ""
+    isNew: intervalId === ""
 
     /** Stored values (plus due status) when editing, read once. */
     readonly property var original: isNew ? ({}) : Intervals.get(intervalId)
@@ -31,34 +31,9 @@ Kirigami.ScrollablePage {
     readonly property bool monthsEmpty: monthsField.text.trim() === ""
     readonly property bool partsValid: (distanceEmpty || (everyM !== null && everyM > 0))
         && (monthsEmpty || everyMonths !== null) && !(distanceEmpty && monthsEmpty)
-    readonly property bool canSave: categoryId !== "" && partsValid
+    canSave: categoryId !== "" && partsValid
 
-    property string errorText: ""
-
-    signal saved(string intervalId)
-    signal canceled()
-    signal removed()
-
-    /**
-     * True once the form has emitted saved, removed or canceled. Enter in a
-     * text field reaches both onAccepted and the FormLayout key handler, and
-     * the page's shortcuts stay active during the pop animation, so without
-     * this a second trigger would save twice or pop the page below.
-     */
-    property bool closing: false
-
-    /** Leaves the form without saving; ignored while it is already closing. */
-    function cancel() {
-        if (!closing) {
-            closing = true;
-            canceled();
-        }
-    }
-
-    function save() {
-        if (closing || !canSave) {
-            return;
-        }
+    onSaveRequested: {
         const savedId = Intervals.save({
             id: intervalId,
             categoryId: categoryId,
@@ -71,62 +46,21 @@ Kirigami.ScrollablePage {
         if (savedId === "") {
             errorText = Intervals.errorString;
         } else {
-            closing = true;
-            saved(savedId);
+            finishSave(savedId);
         }
     }
 
     title: isNew ? i18n("Add Interval") : i18n("Edit Interval")
 
-    actions: [
-        Kirigami.Action {
-            text: i18n("Save")
-            icon.name: "document-save"
-            enabled: form.canSave
-            shortcut: StandardKey.Save
-            onTriggered: form.save()
-        },
-        Kirigami.Action {
-            visible: !form.isNew
-            text: i18n("Delete")
-            icon.name: "edit-delete"
-            onTriggered: deleteDialog.open()
-        },
-        Kirigami.Action {
-            text: i18n("Cancel")
-            icon.name: "dialog-cancel"
-            shortcut: "Escape"
-            onTriggered: form.cancel()
+    deleteTitle: i18n("Delete Interval?")
+    deleteSubtitle: i18n("The rule is removed. Service entries are kept.")
+
+    onRemoveRequested: {
+        if (Intervals.remove(intervalId)) {
+            finishRemove();
+        } else {
+            errorText = Intervals.errorString;
         }
-    ]
-
-    header: Kirigami.InlineMessage {
-        position: Kirigami.InlineMessage.Position.Header
-        type: Kirigami.MessageType.Error
-        text: form.errorText
-        visible: text !== ""
-    }
-
-    Kirigami.PromptDialog {
-        id: deleteDialog
-        title: i18n("Delete Interval?")
-        subtitle: i18n("The rule is removed. Service entries are kept.")
-        standardButtons: Kirigami.Dialog.Cancel
-        customFooterActions: [
-            Kirigami.Action {
-                text: i18n("Delete")
-                icon.name: "edit-delete"
-                onTriggered: {
-                    deleteDialog.close();
-                    if (Intervals.remove(form.intervalId)) {
-                        form.closing = true;
-                        form.removed();
-                    } else {
-                        form.errorText = Intervals.errorString;
-                    }
-                }
-            }
-        ]
     }
 
     Kirigami.FormLayout {

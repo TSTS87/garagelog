@@ -9,12 +9,12 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.tmx.garagelog
 
-Kirigami.ScrollablePage {
+FormPage {
     id: form
 
     /** Entry to edit; "" = add a new entry to FuelEntries.vehicleId. Set by Main.qml. */
     property string entryId: ""
-    readonly property bool isNew: entryId === ""
+    isNew: entryId === ""
     readonly property bool electric: FuelEntries.electric
 
     /** Stored values when editing, read once when the page is created. */
@@ -27,7 +27,7 @@ Kirigami.ScrollablePage {
     readonly property var quantity: Format.parseQuantity(quantityField.text, electric)
     readonly property var totalCostC: Format.parseMoney(totalField.text)
 
-    readonly property bool canSave: dateIso !== null && odometerM !== null && quantity !== null && quantity > 0
+    canSave: dateIso !== null && odometerM !== null && quantity !== null && quantity > 0
         && totalCostC !== null
 
     /**
@@ -40,12 +40,6 @@ Kirigami.ScrollablePage {
 
     /** Re-evaluated whenever date or odometer change; only warns, never blocks saving. */
     readonly property var plausibility: FuelEntries.plausibility(dateIso ?? "", odometerM, entryId)
-
-    property string errorText: ""
-
-    signal saved(string entryId)
-    signal canceled()
-    signal removed()
 
     /** Called on user edits of a price field: it becomes a source, the oldest source gets calculated. */
     function priceEdited(key) {
@@ -80,26 +74,7 @@ Kirigami.ScrollablePage {
         }
     }
 
-    /**
-     * True once the form has emitted saved, removed or canceled. Enter in a
-     * text field reaches both onAccepted and the FormLayout key handler, and
-     * the page's shortcuts stay active during the pop animation, so without
-     * this a second trigger would save twice or pop the page below.
-     */
-    property bool closing: false
-
-    /** Leaves the form without saving; ignored while it is already closing. */
-    function cancel() {
-        if (!closing) {
-            closing = true;
-            canceled();
-        }
-    }
-
-    function save() {
-        if (closing || !canSave) {
-            return;
-        }
+    onSaveRequested: {
         const savedId = FuelEntries.save({
             id: entryId,
             date: dateIso,
@@ -113,34 +88,22 @@ Kirigami.ScrollablePage {
         if (savedId === "") {
             errorText = FuelEntries.errorString;
         } else {
-            closing = true;
-            saved(savedId);
+            finishSave(savedId);
         }
     }
 
     title: isNew ? i18n("Add Entry") : i18n("Edit Entry")
 
-    actions: [
-        Kirigami.Action {
-            text: i18n("Save")
-            icon.name: "document-save"
-            enabled: form.canSave
-            shortcut: StandardKey.Save
-            onTriggered: form.save()
-        },
-        Kirigami.Action {
-            visible: !form.isNew
-            text: i18n("Delete")
-            icon.name: "edit-delete"
-            onTriggered: deleteDialog.open()
-        },
-        Kirigami.Action {
-            text: i18n("Cancel")
-            icon.name: "dialog-cancel"
-            shortcut: "Escape"
-            onTriggered: form.cancel()
+    deleteTitle: i18n("Delete Entry?")
+    deleteSubtitle: i18n("This entry is removed permanently. Consumption values are recalculated.")
+
+    onRemoveRequested: {
+        if (FuelEntries.remove(entryId)) {
+            finishRemove();
+        } else {
+            errorText = FuelEntries.errorString;
         }
-    ]
+    }
 
     header: ColumnLayout {
         spacing: 0
@@ -164,30 +127,6 @@ Kirigami.ScrollablePage {
                 : form.plausibility.duplicate ? i18n("An entry with the same date and odometer already exists.") : ""
             visible: text !== ""
         }
-    }
-
-    // PromptDialog is Kirigami's small confirmation dialog: title, one
-    // sentence, buttons. Deleting cannot be undone, so it asks first.
-    Kirigami.PromptDialog {
-        id: deleteDialog
-        title: i18n("Delete Entry?")
-        subtitle: i18n("This entry is removed permanently. Consumption values are recalculated.")
-        standardButtons: Kirigami.Dialog.Cancel
-        customFooterActions: [
-            Kirigami.Action {
-                text: i18n("Delete")
-                icon.name: "edit-delete"
-                onTriggered: {
-                    deleteDialog.close();
-                    if (FuelEntries.remove(form.entryId)) {
-                        form.closing = true;
-                        form.removed();
-                    } else {
-                        form.errorText = FuelEntries.errorString;
-                    }
-                }
-            }
-        ]
     }
 
     Kirigami.FormLayout {

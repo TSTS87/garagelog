@@ -8,14 +8,14 @@ import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
 import org.tmx.garagelog
 
-// ScrollablePage is a Kirigami.Page whose content scrolls, which a form
-// needs as soon as the window is small.
-Kirigami.ScrollablePage {
+// FormPage (FormPage.qml) is a Kirigami.ScrollablePage, a page whose content
+// scrolls, which a form needs as soon as the window is small.
+FormPage {
     id: form
 
     /** Vehicle to edit; "" = add a new vehicle. Set by Main.qml. */
     property string vehicleId: ""
-    readonly property bool isNew: vehicleId === ""
+    isNew: vehicleId === ""
 
     /** Stored values when editing, read once when the page is created. */
     readonly property var original: isNew ? ({}) : Vehicles.get(vehicleId)
@@ -27,10 +27,8 @@ Kirigami.ScrollablePage {
     // on a new vehicle simply means "start at 0").
     readonly property bool odometerValid: !odometerChanged || (isNew && odometerField.text === "")
         || Format.parseDistance(odometerField.text) !== null
-    readonly property bool canSave: nameField.text.trim() !== "" && odometerValid
+    canSave: nameField.text.trim() !== "" && odometerValid
         && (yearField.text === "" || yearField.acceptableInput)
-
-    property string errorText: ""
 
     // Options for the two combo boxes: database key + translated label.
     readonly property var typeOptions: [
@@ -48,30 +46,7 @@ Kirigami.ScrollablePage {
         { value: "other", text: i18n("Other") }
     ]
 
-    signal saved(string vehicleId)
-    signal canceled()
-    signal removed()
-
-    /**
-     * True once the form has emitted saved, removed or canceled. Enter in a
-     * text field reaches both onAccepted and the FormLayout key handler, and
-     * the page's shortcuts stay active during the pop animation, so without
-     * this a second trigger would save twice or pop the page below.
-     */
-    property bool closing: false
-
-    /** Leaves the form without saving; ignored while it is already closing. */
-    function cancel() {
-        if (!closing) {
-            closing = true;
-            canceled();
-        }
-    }
-
-    function save() {
-        if (closing || !canSave) {
-            return;
-        }
+    onSaveRequested: {
         const values = {
             id: vehicleId,
             name: nameField.text,
@@ -92,21 +67,18 @@ Kirigami.ScrollablePage {
         if (savedId === "") {
             errorText = Vehicles.errorString;
         } else {
-            closing = true;
-            saved(savedId);
+            finishSave(savedId);
         }
     }
 
     title: isNew ? i18n("Add Vehicle") : i18n("Edit Vehicle")
 
-    actions: [
-        Kirigami.Action {
-            text: i18n("Save")
-            icon.name: "document-save"
-            enabled: form.canSave
-            shortcut: StandardKey.Save
-            onTriggered: form.save()
-        },
+    // SPEC §4.1: only a vehicle without entries can be deleted; one with
+    // entries keeps its history and can only be archived.
+    canDelete: !isNew && !(original.hasEntries ?? true)
+    deleteTitle: i18n("Delete Vehicle?")
+    deleteSubtitle: i18n("The vehicle and its maintenance intervals are removed permanently.")
+    extraActions: [
         Kirigami.Action {
             visible: !form.isNew
             text: form.original.archived ? i18n("Restore") : i18n("Archive")
@@ -118,50 +90,15 @@ Kirigami.ScrollablePage {
                     form.errorText = Vehicles.errorString;
                 }
             }
-        },
-        // SPEC §4.1: only a vehicle without entries can be deleted; one with
-        // entries keeps its history and can only be archived.
-        Kirigami.Action {
-            visible: !form.isNew && !(form.original.hasEntries ?? true)
-            text: i18n("Delete")
-            icon.name: "edit-delete"
-            onTriggered: deleteDialog.open()
-        },
-        Kirigami.Action {
-            text: i18n("Cancel")
-            icon.name: "dialog-cancel"
-            shortcut: "Escape"
-            onTriggered: form.cancel()
         }
     ]
 
-    Kirigami.PromptDialog {
-        id: deleteDialog
-        title: i18n("Delete Vehicle?")
-        subtitle: i18n("The vehicle and its maintenance intervals are removed permanently.")
-        standardButtons: Kirigami.Dialog.Cancel
-        customFooterActions: [
-            Kirigami.Action {
-                text: i18n("Delete")
-                icon.name: "edit-delete"
-                onTriggered: {
-                    deleteDialog.close();
-                    if (Vehicles.remove(form.vehicleId)) {
-                        form.closing = true;
-                        form.removed();
-                    } else {
-                        form.errorText = Vehicles.errorString;
-                    }
-                }
-            }
-        ]
-    }
-
-    header: Kirigami.InlineMessage {
-        position: Kirigami.InlineMessage.Position.Header
-        type: Kirigami.MessageType.Error
-        text: form.errorText
-        visible: text !== ""
+    onRemoveRequested: {
+        if (Vehicles.remove(vehicleId)) {
+            finishRemove();
+        } else {
+            errorText = Vehicles.errorString;
+        }
     }
 
     // FormLayout is Kirigami's two-column form: labels come from the

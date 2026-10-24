@@ -10,12 +10,12 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.tmx.garagelog
 
-Kirigami.ScrollablePage {
+FormPage {
     id: form
 
     /** Entry to edit; "" = add a new entry to ServiceEntries.vehicleId. Set by Main.qml. */
     property string entryId: ""
-    readonly property bool isNew: entryId === ""
+    isNew: entryId === ""
 
     /** Stored values when editing, read once when the page is created. */
     readonly property var original: isNew ? ({}) : ServiceEntries.get(entryId)
@@ -37,7 +37,7 @@ Kirigami.ScrollablePage {
     readonly property bool odometerOk: odometerField.text.trim() === "" || odometerM !== null
     readonly property bool costOk: costField.text.trim() === "" || costC !== null
 
-    readonly property bool canSave: dateIso !== null && odometerOk && costOk && categoryId !== ""
+    canSave: dateIso !== null && odometerOk && costOk && categoryId !== ""
         && descriptionField.text.trim() !== ""
 
     readonly property var performedByOptions: [
@@ -46,32 +46,7 @@ Kirigami.ScrollablePage {
         { value: "shop", text: i18n("Workshop") }
     ]
 
-    property string errorText: ""
-
-    signal saved(string entryId)
-    signal canceled()
-    signal removed()
-
-    /**
-     * True once the form has emitted saved, removed or canceled. Enter in a
-     * text field reaches both onAccepted and the FormLayout key handler, and
-     * the page's shortcuts stay active during the pop animation, so without
-     * this a second trigger would save twice or pop the page below.
-     */
-    property bool closing: false
-
-    /** Leaves the form without saving; ignored while it is already closing. */
-    function cancel() {
-        if (!closing) {
-            closing = true;
-            canceled();
-        }
-    }
-
-    function save() {
-        if (closing || !canSave) {
-            return;
-        }
+    onSaveRequested: {
         const savedId = ServiceEntries.save({
             id: entryId,
             date: dateIso,
@@ -94,8 +69,7 @@ Kirigami.ScrollablePage {
             storedAttachments = ServiceEntries.attachments(savedId);
             errorText = ServiceEntries.errorString;
         } else {
-            closing = true;
-            saved(savedId);
+            finishSave(savedId);
         }
     }
 
@@ -106,55 +80,15 @@ Kirigami.ScrollablePage {
 
     title: isNew ? i18n("Add Service") : i18n("Edit Service")
 
-    actions: [
-        Kirigami.Action {
-            text: i18n("Save")
-            icon.name: "document-save"
-            enabled: form.canSave
-            shortcut: StandardKey.Save
-            onTriggered: form.save()
-        },
-        Kirigami.Action {
-            visible: !form.isNew
-            text: i18n("Delete")
-            icon.name: "edit-delete"
-            onTriggered: deleteDialog.open()
-        },
-        Kirigami.Action {
-            text: i18n("Cancel")
-            icon.name: "dialog-cancel"
-            shortcut: "Escape"
-            onTriggered: form.cancel()
+    deleteTitle: i18n("Delete Service Entry?")
+    deleteSubtitle: i18n("The entry and its attached files are removed permanently.")
+
+    onRemoveRequested: {
+        if (ServiceEntries.remove(entryId)) {
+            finishRemove();
+        } else {
+            errorText = ServiceEntries.errorString;
         }
-    ]
-
-    header: Kirigami.InlineMessage {
-        position: Kirigami.InlineMessage.Position.Header
-        type: Kirigami.MessageType.Error
-        text: form.errorText
-        visible: text !== ""
-    }
-
-    Kirigami.PromptDialog {
-        id: deleteDialog
-        title: i18n("Delete Service Entry?")
-        subtitle: i18n("The entry and its attached files are removed permanently.")
-        standardButtons: Kirigami.Dialog.Cancel
-        customFooterActions: [
-            Kirigami.Action {
-                text: i18n("Delete")
-                icon.name: "edit-delete"
-                onTriggered: {
-                    deleteDialog.close();
-                    if (ServiceEntries.remove(form.entryId)) {
-                        form.closing = true;
-                        form.removed();
-                    } else {
-                        form.errorText = ServiceEntries.errorString;
-                    }
-                }
-            }
-        ]
     }
 
     // A PromptDialog can hold any content item; here one text field for
