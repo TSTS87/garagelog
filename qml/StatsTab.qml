@@ -176,7 +176,7 @@ Item {
                     Layout.fillHeight: true
                     Layout.columnSpan: 2
                     Layout.preferredWidth: 2
-                    iconSource: Stats.electric ? "qrc:/qml/icons/charge.svg" : "qrc:/qml/icons/fuel.svg"
+                    iconSource: Style.fuelIcon(Stats.electric)
                     accent: Style.seriesColors[1]
                     caption: i18n("Consumption")
                     value: Stats.averageConsumption === null ? "–" : Format.consumption(Stats.averageConsumption, Stats.electric)

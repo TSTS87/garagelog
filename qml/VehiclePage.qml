@@ -81,7 +81,7 @@ Kirigami.Page {
     readonly property color accent: Style.accent(vehicle.type ?? "other")
     /** Sections of the pill switch, in the order of the StackLayout children. */
     readonly property var sections: [
-        { text: i18n("Fuel"), icon: FuelEntries.electric ? "qrc:/qml/icons/charge.svg" : "qrc:/qml/icons/fuel.svg" },
+        { text: i18n("Fuel"), icon: Style.fuelIcon(FuelEntries.electric) },
         { text: i18n("Service"), icon: "qrc:/qml/icons/service.svg" },
         { text: i18n("Intervals"), icon: "qrc:/qml/icons/interval.svg" },
         { text: i18n("Statistics"), icon: "qrc:/qml/icons/stats.svg" }

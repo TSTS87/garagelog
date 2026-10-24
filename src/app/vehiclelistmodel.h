@@ -60,6 +60,13 @@ public:
     /** qrc URL of GarageLog's own line icon for a vehicle type (database text); the van icon for unknown text. */
     static QString iconForType(const QString &type);
 
+    /** Picker entries {value, text} of the vehicle types, in form order, with translated labels. */
+    Q_INVOKABLE static QVariantList typeOptions();
+    /** Picker entries {value, text} of the powertrains, in form order, with translated labels. */
+    Q_INVOKABLE static QVariantList powertrainOptions();
+    /** Translated label of a vehicle type (database text); "Other" for unknown text. */
+    static QString typeLabel(const QString &type);
+
     /** Re-reads all vehicles and odometers from the database. */
     Q_INVOKABLE void reload();
 
@@ -69,7 +76,7 @@ public:
     /**
      * @brief One vehicle as map for the page and the form, independent of showArchived.
      * @return Keys id, name, type, make, model, year (int or null), plate,
-     *         powertrain, notes, archived, icon, odometerM (metres),
+     *         powertrain, notes, archived, icon, typeLabel, odometerM (metres),
      *         hasEntries (true if it cannot be deleted). Empty map if the id is unknown.
      */
     Q_INVOKABLE QVariantMap get(const QString &id);

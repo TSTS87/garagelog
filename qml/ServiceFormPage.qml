@@ -73,11 +73,6 @@ FormPage {
         }
     }
 
-    /** File name part of a file:// URL, for showing pending files. */
-    function fileName(url) {
-        return decodeURIComponent(url.toString().split("/").pop());
-    }
-
     title: isNew ? i18n("Add Service") : i18n("Edit Service")
 
     deleteTitle: i18n("Delete Service Entry?")
@@ -297,7 +292,7 @@ FormPage {
                     required property var modelData
                     required property int index
                     Controls.Label {
-                        text: form.fileName(modelData)
+                        text: Format.fileName(modelData)
                         textFormat: Text.PlainText
                         font.italic: true
                     }

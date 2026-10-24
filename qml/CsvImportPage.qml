@@ -91,7 +91,7 @@ Kirigami.ScrollablePage {
         nameFilters: [i18n("CSV files (*.csv *.txt)"), i18n("All files (*)")]
         onAccepted: {
             if (DataTransfer.loadCsv(selectedFile)) {
-                page.fileName = decodeURIComponent(selectedFile.toString().split("/").pop());
+                page.fileName = Format.fileName(selectedFile.toString());
                 page.mapping = DataTransfer.suggestCsvMapping();
             }
         }

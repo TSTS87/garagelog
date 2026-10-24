@@ -159,6 +159,16 @@ public:
     Q_INVOKABLE QString dueSummary(const QVariant &remainingM, const QVariant &remainingDays, const QString &status) const;
 
     /**
+     * @brief Where an interval falls due, e.g. "60.000 km / 01.03.2027".
+     * @param dueOdometerM Metres or null; @param dueDate ISO date or "".
+     * @return Only the known parts; "" without a recorded service.
+     */
+    Q_INVOKABLE QString dueAt(const QVariant &dueOdometerM, const QString &dueDate) const;
+
+    /** File name of a file:// URL or a path, e.g. "receipt.pdf" (URL escapes decoded). */
+    Q_INVOKABLE QString fileName(const QString &urlOrPath) const;
+
+    /**
      * @brief Parses the length of an interval in months.
      * @return int in a QVariant; null for empty, non-integer, zero, negative
      *         input or more than core::limits::maxIntervalMonths.

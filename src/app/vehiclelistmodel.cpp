@@ -90,6 +90,50 @@ int VehicleListModel::archivedCount() const
     return m_archivedCount;
 }
 
+namespace {
+
+/** {value, text} pairs for a ComboBox; value is the database text. */
+QVariantList options(const QList<std::pair<QString, QString>> &pairs)
+{
+    QVariantList result;
+    for (const auto &[value, text] : pairs) {
+        result.append(QVariantMap{{QStringLiteral("value"), value}, {QStringLiteral("text"), text}});
+    }
+    return result;
+}
+
+} // namespace
+
+// The labels live here once, for the form pickers and the hero card alike.
+QVariantList VehicleListModel::typeOptions()
+{
+    return options({{QStringLiteral("car"), i18n("Car")},
+                    {QStringLiteral("motorcycle"), i18n("Motorcycle")},
+                    {QStringLiteral("scooter"), i18n("Scooter")},
+                    {QStringLiteral("ebike"), i18n("E-bike")},
+                    {QStringLiteral("other"), i18n("Other")}});
+}
+
+QVariantList VehicleListModel::powertrainOptions()
+{
+    return options({{QStringLiteral("petrol"), i18n("Petrol")},
+                    {QStringLiteral("diesel"), i18n("Diesel")},
+                    {QStringLiteral("electric"), i18n("Electric")},
+                    {QStringLiteral("hybrid"), i18n("Hybrid")},
+                    {QStringLiteral("other"), i18n("Other")}});
+}
+
+QString VehicleListModel::typeLabel(const QString &type)
+{
+    for (const QVariant &option : typeOptions()) {
+        const QVariantMap map = option.toMap();
+        if (map.value(QStringLiteral("value")).toString() == type) {
+            return map.value(QStringLiteral("text")).toString();
+        }
+    }
+    return i18n("Other");
+}
+
 QString VehicleListModel::iconForType(const QString &type)
 {
     // Breeze only ships a "car" icon, so GarageLog brings its own line icons
@@ -164,6 +208,7 @@ QVariantMap VehicleListModel::get(const QString &id)
         {QStringLiteral("notes"), v->notes},
         {QStringLiteral("archived"), v->archived},
         {QStringLiteral("icon"), iconForType(type)},
+        {QStringLiteral("typeLabel"), typeLabel(type)},
         {QStringLiteral("odometerM"), QVariant::fromValue(Odometer(m_database).current(v->id).value_or(0))},
         // A failed check counts as "has entries", so the form never offers a delete that would fail.
         {QStringLiteral("hasEntries"), repo.hasEntries(v->id).value_or(true)},

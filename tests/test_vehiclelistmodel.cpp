@@ -112,6 +112,20 @@ private Q_SLOTS:
         QCOMPARE(model.get(id).value(QStringLiteral("name")).toString(), QStringLiteral("Bike 2"));
     }
 
+    /** Picker options and the type label come from one table in C++ (database text -> label). */
+    void typeOptionsAndLabel()
+    {
+        const QVariantList types = VehicleListModel::typeOptions();
+        QCOMPARE(types.size(), 5);
+        QCOMPARE(types.first().toMap().value(QStringLiteral("value")).toString(), QStringLiteral("car"));
+        QCOMPARE(VehicleListModel::powertrainOptions().size(), 5);
+        QCOMPARE(VehicleListModel::typeLabel(QStringLiteral("motorcycle")), QStringLiteral("Motorcycle"));
+        QCOMPARE(VehicleListModel::typeLabel(QStringLiteral("spaceship")), QStringLiteral("Other"));
+        VehicleListModel model(*m_db);
+        const QString id = model.save(newVehicle(QStringLiteral("Golf")));
+        QCOMPARE(model.get(id).value(QStringLiteral("typeLabel")).toString(), QStringLiteral("Motorcycle"));
+    }
+
     /** A vehicle without entries can be deleted; one with a fuel entry cannot and reports hasEntries (SPEC §4.1). */
     void removeOnlyWithoutEntries()
     {

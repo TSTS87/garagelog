@@ -55,6 +55,7 @@ qt_add_resources(garagelog "qml"
         ${PROJECT_SOURCE_DIR}/qml/IconTile.qml
         ${PROJECT_SOURCE_DIR}/qml/IntervalFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/IntervalTab.qml
+        ${PROJECT_SOURCE_DIR}/qml/ListCard.qml
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
         ${PROJECT_SOURCE_DIR}/qml/NotesArea.qml
         ${PROJECT_SOURCE_DIR}/qml/PillBar.qml

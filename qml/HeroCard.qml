@@ -20,12 +20,6 @@ Rectangle {
     readonly property string type: vehicle.type ?? "other"
     readonly property real pad: Kirigami.Units.gridUnit * (compact ? 0.9 : 1.3)
 
-    /** Translated name of a vehicle type; same strings as the vehicle form. */
-    function typeLabel(type) {
-        return ({ car: i18n("Car"), motorcycle: i18n("Motorcycle"), scooter: i18n("Scooter"),
-                  ebike: i18n("E-bike") })[type] ?? i18n("Other");
-    }
-
     implicitHeight: content.implicitHeight + 2 * pad
     radius: Style.cardRadius
     // A horizontal gradient from the light to the deep accent gives the card
@@ -68,7 +62,7 @@ Rectangle {
 
             HeroChip {
                 iconSource: hero.vehicle.icon ?? ""
-                text: hero.typeLabel(hero.type)
+                text: hero.vehicle.typeLabel ?? ""
             }
             HeroChip {
                 visible: hero.vehicle.powertrain === "electric"

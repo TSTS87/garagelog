@@ -7,8 +7,10 @@
 #include <KLocalizedString>
 
 #include <QDate>
+#include <QFileInfo>
 #include <QHash>
 #include <QLocale>
+#include <QUrl>
 
 #include <cmath>
 
@@ -133,6 +135,25 @@ QString Format::distanceInput(qint64 metres) const
         return locale.toString(static_cast<qint64>(units));
     }
     return locale.toString(units, 'f', 1);
+}
+
+QString Format::dueAt(const QVariant &dueOdometerM, const QString &dueDate) const
+{
+    QStringList parts;
+    if (!dueOdometerM.isNull()) {
+        parts.append(distance(dueOdometerM.toLongLong()));
+    }
+    if (!dueDate.isEmpty()) {
+        parts.append(date(dueDate));
+    }
+    return parts.join(QStringLiteral(" / "));
+}
+
+QString Format::fileName(const QString &urlOrPath) const
+{
+    const QUrl url(urlOrPath);
+    // QUrl decodes %20 and friends; a plain path has no scheme.
+    return QFileInfo(url.isLocalFile() ? url.toLocalFile() : urlOrPath).fileName();
 }
 
 QString Format::dueSummary(const QVariant &remainingM, const QVariant &remainingDays, const QString &status) const

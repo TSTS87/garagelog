@@ -36,6 +36,11 @@ QtObject {
     /** Colours for chart series and category bars, starting with the brand blue. */
     readonly property var seriesColors: ["#3b82f6", "#f97316", "#14b8a6", "#8b5cf6", "#ec4899", "#eab308", "#64748b"]
 
+    /** Icon of fuel entries: a charging plug for electric vehicles, a pump otherwise. */
+    function fuelIcon(electric) {
+        return electric ? "qrc:/qml/icons/charge.svg" : "qrc:/qml/icons/fuel.svg";
+    }
+
     /** Main accent colour of a vehicle type; unknown types get the neutral slate. */
     function accent(type) {
         return (typePalette[type] ?? typePalette.other)[0];

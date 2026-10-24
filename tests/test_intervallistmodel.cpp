@@ -171,6 +171,12 @@ private Q_SLOTS:
         QVERIFY(f.parseMonths(QStringLiteral("0")).isNull());
         QVERIFY(f.parseMonths(QStringLiteral("1,5")).isNull());
         QCOMPARE(f.parseMonths(QStringLiteral("1200")), QVariant(1200));
+        // Where an interval falls due shows only the known parts.
+        QCOMPARE(f.dueAt(qint64(60'000'000), QStringLiteral("2027-03-01")), QStringLiteral("60.000 km / 01.03.2027"));
+        QCOMPARE(f.dueAt(null, QStringLiteral("2027-03-01")), QStringLiteral("01.03.2027"));
+        QCOMPARE(f.dueAt(null, QString()), QString());
+        QCOMPARE(f.fileName(QStringLiteral("file:///tmp/a%20b/r%C3%A9%23.pdf")), QStringLiteral("ré#.pdf"));
+        QCOMPARE(f.fileName(QStringLiteral("/home/x/garage.sqlite")), QStringLiteral("garage.sqlite"));
         QVERIFY(f.parseMonths(QStringLiteral("2147483647")).isNull());
         // An odometer beyond 64 bits must not wrap into a negative distance.
         QVERIFY(f.parseDistance(QStringLiteral("9999999999999999")).isNull());

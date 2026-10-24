@@ -69,7 +69,7 @@ Kirigami.GlobalDrawer {
                 Controls.Label {
                     Layout.fillWidth: true
                     // Only the file name; the full path is shown in the settings.
-                    text: Garage.filePath.split("/").pop()
+                    text: Format.fileName(Garage.filePath)
                     textFormat: Text.PlainText
                     font: Kirigami.Theme.smallFont
                     color: Kirigami.Theme.disabledTextColor

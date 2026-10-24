@@ -30,21 +30,9 @@ FormPage {
     canSave: nameField.text.trim() !== "" && odometerValid
         && (yearField.text === "" || yearField.acceptableInput)
 
-    // Options for the two combo boxes: database key + translated label.
-    readonly property var typeOptions: [
-        { value: "car", text: i18n("Car") },
-        { value: "motorcycle", text: i18n("Motorcycle") },
-        { value: "scooter", text: i18n("Scooter") },
-        { value: "ebike", text: i18n("E-bike") },
-        { value: "other", text: i18n("Other") }
-    ]
-    readonly property var powertrainOptions: [
-        { value: "petrol", text: i18n("Petrol") },
-        { value: "diesel", text: i18n("Diesel") },
-        { value: "electric", text: i18n("Electric") },
-        { value: "hybrid", text: i18n("Hybrid") },
-        { value: "other", text: i18n("Other") }
-    ]
+    // Options for the two combo boxes: database key + translated label (from C++).
+    readonly property var typeOptions: Vehicles.typeOptions()
+    readonly property var powertrainOptions: Vehicles.powertrainOptions()
 
     onSaveRequested: {
         const values = {

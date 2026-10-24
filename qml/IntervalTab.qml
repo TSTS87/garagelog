@@ -9,7 +9,7 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.tmx.garagelog
 
-ColumnLayout {
+ListCard {
     id: tab
 
     /** intervalId "" = new interval. Main.qml opens the form (ADR-008). */
@@ -27,79 +27,53 @@ ColumnLayout {
         return i18nc("interval rule, %1 = '15.000 km / 12 months'", "every %1", parts.join(" / "));
     }
 
-    spacing: Kirigami.Units.largeSpacing
+    model: Intervals
+    errorText: Intervals.errorString
+    topMargin: Kirigami.Units.smallSpacing
 
-    Kirigami.InlineMessage {
-        Layout.fillWidth: true
-        type: Kirigami.MessageType.Error
-        text: Intervals.errorString
-        visible: text !== ""
+    delegate: EntryRow {
+        id: row
+
+        required property string intervalId
+        required property string name
+        required property var everyM
+        required property var everyMonths
+        required property bool active
+        required property string status
+        required property var dueOdometerM
+        required property string dueDate
+        required property var remainingM
+        required property var remainingDays
+
+        /** "due at 60.000 km / 01.03.2027"; empty without a recorded service. */
+        readonly property string dueAt: Format.dueAt(dueOdometerM, dueDate)
+
+        width: ListView.view.width
+        onClicked: tab.formRequested(intervalId)
+        opacity: active ? 1.0 : 0.6
+
+        iconSource: "qrc:/qml/icons/interval.svg"
+        // The tile takes the status colour, so urgency shows before reading.
+        accent: chip.statusColor
+        title: name
+        subtitle: [tab.ruleText(everyM, everyMonths), dueAt === "" ? "" : i18n("due at %1", dueAt)]
+            .filter(part => part !== "").join(" · ")
+
+        StatusChip {
+            id: chip
+            status: row.status
+            text: Format.dueSummary(row.remainingM, row.remainingDays, row.status)
+        }
     }
 
-    Card {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-
-        ListView {
-            id: list
-            anchors.fill: parent
-            anchors.margins: Kirigami.Units.smallSpacing
-            clip: true
-            model: Intervals
-            topMargin: Kirigami.Units.smallSpacing
-            bottomMargin: Kirigami.Units.gridUnit * 4
-            Controls.ScrollBar.vertical: Controls.ScrollBar {}
-
-            delegate: EntryRow {
-                id: row
-
-                required property string intervalId
-                required property string name
-                required property var everyM
-                required property var everyMonths
-                required property bool active
-                required property string status
-                required property var dueOdometerM
-                required property string dueDate
-                required property var remainingM
-                required property var remainingDays
-
-                /** "due at 60.000 km / 01.03.2027"; empty without a recorded service. */
-                readonly property string dueAt: [dueOdometerM === null ? "" : Format.distance(dueOdometerM),
-                                                 dueDate === "" ? "" : Format.date(dueDate)]
-                    .filter(part => part !== "").join(" / ")
-
-                width: ListView.view.width
-                onClicked: tab.formRequested(intervalId)
-                opacity: active ? 1.0 : 0.6
-
-                iconSource: "qrc:/qml/icons/interval.svg"
-                // The tile takes the status colour, so urgency shows before reading.
-                accent: chip.statusColor
-                title: name
-                subtitle: [tab.ruleText(everyM, everyMonths), dueAt === "" ? "" : i18n("due at %1", dueAt)]
-                    .filter(part => part !== "").join(" · ")
-
-                StatusChip {
-                    id: chip
-                    status: row.status
-                    text: Format.dueSummary(row.remainingM, row.remainingDays, row.status)
-                }
-            }
-
-            EmptyState {
-                anchors.centerIn: parent
-                width: parent.width - Kirigami.Units.gridUnit * 4
-                visible: list.count === 0
-                iconSource: "qrc:/qml/icons/interval.svg"
-                text: i18n("No intervals yet")
-                explanation: i18n("Add rules like “oil change every 15,000 km or 12 months”. The due date is calculated from the last matching service entry.")
-                helpfulAction: Kirigami.Action {
-                    text: i18n("Add Interval")
-                    icon.name: "list-add"
-                    onTriggered: tab.formRequested("")
-                }
-            }
+    emptyState: EmptyState {
+        iconSource: "qrc:/qml/icons/interval.svg"
+        text: i18n("No intervals yet")
+        explanation: i18n("Add rules like “oil change every 15,000 km or 12 months”. The due date is calculated from the last matching service entry.")
+        helpfulAction: Kirigami.Action {
+            text: i18n("Add Interval")
+            icon.name: "list-add"
+            onTriggered: tab.formRequested("")
         }
     }
 }
