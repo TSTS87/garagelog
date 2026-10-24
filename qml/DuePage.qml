@@ -81,11 +81,11 @@ Kirigami.Page {
                     }
                 }
 
-                Kirigami.PlaceholderMessage {
+                EmptyState {
                     anchors.centerIn: parent
                     width: parent.width - Kirigami.Units.gridUnit * 4
                     visible: list.count === 0
-                    icon.source: "qrc:/qml/icons/due.svg"
+                    iconSource: "qrc:/qml/icons/due.svg"
                     text: i18n("Nothing to remind you of")
                     explanation: i18n("Intervals you add to your vehicles appear here, most urgent first.")
                 }

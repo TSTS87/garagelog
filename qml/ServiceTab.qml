@@ -83,11 +83,12 @@ ColumnLayout {
                 }
             }
 
-            Kirigami.PlaceholderMessage {
+            EmptyState {
                 anchors.centerIn: parent
                 width: parent.width - Kirigami.Units.gridUnit * 4
                 visible: list.count === 0
-                icon.source: "qrc:/qml/icons/service.svg"
+                accent: tab.accent
+                iconSource: "qrc:/qml/icons/service.svg"
                 text: i18n("No service entries yet")
                 explanation: i18n("Record oil changes, repairs, inspections and recurring costs like insurance.")
                 helpfulAction: Kirigami.Action {

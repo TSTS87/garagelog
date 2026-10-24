@@ -87,11 +87,11 @@ ColumnLayout {
                 }
             }
 
-            Kirigami.PlaceholderMessage {
+            EmptyState {
                 anchors.centerIn: parent
                 width: parent.width - Kirigami.Units.gridUnit * 4
                 visible: list.count === 0
-                icon.source: "qrc:/qml/icons/interval.svg"
+                iconSource: "qrc:/qml/icons/interval.svg"
                 text: i18n("No intervals yet")
                 explanation: i18n("Add rules like “oil change every 15,000 km or 12 months”. The due date is calculated from the last matching service entry.")
                 helpfulAction: Kirigami.Action {

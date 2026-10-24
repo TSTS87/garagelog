@@ -30,6 +30,9 @@ Rectangle {
         anchors.centerIn: parent
         width: Math.round(tile.size * 0.56)
         height: width
+        // Keep the exact share of the tile; by default Kirigami snaps to
+        // standard icon sizes, which makes the icon small in large tiles.
+        roundToIconSize: false
         source: tile.source
         // isMask paints every opaque pixel of the icon in "color"; our SVGs
         // are black masks made for exactly that.

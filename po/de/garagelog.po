@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: garagelog\n"
 "Report-Msgid-Bugs-To: https://github.com/TSTS87/garagelog/issues\n"
-"POT-Creation-Date: 2026-10-24 09:58+0200\n"
+"POT-Creation-Date: 2026-10-24 10:00+0200\n"
 "PO-Revision-Date: 2026-10-23 12:00+0200\n"
 "Last-Translator: Thomas (TMX)\n"
 "Language-Team: German\n"
@@ -355,7 +355,7 @@ msgstr "Nichts, woran du denken musst"
 msgid "Intervals you add to your vehicles appear here, most urgent first."
 msgstr "Intervalle deiner Fahrzeuge erscheinen hier, das dringendste zuerst."
 
-#: qml/FuelFormPage.qml:99 qml/FuelTab.qml:94 qml/VehiclePage.qml:40
+#: qml/FuelFormPage.qml:99 qml/FuelTab.qml:95 qml/VehiclePage.qml:40
 msgid "Add Entry"
 msgstr "Eintrag hinzufügen"
 
@@ -476,15 +476,15 @@ msgstr "Details"
 msgid "Charging station:"
 msgstr "Ladestation:"
 
-#: qml/FuelTab.qml:91
+#: qml/FuelTab.qml:92
 msgid "No charging entries yet"
 msgstr "Noch keine Ladeeinträge"
 
-#: qml/FuelTab.qml:91
+#: qml/FuelTab.qml:92
 msgid "No fuel entries yet"
 msgstr "Noch keine Tankeinträge"
 
-#: qml/FuelTab.qml:92
+#: qml/FuelTab.qml:93
 msgid ""
 "Record every refuelling or charge; consumption is calculated between two "
 "full tanks."
@@ -693,15 +693,15 @@ msgstr "Exportiert nach %1"
 msgid "Import finished"
 msgstr "Import abgeschlossen"
 
-#: qml/Main.qml:299
+#: qml/Main.qml:300
 msgid "All vehicles are archived"
 msgstr "Alle Fahrzeuge sind archiviert"
 
-#: qml/Main.qml:299
+#: qml/Main.qml:300
 msgid "No vehicles yet"
 msgstr "Noch keine Fahrzeuge"
 
-#: qml/Main.qml:301
+#: qml/Main.qml:302
 msgid ""
 "Show the archived vehicles to look at their entries, or add a new vehicle "
 "from the side bar."
@@ -709,18 +709,18 @@ msgstr ""
 "Zeige die archivierten Fahrzeuge an, um ihre Einträge zu sehen, oder lege in "
 "der Seitenleiste ein neues Fahrzeug an."
 
-#: qml/Main.qml:302
+#: qml/Main.qml:303
 msgid "Add your car, motorcycle or scooter to start tracking fuel and service."
 msgstr ""
 "Lege dein Auto, Motorrad oder deinen Roller an, um Tanken und Service zu "
 "erfassen."
 
-#: qml/Main.qml:307 qml/VehicleDrawer.qml:90 qml/VehicleDrawer.qml:132
+#: qml/Main.qml:308 qml/VehicleDrawer.qml:90 qml/VehicleDrawer.qml:132
 #: qml/VehicleFormPage.qml:82
 msgid "Add Vehicle"
 msgstr "Fahrzeug hinzufügen"
 
-#: qml/Main.qml:313 qml/VehicleDrawer.qml:202
+#: qml/Main.qml:314 qml/VehicleDrawer.qml:202
 msgid "Show Archived"
 msgstr "Archivierte anzeigen"
 
@@ -736,7 +736,7 @@ msgstr "Selbst"
 msgid "Workshop"
 msgstr "Werkstatt"
 
-#: qml/ServiceFormPage.qml:90 qml/ServiceTab.qml:94 qml/VehiclePage.qml:40
+#: qml/ServiceFormPage.qml:90 qml/ServiceTab.qml:95 qml/VehiclePage.qml:40
 msgid "Add Service"
 msgstr "Service hinzufügen"
 
@@ -844,11 +844,11 @@ msgstr "selbst"
 msgid "Has attachments"
 msgstr "Hat Anhänge"
 
-#: qml/ServiceTab.qml:91
+#: qml/ServiceTab.qml:92
 msgid "No service entries yet"
 msgstr "Noch keine Serviceeinträge"
 
-#: qml/ServiceTab.qml:92
+#: qml/ServiceTab.qml:93
 msgid ""
 "Record oil changes, repairs, inspections and recurring costs like insurance."
 msgstr ""

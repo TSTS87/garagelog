@@ -42,6 +42,7 @@ qt_add_resources(garagelog "qml"
         ${PROJECT_SOURCE_DIR}/qml/Card.qml
         ${PROJECT_SOURCE_DIR}/qml/CsvImportPage.qml
         ${PROJECT_SOURCE_DIR}/qml/DuePage.qml
+        ${PROJECT_SOURCE_DIR}/qml/EmptyState.qml
         ${PROJECT_SOURCE_DIR}/qml/EntryRow.qml
         ${PROJECT_SOURCE_DIR}/qml/FormComboBox.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelFormPage.qml

@@ -83,11 +83,12 @@ ColumnLayout {
                 detail: hasConsumption ? Format.consumption(consumptionPer100Km, FuelEntries.electric) : ""
             }
 
-            Kirigami.PlaceholderMessage {
+            EmptyState {
                 anchors.centerIn: parent
                 width: parent.width - Kirigami.Units.gridUnit * 4
                 visible: list.count === 0
-                icon.source: FuelEntries.electric ? "qrc:/qml/icons/charge.svg" : "qrc:/qml/icons/fuel.svg"
+                accent: tab.accent
+                iconSource: FuelEntries.electric ? "qrc:/qml/icons/charge.svg" : "qrc:/qml/icons/fuel.svg"
                 text: FuelEntries.electric ? i18n("No charging entries yet") : i18n("No fuel entries yet")
                 explanation: i18n("Record every refuelling or charge; consumption is calculated between two full tanks.")
                 helpfulAction: Kirigami.Action {
