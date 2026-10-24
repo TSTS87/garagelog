@@ -55,6 +55,11 @@ Kirigami.ScrollablePage {
 
     /** Fills the calculated price field from the other two, or empties it if they are incomplete. */
     function recalculate() {
+        // Parse the texts here instead of reading the quantity/totalCostC
+        // bindings: textEdited fires before textChanged, so the bindings
+        // still hold the value from before the current key press.
+        const quantity = Format.parseQuantity(quantityField.text, electric);
+        const totalCostC = Format.parseMoney(totalField.text);
         const unitPrice = Format.parseUnitPrice(unitPriceField.text, electric);
         let result = null;
         if (calculatedField === "unitPrice") {
