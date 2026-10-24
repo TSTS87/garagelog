@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- AppStream metadata: what software centres (Discover, GNOME Software, Flathub) show
      about GarageLog. Validate with: appstreamcli validate packaging/*.metainfo.xml
-     Screenshot URLs point at the v1.0.0 tag so they stay stable for that release. -->
+     Screenshot URLs point at the latest release tag so they stay stable for that release. -->
 <component type="desktop-application">
   <id>io.github.TSTS87.GarageLog</id>
   <metadata_license>CC0-1.0</metadata_license>
@@ -45,19 +45,19 @@
   <screenshots>
     <screenshot type="default">
       <caption>Fuel log with consumption per tank</caption>
-      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.0/docs/screenshots/fuel.png</image>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.1/docs/screenshots/fuel.png</image>
     </screenshot>
     <screenshot>
       <caption>Costs and consumption over time</caption>
-      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.0/docs/screenshots/statistics.png</image>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.1/docs/screenshots/statistics.png</image>
     </screenshot>
     <screenshot>
       <caption>Maintenance intervals of a vehicle</caption>
-      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.0/docs/screenshots/intervals.png</image>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.1/docs/screenshots/intervals.png</image>
     </screenshot>
     <screenshot>
       <caption>Everything that is due, across all vehicles</caption>
-      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.0/docs/screenshots/due.png</image>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.1/docs/screenshots/due.png</image>
     </screenshot>
   </screenshots>
   <branding>
@@ -88,6 +88,11 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.0.1" date="2026-10-24">
+      <description>
+        <p>New screenshots of the real application window; no changes to the app itself.</p>
+      </description>
+    </release>
     <release version="1.0.0" date="2026-10-24">
       <description>
         <p>First release: fuel and charging log, service history with attachments, maintenance intervals with due reminders, statistics, JSON/CSV export and CSV import, English and German.</p>
