@@ -18,7 +18,7 @@ Privatpersonen mit 1–5 Fahrzeugen (Auto, Motorrad, Roller, E-Fahrzeug, Oldtime
 ### 4.1 Fahrzeuge
 - Anlegen/Bearbeiten/Archivieren (nicht löschen, solange Einträge existieren)
 - Felder: Name, Typ (Auto, Motorrad, Roller, E-Bike, Sonstiges), Marke, Modell, Baujahr, Kennzeichen, Antrieb (Benzin, Diesel, Elektro, Hybrid, Sonstiges), Tachostand aktuell (abgeleitet aus letztem Eintrag, manuell korrigierbar), Notiz
-- Pro Fahrzeug ein Icon nach Typ (Breeze-Icons)
+- Pro Fahrzeug ein Icon nach Typ (eigene Linien-Icons, ADR-015)
 
 ### 4.2 Tank-/Ladeeinträge
 - Felder: Datum, Tachostand, Menge (l oder kWh je nach Antrieb), Gesamtpreis, Preis/Einheit (eines von beiden eingeben, das andere wird berechnet), Volltank ja/nein, Tankstelle (Freitext, Autovervollständigung aus bisherigen), Notiz
@@ -54,7 +54,7 @@ ApplicationWindow
 ├─ GlobalDrawer: Fahrzeugliste (+ „Alle fällig", Einstellungen, Über)
 └─ PageRow
    ├─ VehiclePage(vehicleId)   – Kopf: Name, Tacho, nächste Fälligkeit
-   │   └─ Tabs: Tanken | Service | Intervalle | Auswertung
+   │   └─ Pill-Umschalter (ADR-015): Tanken | Service | Intervalle | Auswertung
    ├─ DuePage                  – alle fälligen Intervalle
    └─ SettingsPage             – Einheiten (km/mi, l/gal), Währung, Garage-Datei
 Formulare als Kirigami.OverlaySheet oder eigene Seite (Entscheidung in DECISIONS.md)
