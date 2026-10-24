@@ -4,7 +4,9 @@
 
 #include "attachmentstore.h"
 #include "categoryrepository.h"
+#include "garagecontroller.h"
 #include "servicerepository.h"
+#include "variantutil.h"
 
 #include <KLocalizedString>
 
@@ -19,22 +21,6 @@ using core::CategoryRepository;
 using core::ServiceCategory;
 using core::ServiceEntry;
 using core::ServiceRepository;
-
-namespace {
-
-/** Accepts both "file:///..." from a FileDialog and plain paths. */
-QString toLocalPath(const QString &urlOrPath)
-{
-    const QUrl url(urlOrPath);
-    return url.isLocalFile() ? url.toLocalFile() : urlOrPath;
-}
-
-QVariant optionalToVariant(const std::optional<qint64> &value)
-{
-    return value ? QVariant::fromValue(*value) : QVariant::fromValue(nullptr);
-}
-
-} // namespace
 
 ServiceListModel::ServiceListModel(const core::Database &database, QObject *parent)
     : QAbstractListModel(parent)
@@ -247,7 +233,7 @@ QString ServiceListModel::save(const QVariantMap &values)
     QString error;
     AttachmentStore store(m_database);
     for (const QVariant &file : values.value(QStringLiteral("newAttachments")).toList()) {
-        if (!store.add(e.id, toLocalPath(file.toString()))) {
+        if (!store.add(e.id, localPath(file.toString()))) {
             error = store.errorString();
         }
     }

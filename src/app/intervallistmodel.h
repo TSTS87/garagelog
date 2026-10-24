@@ -118,6 +118,8 @@ private:
     };
 
     /** Map with the keys of get() plus status and due values, for nextDue. */
+    /** Status text for QML: the due status, or "paused" for an inactive interval. */
+    static QString statusName(const Row &row);
     QVariantMap toMap(const Row &row) const;
     void setErrorString(const QString &error);
 

@@ -3,6 +3,7 @@
 #include "vehiclelistmodel.h"
 
 #include "odometer.h"
+#include "variantutil.h"
 #include "vehiclerepository.h"
 
 #include <KLocalizedString>
@@ -156,8 +157,8 @@ QVariantMap VehicleListModel::get(const QString &id)
         {QStringLiteral("type"), type},
         {QStringLiteral("make"), v->make},
         {QStringLiteral("model"), v->model},
-        // QVariant() arrives in QML as null, which the form shows as an empty field.
-        {QStringLiteral("year"), v->year ? QVariant(*v->year) : QVariant()},
+        // JS null, which the form shows as an empty field.
+        {QStringLiteral("year"), optionalToVariant(v->year)},
         {QStringLiteral("plate"), v->plate},
         {QStringLiteral("powertrain"), core::toDbString(v->powertrain)},
         {QStringLiteral("notes"), v->notes},
@@ -195,11 +196,11 @@ QString VehicleListModel::save(const QVariantMap &values)
 
     v.name = values.value(QStringLiteral("name")).toString();
     v.type = *type;
-    v.make = values.value(QStringLiteral("make")).toString().trimmed();
-    v.model = values.value(QStringLiteral("model")).toString().trimmed();
-    v.plate = values.value(QStringLiteral("plate")).toString().trimmed();
+    v.make = values.value(QStringLiteral("make")).toString();
+    v.model = values.value(QStringLiteral("model")).toString();
+    v.plate = values.value(QStringLiteral("plate")).toString();
     v.powertrain = *powertrain;
-    v.notes = values.value(QStringLiteral("notes")).toString().trimmed();
+    v.notes = values.value(QStringLiteral("notes")).toString();
 
     // QML sends null, undefined or 0 for "no year"; only positive years count.
     const QVariant year = values.value(QStringLiteral("year"));

@@ -24,6 +24,7 @@
 #include "jsonexporter.h"
 #include "jsonimporter.h"
 #include "servicerepository.h"
+#include "version.h"
 #include "vehiclerepository.h"
 
 using namespace garagelog::core;
@@ -154,6 +155,9 @@ private Q_SLOTS:
         const QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
         QCOMPARE(root.value(QStringLiteral("format")).toString(), QStringLiteral("garagelog-export"));
         QCOMPARE(root.value(QStringLiteral("schema_version")).toInt(), 2);
+        // The version from CMake reaches the core library (formerly test_smoke).
+        QCOMPARE(root.value(QStringLiteral("app_version")).toString(), garagelog::core::version());
+        QVERIFY(!garagelog::core::version().isEmpty());
         QCOMPARE(root.value(QStringLiteral("tables")).toObject().keys().size(), exportformat::tables.size());
         QVERIFY(!exporter.exportTo(exportDir));
     }

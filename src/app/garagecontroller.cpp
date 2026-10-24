@@ -85,17 +85,17 @@ QString GarageController::folderUrl() const
 
 QString GarageController::distanceUnit() const
 {
-    return m_distanceUnit;
+    return m_format.distanceUnit();
 }
 
 QString GarageController::volumeUnit() const
 {
-    return m_volumeUnit;
+    return m_format.volumeUnit();
 }
 
 QString GarageController::currency() const
 {
-    return m_currency;
+    return m_format.currency();
 }
 
 QStringList GarageController::currencies() const
@@ -172,14 +172,10 @@ void GarageController::watchFile()
 void GarageController::loadSettings()
 {
     SettingsRepository settings(m_database);
-    m_distanceUnit = settings.value(SettingsRepository::distanceUnitKey, QStringLiteral("km"));
-    m_volumeUnit = settings.value(SettingsRepository::volumeUnitKey, QStringLiteral("l"));
-    m_currency = settings.value(SettingsRepository::currencyKey, QStringLiteral("EUR"));
-    m_format.setUnits(m_distanceUnit, m_volumeUnit, m_currency);
-    // Format falls back on unknown values; show what is actually used.
-    m_distanceUnit = m_format.distanceUnit();
-    m_volumeUnit = m_format.volumeUnit();
-    m_currency = m_format.currency();
+    // Format is the single owner of the units; it falls back to km/l/EUR for
+    // missing or unknown values, and the getters above show what it uses.
+    m_format.setUnits(settings.value(SettingsRepository::distanceUnitKey), settings.value(SettingsRepository::volumeUnitKey),
+                      settings.value(SettingsRepository::currencyKey));
     Q_EMIT settingsChanged();
 }
 
@@ -197,21 +193,21 @@ bool GarageController::writeSetting(const QString &key, const QString &value)
 
 void GarageController::setDistanceUnit(const QString &unit)
 {
-    if (unit != m_distanceUnit) {
+    if (unit != distanceUnit()) {
         writeSetting(SettingsRepository::distanceUnitKey, unit);
     }
 }
 
 void GarageController::setVolumeUnit(const QString &unit)
 {
-    if (unit != m_volumeUnit) {
+    if (unit != volumeUnit()) {
         writeSetting(SettingsRepository::volumeUnitKey, unit);
     }
 }
 
 void GarageController::setCurrency(const QString &code)
 {
-    if (code != m_currency) {
+    if (code != currency()) {
         writeSetting(SettingsRepository::currencyKey, code);
     }
 }

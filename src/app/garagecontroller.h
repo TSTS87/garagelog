@@ -112,9 +112,6 @@ private:
 
     core::Database &m_database;
     Format &m_format;
-    QString m_distanceUnit;
-    QString m_volumeUnit;
-    QString m_currency;
     QString m_error;
     QString m_fileState = QStringLiteral("ok");
     QString m_startupNotice;

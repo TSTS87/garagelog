@@ -55,10 +55,20 @@ std::optional<Vehicle> readVehicle(const QSqlQuery &query)
     return v;
 }
 
+/** Trims the text fields, so "Golf " and "Golf" are the same name (as in the other repositories). */
+void normalize(Vehicle &v)
+{
+    v.name = v.name.trimmed();
+    v.make = v.make.trimmed();
+    v.model = v.model.trimmed();
+    v.plate = v.plate.trimmed();
+    v.notes = v.notes.trimmed();
+}
+
 /** Binds the user-editable fields in the order used by INSERT and UPDATE below. */
 void bindEditableFields(QSqlQuery &query, const Vehicle &v)
 {
-    query.addBindValue(v.name.trimmed());
+    query.addBindValue(v.name);
     query.addBindValue(toDbString(v.type));
     query.addBindValue(nullIfEmpty(v.make));
     query.addBindValue(nullIfEmpty(v.model));
@@ -99,7 +109,7 @@ bool VehicleRepository::create(Vehicle &vehicle)
     // Work on a copy so the caller's object is only changed on success.
     Vehicle v = vehicle;
     v.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
-    v.name = v.name.trimmed();
+    normalize(v);
     v.createdAt = nowUtc();
     v.updatedAt = v.createdAt;
 
@@ -128,15 +138,17 @@ bool VehicleRepository::update(Vehicle &vehicle)
         return false;
     }
 
-    const QDateTime now = nowUtc();
+    Vehicle v = vehicle;
+    normalize(v);
+    v.updatedAt = nowUtc();
     QSqlQuery query(m_database.connection());
     query.prepare(QStringLiteral(
         "UPDATE vehicles SET name = ?, type = ?, make = ?, model = ?, year = ?, plate = ?, "
         "powertrain = ?, odometer_reading_m = ?, archived = ?, notes = ?, updated_at = ? "
         "WHERE id = ?"));
-    bindEditableFields(query, vehicle);
-    query.addBindValue(toDbTimestamp(now));
-    query.addBindValue(vehicle.id);
+    bindEditableFields(query, v);
+    query.addBindValue(toDbTimestamp(v.updatedAt));
+    query.addBindValue(v.id);
     if (!query.exec()) {
         m_error = QStringLiteral("Cannot update vehicle: %1").arg(query.lastError().text());
         return false;
@@ -146,8 +158,7 @@ bool VehicleRepository::update(Vehicle &vehicle)
         return false;
     }
 
-    vehicle.name = vehicle.name.trimmed();
-    vehicle.updatedAt = now;
+    vehicle = v;
     return true;
 }
 

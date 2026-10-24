@@ -5,6 +5,7 @@
 #include "categoryrepository.h"
 #include "intervalrepository.h"
 #include "servicelistmodel.h"
+#include "variantutil.h"
 #include "vehiclerepository.h"
 
 #include <QDate>
@@ -20,12 +21,6 @@ using core::IntervalRepository;
 using core::MaintenanceInterval;
 
 namespace {
-
-template<typename T>
-QVariant optionalToVariant(const std::optional<T> &value)
-{
-    return value ? QVariant::fromValue(*value) : QVariant::fromValue(nullptr);
-}
 
 QString isoOrEmpty(const std::optional<QDate> &date)
 {
@@ -75,7 +70,7 @@ QVariant IntervalListModel::data(const QModelIndex &index, int role) const
     case ActiveRole:
         return i.active;
     case StatusRole:
-        return i.active ? core::dueStatusName(d.status) : QStringLiteral("paused");
+        return statusName(row);
     case LastDateRole:
         return isoOrEmpty(d.lastDate);
     case DueOdometerRole:
@@ -212,6 +207,12 @@ void IntervalListModel::reload()
     }
 }
 
+QString IntervalListModel::statusName(const Row &row)
+{
+    // A paused interval has no due state for the user, whatever the dates say.
+    return row.interval.active ? core::dueStatusName(row.due.status) : QStringLiteral("paused");
+}
+
 QVariantMap IntervalListModel::toMap(const Row &row) const
 {
     const MaintenanceInterval &i = row.interval;
@@ -225,7 +226,7 @@ QVariantMap IntervalListModel::toMap(const Row &row) const
         {QStringLiteral("everyMonths"), optionalToVariant(i.everyMonths)},
         {QStringLiteral("active"), i.active},
         {QStringLiteral("notes"), i.notes},
-        {QStringLiteral("status"), core::dueStatusName(row.due.status)},
+        {QStringLiteral("status"), statusName(row)},
         {QStringLiteral("lastDate"), isoOrEmpty(row.due.lastDate)},
         {QStringLiteral("dueOdometerM"), optionalToVariant(row.due.dueOdometerM)},
         {QStringLiteral("dueDate"), isoOrEmpty(row.due.dueDate)},

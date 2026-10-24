@@ -4,6 +4,7 @@
 
 #include "fuelentry.h"
 #include "servicelistmodel.h"
+#include "variantutil.h"
 #include "vehiclerepository.h"
 
 #include <KLocalizedString>
@@ -11,15 +12,6 @@
 #include <cmath>
 
 namespace garagelog::app {
-
-namespace {
-
-QVariant nullVariant()
-{
-    return QVariant::fromValue(nullptr);
-}
-
-} // namespace
 
 StatsModel::StatsModel(const core::Database &database, QObject *parent)
     : QObject(parent)
@@ -143,7 +135,7 @@ void StatsModel::reload()
     m_dates = periodFor(m_period, QDate::currentDate());
     m_electric = false;
     m_totals = {};
-    m_distanceM = m_costPerKmC = m_costPerMonthC = m_averageConsumption = nullVariant();
+    m_distanceM = m_costPerKmC = m_costPerMonthC = m_averageConsumption = jsNull();
     m_consumptionValues.clear();
     m_consumptionDates.clear();
     m_categoryCosts.clear();
@@ -151,7 +143,7 @@ void StatsModel::reload()
 
     if (!m_vehicleId.isEmpty()) {
         if (const auto vehicle = core::VehicleRepository(m_database).byId(m_vehicleId)) {
-            m_electric = core::quantityUnitFor(vehicle->powertrain) == core::QuantityUnit::WattHour;
+            m_electric = core::usesWattHours(vehicle->powertrain);
         }
         // One pass over totals, distance and fuel entries (StatsService::summary()).
         core::StatsService stats(m_database);

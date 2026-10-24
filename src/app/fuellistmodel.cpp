@@ -4,6 +4,7 @@
 
 #include "fuelprice.h"
 #include "fuelrepository.h"
+#include "variantutil.h"
 #include "vehiclerepository.h"
 
 #include <algorithm>
@@ -15,16 +16,6 @@ namespace garagelog::app {
 using core::FuelEntry;
 using core::FuelRepository;
 using core::FuelStats;
-
-namespace {
-
-/** nullopt becomes QVariant(nullptr), which arrives in JS as null. */
-QVariant toVariant(const std::optional<qint64> &value)
-{
-    return value ? QVariant::fromValue(*value) : QVariant::fromValue(nullptr);
-}
-
-} // namespace
 
 FuelListModel::FuelListModel(const core::Database &database, QObject *parent)
     : QAbstractListModel(parent)
@@ -59,7 +50,7 @@ QVariant FuelListModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(e.totalCostC);
     case UnitPriceRole:
         // Stored quantities are > 0, so this is never null for a saved entry.
-        return toVariant(core::unitPriceMilli(e.totalCostC, e.quantity));
+        return optionalToVariant(core::unitPriceMilli(e.totalCostC, e.quantity));
     case FullTankRole:
         return e.fullTank;
     case StationRole:
@@ -130,7 +121,7 @@ void FuelListModel::reload()
     if (!m_vehicleId.isEmpty()) {
         core::VehicleRepository vehicles(m_database);
         if (const auto vehicle = vehicles.byId(m_vehicleId)) {
-            electric = core::quantityUnitFor(vehicle->powertrain) == core::QuantityUnit::WattHour;
+            electric = core::usesWattHours(vehicle->powertrain);
         }
         FuelRepository repo(m_database);
         const QList<FuelEntry> entries = repo.byVehicle(m_vehicleId);
@@ -207,8 +198,9 @@ QString FuelListModel::save(const QVariantMap &values)
     e.quantity = quantity.toLongLong();
     e.totalCostC = totalCostC.toLongLong();
     e.fullTank = values.value(QStringLiteral("fullTank"), true).toBool();
-    e.station = values.value(QStringLiteral("station")).toString().trimmed();
-    e.notes = values.value(QStringLiteral("notes")).toString().trimmed();
+    // FuelRepository trims both.
+    e.station = values.value(QStringLiteral("station")).toString();
+    e.notes = values.value(QStringLiteral("notes")).toString();
 
     const bool ok = id.isEmpty() ? repo.create(e) : repo.update(e);
     if (!ok) {
@@ -274,17 +266,17 @@ QVariantMap FuelListModel::plausibility(const QString &date, const QVariant &odo
 
 QVariant FuelListModel::unitPriceFor(qint64 totalCostC, qint64 quantity) const
 {
-    return toVariant(core::unitPriceMilli(totalCostC, quantity));
+    return optionalToVariant(core::unitPriceMilli(totalCostC, quantity));
 }
 
 QVariant FuelListModel::totalCostFor(qint64 quantity, qint64 unitPriceMilli) const
 {
-    return toVariant(core::totalCostFor(quantity, unitPriceMilli));
+    return optionalToVariant(core::totalCostFor(quantity, unitPriceMilli));
 }
 
 QVariant FuelListModel::quantityFor(qint64 totalCostC, qint64 unitPriceMilli) const
 {
-    return toVariant(core::quantityFor(totalCostC, unitPriceMilli));
+    return optionalToVariant(core::quantityFor(totalCostC, unitPriceMilli));
 }
 
 void FuelListModel::setErrorString(const QString &error)

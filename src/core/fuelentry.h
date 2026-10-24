@@ -21,6 +21,12 @@ enum class QuantityUnit {
 /** Unit of fuel_entries.quantity for a vehicle with @p powertrain: Wh for Electric, ml otherwise. */
 QuantityUnit quantityUnitFor(Powertrain powertrain);
 
+/** True if entries of a vehicle with @p powertrain count Wh and kWh prices (charging) instead of ml and litres. */
+inline bool usesWattHours(Powertrain powertrain)
+{
+    return quantityUnitFor(powertrain) == QuantityUnit::WattHour;
+}
+
 /**
  * @brief One row of the fuel_entries table: a refuelling or charging event.
  *
