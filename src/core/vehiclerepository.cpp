@@ -247,6 +247,24 @@ bool VehicleRepository::remove(const QString &id)
     return true;
 }
 
+std::optional<bool> VehicleRepository::hasEntries(const QString &id)
+{
+    m_error.clear();
+    QSqlQuery query(m_database.connection());
+    query.prepare(QStringLiteral(
+        "SELECT EXISTS (SELECT 1 FROM fuel_entries WHERE vehicle_id = ?) "
+        "OR EXISTS (SELECT 1 FROM service_entries WHERE vehicle_id = ?) "
+        "OR EXISTS (SELECT 1 FROM trips WHERE vehicle_id = ?)"));
+    for (int i = 0; i < 3; ++i) {
+        query.addBindValue(id);
+    }
+    if (!query.exec() || !query.next()) {
+        m_error = QStringLiteral("Cannot check entries of vehicle: %1").arg(query.lastError().text());
+        return std::nullopt;
+    }
+    return query.value(0).toBool();
+}
+
 QString VehicleRepository::errorString() const
 {
     return m_error;

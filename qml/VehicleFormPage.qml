@@ -50,6 +50,7 @@ Kirigami.ScrollablePage {
 
     signal saved(string vehicleId)
     signal canceled()
+    signal removed()
 
     /**
      * True once the form has emitted saved, removed or canceled. Enter in a
@@ -118,6 +119,14 @@ Kirigami.ScrollablePage {
                 }
             }
         },
+        // SPEC §4.1: only a vehicle without entries can be deleted; one with
+        // entries keeps its history and can only be archived.
+        Kirigami.Action {
+            visible: !form.isNew && !(form.original.hasEntries ?? true)
+            text: i18n("Delete")
+            icon.name: "edit-delete"
+            onTriggered: deleteDialog.open()
+        },
         Kirigami.Action {
             text: i18n("Cancel")
             icon.name: "dialog-cancel"
@@ -125,6 +134,28 @@ Kirigami.ScrollablePage {
             onTriggered: form.cancel()
         }
     ]
+
+    Kirigami.PromptDialog {
+        id: deleteDialog
+        title: i18n("Delete Vehicle?")
+        subtitle: i18n("The vehicle and its maintenance intervals are removed permanently.")
+        standardButtons: Kirigami.Dialog.Cancel
+        customFooterActions: [
+            Kirigami.Action {
+                text: i18n("Delete")
+                icon.name: "edit-delete"
+                onTriggered: {
+                    deleteDialog.close();
+                    if (Vehicles.remove(form.vehicleId)) {
+                        form.closing = true;
+                        form.removed();
+                    } else {
+                        form.errorText = Vehicles.errorString;
+                    }
+                }
+            }
+        ]
+    }
 
     header: Kirigami.InlineMessage {
         position: Kirigami.InlineMessage.Position.Header

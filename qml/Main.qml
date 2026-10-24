@@ -293,6 +293,8 @@ Kirigami.ApplicationWindow {
             id: vehicleForm
             onSaved: vehicleId => root.showVehicle(vehicleId)
             onCanceled: root.closeForm(vehicleForm)
+            // The vehicle page below shows a vehicle that no longer exists.
+            onRemoved: root.showHome()
         }
     }
 

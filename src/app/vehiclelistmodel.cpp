@@ -164,6 +164,8 @@ QVariantMap VehicleListModel::get(const QString &id)
         {QStringLiteral("archived"), v->archived},
         {QStringLiteral("icon"), iconForType(type)},
         {QStringLiteral("odometerM"), QVariant::fromValue(Odometer(m_database).current(v->id).value_or(0))},
+        // A failed check counts as "has entries", so the form never offers a delete that would fail.
+        {QStringLiteral("hasEntries"), repo.hasEntries(v->id).value_or(true)},
     };
 }
 
@@ -224,6 +226,17 @@ bool VehicleListModel::setArchived(const QString &id, bool archived)
 {
     VehicleRepository repo(m_database);
     const bool ok = archived ? repo.archive(id) : repo.unarchive(id);
+    setErrorString(repo.errorString());
+    if (ok) {
+        reload();
+    }
+    return ok;
+}
+
+bool VehicleListModel::remove(const QString &id)
+{
+    VehicleRepository repo(m_database);
+    const bool ok = repo.remove(id);
     setErrorString(repo.errorString());
     if (ok) {
         reload();

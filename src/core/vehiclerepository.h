@@ -68,6 +68,12 @@ public:
      */
     bool remove(const QString &id);
 
+    /**
+     * @brief True if the vehicle has fuel, service or trip entries, i.e. remove() would be refused.
+     * @return nullopt if the query fails (errorString set).
+     */
+    std::optional<bool> hasEntries(const QString &id);
+
     /** Reason for the last failed call. */
     QString errorString() const;
 

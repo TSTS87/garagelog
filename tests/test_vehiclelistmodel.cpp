@@ -112,6 +112,26 @@ private Q_SLOTS:
         QCOMPARE(model.get(id).value(QStringLiteral("name")).toString(), QStringLiteral("Bike 2"));
     }
 
+    /** A vehicle without entries can be deleted; one with a fuel entry cannot and reports hasEntries (SPEC §4.1). */
+    void removeOnlyWithoutEntries()
+    {
+        VehicleListModel model(*m_db);
+        const QString empty = model.save(newVehicle(QStringLiteral("Typo")));
+        const QString used = model.save(newVehicle(QStringLiteral("Golf")));
+        QSqlQuery q(m_db->connection());
+        QVERIFY(q.exec(QStringLiteral("INSERT INTO fuel_entries (id, vehicle_id, date, odometer_m, quantity, total_cost_c, created_at, updated_at) "
+                                      "VALUES ('f1', '%1', '2026-10-23', 1000, 40000, 7000, '2026-10-23T10:00:00Z', '2026-10-23T10:00:00Z')")
+                           .arg(used)));
+        QVERIFY(!model.get(empty).value(QStringLiteral("hasEntries")).toBool());
+        QVERIFY(model.get(used).value(QStringLiteral("hasEntries")).toBool());
+
+        QVERIFY(!model.remove(used));
+        QVERIFY(!model.errorString().isEmpty());
+        QVERIFY(model.remove(empty));
+        QCOMPARE(model.rowCount(), 1);
+        QCOMPARE(model.idAt(0), used);
+    }
+
     /** Invalid form values are refused with an error message and nothing is stored. */
     void invalidValuesRejected()
     {

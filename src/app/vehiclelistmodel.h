@@ -69,22 +69,28 @@ public:
     /**
      * @brief One vehicle as map for the page and the form, independent of showArchived.
      * @return Keys id, name, type, make, model, year (int or null), plate,
-     *         powertrain, notes, archived, icon, odometerM (metres). Empty
-     *         map if the id is unknown.
+     *         powertrain, notes, archived, icon, odometerM (metres),
+     *         hasEntries (true if it cannot be deleted). Empty map if the id is unknown.
      */
     Q_INVOKABLE QVariantMap get(const QString &id);
 
     /**
      * @brief Creates (empty "id") or updates a vehicle from form values.
      * @param values Same keys as get(); "odometerM" (metres) is optional:
-     *        if present and not null, the odometer offset is set so the
-     *        current odometer equals it; if absent, the offset is unchanged.
+     *        if present and not null, it is stored as the manual odometer
+     *        reading (ADR-016); if absent, the stored reading is unchanged.
      * @return Id of the saved vehicle, empty on failure (errorString set).
      */
     Q_INVOKABLE QString save(const QVariantMap &values);
 
     /** Archives or restores a vehicle. @return false on failure (errorString set). */
     Q_INVOKABLE bool setArchived(const QString &id, bool archived);
+
+    /**
+     * @brief Deletes a vehicle without entries, together with its intervals (SPEC §4.1).
+     * @return false if it has entries or the id is unknown (errorString set).
+     */
+    Q_INVOKABLE bool remove(const QString &id);
 
 Q_SIGNALS:
     void showArchivedChanged();
