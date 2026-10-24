@@ -19,6 +19,30 @@ CsvExporter::CsvExporter(const Database &database)
 {
 }
 
+namespace {
+
+/**
+ * Text of one cell. Spreadsheets run text cells that start with = + - @
+ * (or a tab/CR before them) as formulas, so a station name like
+ * =HYPERLINK(...) from an imported file would become live in LibreOffice
+ * or Excel; such text gets a leading apostrophe, which spreadsheets hide.
+ * Numbers come from INTEGER columns as numbers and stay untouched.
+ */
+QString cellText(const QVariant &value)
+{
+    if (value.isNull()) {
+        return {};
+    }
+    const QString text = value.toString();
+    if (value.typeId() == QMetaType::QString && !text.isEmpty()
+        && QStringLiteral("=+-@\t\r").contains(text.front())) {
+        return QLatin1Char('\'') + text;
+    }
+    return text;
+}
+
+} // namespace
+
 bool CsvExporter::exportTable(const QString &table, const QString &filePath)
 {
     m_error.clear();
@@ -42,7 +66,7 @@ bool CsvExporter::exportTable(const QString &table, const QString &filePath)
     while (query.next()) {
         QStringList fields;
         for (int c = 0; c < record.count(); ++c) {
-            fields.append(query.value(c).isNull() ? QString() : query.value(c).toString());
+            fields.append(cellText(query.value(c)));
         }
         text += csv::row(fields);
     }

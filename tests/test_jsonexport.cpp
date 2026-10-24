@@ -323,6 +323,26 @@ private Q_SLOTS:
         QVERIFY(!exporter.exportTable(QStringLiteral("schema_version; DROP TABLE vehicles"), QDir(dir).filePath(QStringLiteral("x.csv"))));
     }
 
+    /** Text that a spreadsheet would run as a formula gets a leading apostrophe; numbers, also negative ones, stay as they are. */
+    void csvExportDefusesFormulas()
+    {
+        QSqlQuery q(m_source->connection());
+        QVERIFY(q.exec(QStringLiteral("UPDATE fuel_entries SET station = '=HYPERLINK(\"http://x\";\"Shell\")', notes = '-1+2'")));
+        QVERIFY(q.exec(QStringLiteral("UPDATE vehicles SET odometer_offset_m = -5")));
+        const QString dir = m_dir->filePath(QStringLiteral("csv"));
+        QVERIFY(CsvExporter(*m_source).exportAll(dir));
+        auto read = [&](const QString &table) {
+            QFile file(QDir(dir).filePath(table + QStringLiteral(".csv")));
+            return file.open(QIODevice::ReadOnly) ? csv::parse(QString::fromUtf8(file.readAll()), QLatin1Char(',')) : QList<QStringList>();
+        };
+        const auto fuel = read(QStringLiteral("fuel_entries"));
+        QCOMPARE(fuel.at(1).at(fuel.at(0).indexOf(QStringLiteral("station"))), QStringLiteral("'=HYPERLINK(\"http://x\";\"Shell\")"));
+        QCOMPARE(fuel.at(1).at(fuel.at(0).indexOf(QStringLiteral("notes"))), QStringLiteral("'-1+2"));
+        const auto vehicles = read(QStringLiteral("vehicles"));
+        QVERIFY(vehicles.at(1).at(vehicles.at(0).indexOf(QStringLiteral("odometer_offset_m"))) == QStringLiteral("-5")
+                || vehicles.at(2).at(vehicles.at(0).indexOf(QStringLiteral("odometer_offset_m"))) == QStringLiteral("-5"));
+    }
+
 private:
     std::unique_ptr<QTemporaryDir> m_dir;
     std::unique_ptr<Database> m_source;
