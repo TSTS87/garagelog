@@ -5,10 +5,11 @@
 
 #pragma once
 
+#include "vehiclescopedlistmodel.h"
+
 #include "fuelentry.h"
 #include "fuelstats.h"
 
-#include <QAbstractListModel>
 #include <QList>
 #include <QStringList>
 #include <QVariantMap>
@@ -29,13 +30,10 @@ namespace garagelog::app {
  * electric), money in cents; Format turns them into text. Errors are
  * reported through errorString instead of being swallowed (SPEC §3).
  */
-class FuelListModel : public QAbstractListModel
+class FuelListModel : public VehicleScopedListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString vehicleId READ vehicleId WRITE setVehicleId NOTIFY vehicleIdChanged)
     Q_PROPERTY(bool electric READ electric NOTIFY electricChanged)
-    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
-    Q_PROPERTY(QString errorString READ errorString NOTIFY errorStringChanged)
 
 public:
     enum Role {
@@ -62,15 +60,11 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    QString vehicleId() const;
-    /** Shows the entries of another vehicle; "" empties the list. */
-    void setVehicleId(const QString &id);
     /** true if the vehicle charges (quantities in Wh/kWh), false for fuel (ml/l). */
     bool electric() const;
-    QString errorString() const;
 
     /** Re-reads the vehicle's powertrain and all its entries from the database. */
-    Q_INVOKABLE void reload();
+    Q_INVOKABLE void reload() override;
 
     /**
      * @brief One entry as map for the form.
@@ -118,10 +112,7 @@ public:
     Q_INVOKABLE QVariant quantityFor(qint64 totalCostC, qint64 unitPriceMilli) const;
 
 Q_SIGNALS:
-    void vehicleIdChanged();
     void electricChanged();
-    void countChanged();
-    void errorStringChanged();
     /** Emitted after save() or remove() succeeded; the vehicle's odometer may have changed. */
     void entriesChanged();
 
@@ -132,13 +123,8 @@ private:
         std::optional<core::Consumption> consumption;
     };
 
-    void setErrorString(const QString &error);
-
-    const core::Database &m_database;
-    QString m_vehicleId;
     QList<Row> m_rows; ///< newest first
     bool m_electric = false;
-    QString m_error;
 };
 
 } // namespace garagelog::app

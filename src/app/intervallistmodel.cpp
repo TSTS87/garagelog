@@ -30,8 +30,7 @@ QString isoOrEmpty(const std::optional<QDate> &date)
 } // namespace
 
 IntervalListModel::IntervalListModel(const core::Database &database, Scope scope, QObject *parent)
-    : QAbstractListModel(parent)
-    , m_database(database)
+    : VehicleScopedListModel(database, parent)
     , m_scope(scope)
 {
     if (m_scope == Scope::AllVehicles) {
@@ -105,21 +104,6 @@ QHash<int, QByteArray> IntervalListModel::roleNames() const
     };
 }
 
-QString IntervalListModel::vehicleId() const
-{
-    return m_vehicleId;
-}
-
-void IntervalListModel::setVehicleId(const QString &id)
-{
-    if (m_vehicleId == id) {
-        return;
-    }
-    m_vehicleId = id;
-    Q_EMIT vehicleIdChanged();
-    reload();
-}
-
 QString IntervalListModel::worstStatus() const
 {
     // Rows are sorted most urgent first, so the first active row decides.
@@ -148,11 +132,6 @@ QVariantMap IntervalListModel::nextDue() const
     return {};
 }
 
-QString IntervalListModel::errorString() const
-{
-    return m_error;
-}
-
 void IntervalListModel::reload()
 {
     const int oldCount = rowCount();
@@ -166,8 +145,8 @@ void IntervalListModel::reload()
     QList<MaintenanceInterval> intervals;
     if (m_scope == Scope::AllVehicles) {
         intervals = repo.allActive();
-    } else if (!m_vehicleId.isEmpty()) {
-        intervals = repo.byVehicle(m_vehicleId);
+    } else if (!vehicleId().isEmpty()) {
+        intervals = repo.byVehicle(vehicleId());
     }
     error = repo.errorString();
 
@@ -199,9 +178,7 @@ void IntervalListModel::reload()
     m_rows = std::move(rows);
     endResetModel();
     setErrorString(error);
-    if (rowCount() != oldCount) {
-        Q_EMIT countChanged();
-    }
+    emitCountIfChanged(oldCount);
     if (worstStatus() != oldWorst || overdueCount() != oldOverdue || nextDue() != oldNext) {
         Q_EMIT statusChanged();
     }
@@ -253,7 +230,7 @@ QString IntervalListModel::save(const QVariantMap &values)
 
     MaintenanceInterval i;
     if (id.isEmpty()) {
-        i.vehicleId = m_vehicleId;
+        i.vehicleId = vehicleId();
     } else {
         const auto existing = repo.byId(id);
         if (!existing) {
@@ -299,14 +276,6 @@ bool IntervalListModel::remove(const QString &id)
         Q_EMIT intervalsChanged();
     }
     return ok;
-}
-
-void IntervalListModel::setErrorString(const QString &error)
-{
-    if (m_error != error) {
-        m_error = error;
-        Q_EMIT errorStringChanged();
-    }
 }
 
 } // namespace garagelog::app

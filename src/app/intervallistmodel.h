@@ -5,10 +5,11 @@
 
 #pragma once
 
+#include "vehiclescopedlistmodel.h"
+
 #include "duecalculator.h"
 #include "maintenanceinterval.h"
 
-#include <QAbstractListModel>
 #include <QHash>
 #include <QList>
 #include <QVariantMap>
@@ -28,18 +29,15 @@ namespace garagelog::app {
  * reload(), so it follows new service and fuel entries once the vehicle
  * model reloads. Distances in metres, dates as ISO text.
  */
-class IntervalListModel : public QAbstractListModel
+class IntervalListModel : public VehicleScopedListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString vehicleId READ vehicleId WRITE setVehicleId NOTIFY vehicleIdChanged)
-    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
     /** Most urgent status of the active intervals: "overdue", "soon", "ok", "unknown", or "" without intervals. */
     Q_PROPERTY(QString worstStatus READ worstStatus NOTIFY statusChanged)
     /** Number of active intervals that are overdue (badge in the drawer). */
     Q_PROPERTY(int overdueCount READ overdueCount NOTIFY statusChanged)
     /** Most urgent active interval with a known status as map (keys like get() plus the due roles), empty if none. */
     Q_PROPERTY(QVariantMap nextDue READ nextDue NOTIFY statusChanged)
-    Q_PROPERTY(QString errorString READ errorString NOTIFY errorStringChanged)
 
 public:
     enum class Scope {
@@ -72,16 +70,12 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    QString vehicleId() const;
-    /** Only used in Scope::Vehicle; "" empties the list. */
-    void setVehicleId(const QString &id);
     QString worstStatus() const;
     int overdueCount() const;
     QVariantMap nextDue() const;
-    QString errorString() const;
 
     /** Re-reads intervals and re-evaluates them for today's date. */
-    Q_INVOKABLE void reload();
+    Q_INVOKABLE void reload() override;
 
     /**
      * @brief One interval as map for the form.
@@ -102,10 +96,7 @@ public:
     Q_INVOKABLE bool remove(const QString &id);
 
 Q_SIGNALS:
-    void vehicleIdChanged();
-    void countChanged();
     void statusChanged();
-    void errorStringChanged();
     /** Emitted after save() or remove(); the other interval model reloads on it. */
     void intervalsChanged();
 
@@ -121,13 +112,8 @@ private:
     /** Status text for QML: the due status, or "paused" for an inactive interval. */
     static QString statusName(const Row &row);
     QVariantMap toMap(const Row &row) const;
-    void setErrorString(const QString &error);
-
-    const core::Database &m_database;
     const Scope m_scope;
-    QString m_vehicleId;
     QList<Row> m_rows;
-    QString m_error;
 };
 
 } // namespace garagelog::app

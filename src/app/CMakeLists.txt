@@ -20,6 +20,8 @@ add_library(garagelog_applib STATIC
     statsmodel.cpp
     statsmodel.h
     variantutil.h
+    vehiclescopedlistmodel.cpp
+    vehiclescopedlistmodel.h
     vehiclelistmodel.cpp
     vehiclelistmodel.h
 )

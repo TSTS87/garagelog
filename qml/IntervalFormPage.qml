@@ -140,12 +140,12 @@ Kirigami.ScrollablePage {
             Kirigami.FormData.label: i18n("Status:")
             visible: !form.isNew
             StatusDot {
-                status: form.original.active === false ? "paused" : (form.original.status ?? "unknown")
+                status: form.original.status ?? "unknown"
             }
             Controls.Label {
                 text: {
-                    const status = form.original.active === false ? "paused" : (form.original.status ?? "unknown");
-                    const summary = Format.dueSummary(form.original.remainingM ?? null, form.original.remainingDays ?? null, status);
+                    const summary = Format.dueSummary(form.original.remainingM ?? null, form.original.remainingDays ?? null,
+                                                      form.original.status ?? "unknown");
                     const last = form.original.lastDate ? i18n("last service %1", Format.date(form.original.lastDate)) : "";
                     return [summary, last].filter(part => part !== "").join(" · ");
                 }

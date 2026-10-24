@@ -23,8 +23,7 @@ using core::ServiceEntry;
 using core::ServiceRepository;
 
 ServiceListModel::ServiceListModel(const core::Database &database, QObject *parent)
-    : QAbstractListModel(parent)
-    , m_database(database)
+    : VehicleScopedListModel(database, parent)
 {
 }
 
@@ -114,26 +113,6 @@ QHash<int, QByteArray> ServiceListModel::roleNames() const
     };
 }
 
-QString ServiceListModel::vehicleId() const
-{
-    return m_vehicleId;
-}
-
-void ServiceListModel::setVehicleId(const QString &id)
-{
-    if (m_vehicleId == id) {
-        return;
-    }
-    m_vehicleId = id;
-    Q_EMIT vehicleIdChanged();
-    reload();
-}
-
-QString ServiceListModel::errorString() const
-{
-    return m_error;
-}
-
 void ServiceListModel::reload()
 {
     const int oldCount = rowCount();
@@ -148,12 +127,12 @@ void ServiceListModel::reload()
     }
     error = categoryRepo.errorString();
 
-    if (!m_vehicleId.isEmpty()) {
+    if (!vehicleId().isEmpty()) {
         ServiceRepository repo(m_database);
-        entries = repo.byVehicle(m_vehicleId);
+        entries = repo.byVehicle(vehicleId());
         std::reverse(entries.begin(), entries.end());
         AttachmentStore store(m_database);
-        withAttachments = store.entriesWithAttachments(m_vehicleId);
+        withAttachments = store.entriesWithAttachments(vehicleId());
         // Keep the first problem; later ones are usually follow-up errors.
         for (const QString &e : {repo.errorString(), store.errorString()}) {
             if (error.isEmpty()) {
@@ -168,9 +147,7 @@ void ServiceListModel::reload()
     m_withAttachments = std::move(withAttachments);
     endResetModel();
     setErrorString(error);
-    if (rowCount() != oldCount) {
-        Q_EMIT countChanged();
-    }
+    emitCountIfChanged(oldCount);
 }
 
 QVariantMap ServiceListModel::get(const QString &id)
@@ -201,7 +178,7 @@ QString ServiceListModel::save(const QVariantMap &values)
     // Start from the stored row on edit, so vehicle and timestamps stay.
     ServiceEntry e;
     if (id.isEmpty()) {
-        e.vehicleId = m_vehicleId;
+        e.vehicleId = vehicleId();
     } else {
         const auto existing = repo.byId(id);
         if (!existing) {
@@ -315,14 +292,6 @@ bool ServiceListModel::removeAttachment(const QString &id)
     }
     setErrorString(store.errorString());
     return ok;
-}
-
-void ServiceListModel::setErrorString(const QString &error)
-{
-    if (m_error != error) {
-        m_error = error;
-        Q_EMIT errorStringChanged();
-    }
 }
 
 } // namespace garagelog::app

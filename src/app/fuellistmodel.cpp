@@ -18,8 +18,7 @@ using core::FuelRepository;
 using core::FuelStats;
 
 FuelListModel::FuelListModel(const core::Database &database, QObject *parent)
-    : QAbstractListModel(parent)
-    , m_database(database)
+    : VehicleScopedListModel(database, parent)
 {
 }
 
@@ -86,29 +85,9 @@ QHash<int, QByteArray> FuelListModel::roleNames() const
     };
 }
 
-QString FuelListModel::vehicleId() const
-{
-    return m_vehicleId;
-}
-
-void FuelListModel::setVehicleId(const QString &id)
-{
-    if (m_vehicleId == id) {
-        return;
-    }
-    m_vehicleId = id;
-    Q_EMIT vehicleIdChanged();
-    reload();
-}
-
 bool FuelListModel::electric() const
 {
     return m_electric;
-}
-
-QString FuelListModel::errorString() const
-{
-    return m_error;
 }
 
 void FuelListModel::reload()
@@ -118,13 +97,13 @@ void FuelListModel::reload()
     bool electric = false;
     QString error;
 
-    if (!m_vehicleId.isEmpty()) {
+    if (!vehicleId().isEmpty()) {
         core::VehicleRepository vehicles(m_database);
-        if (const auto vehicle = vehicles.byId(m_vehicleId)) {
+        if (const auto vehicle = vehicles.byId(vehicleId())) {
             electric = core::usesWattHours(vehicle->powertrain);
         }
         FuelRepository repo(m_database);
-        const QList<FuelEntry> entries = repo.byVehicle(m_vehicleId);
+        const QList<FuelEntry> entries = repo.byVehicle(vehicleId());
         error = repo.errorString();
         // consumption() needs chronological order; the list shows newest first.
         const auto consumption = FuelStats::consumption(entries);
@@ -142,9 +121,7 @@ void FuelListModel::reload()
         m_electric = electric;
         Q_EMIT electricChanged();
     }
-    if (rowCount() != oldCount) {
-        Q_EMIT countChanged();
-    }
+    emitCountIfChanged(oldCount);
 }
 
 QVariantMap FuelListModel::get(const QString &id)
@@ -174,7 +151,7 @@ QString FuelListModel::save(const QVariantMap &values)
     // Start from the stored row on edit, so vehicle and timestamps stay.
     FuelEntry e;
     if (id.isEmpty()) {
-        e.vehicleId = m_vehicleId;
+        e.vehicleId = vehicleId();
     } else {
         const auto existing = repo.byId(id);
         if (!existing) {
@@ -228,7 +205,7 @@ bool FuelListModel::remove(const QString &id)
 QStringList FuelListModel::stationSuggestions()
 {
     FuelStats stats(m_database);
-    const QStringList result = stats.stationSuggestions(m_vehicleId);
+    const QStringList result = stats.stationSuggestions(vehicleId());
     if (!stats.errorString().isEmpty()) {
         setErrorString(stats.errorString());
     }
@@ -277,14 +254,6 @@ QVariant FuelListModel::totalCostFor(qint64 quantity, qint64 unitPriceMilli) con
 QVariant FuelListModel::quantityFor(qint64 totalCostC, qint64 unitPriceMilli) const
 {
     return optionalToVariant(core::quantityFor(totalCostC, unitPriceMilli));
-}
-
-void FuelListModel::setErrorString(const QString &error)
-{
-    if (m_error != error) {
-        m_error = error;
-        Q_EMIT errorStringChanged();
-    }
 }
 
 } // namespace garagelog::app

@@ -5,9 +5,10 @@
 
 #pragma once
 
+#include "vehiclescopedlistmodel.h"
+
 #include "serviceentry.h"
 
-#include <QAbstractListModel>
 #include <QHash>
 #include <QList>
 #include <QSet>
@@ -28,12 +29,9 @@ namespace garagelog::app {
  * here (categoryLabel()), because the database stores only their keys.
  * Errors are reported through errorString (SPEC §3).
  */
-class ServiceListModel : public QAbstractListModel
+class ServiceListModel : public VehicleScopedListModel
 {
     Q_OBJECT
-    Q_PROPERTY(QString vehicleId READ vehicleId WRITE setVehicleId NOTIFY vehicleIdChanged)
-    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
-    Q_PROPERTY(QString errorString READ errorString NOTIFY errorStringChanged)
 
 public:
     enum Role {
@@ -59,10 +57,6 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    QString vehicleId() const;
-    /** Shows the entries of another vehicle; "" empties the list. */
-    void setVehicleId(const QString &id);
-    QString errorString() const;
 
     /**
      * @brief Display name of a category: built-in keys translated (e.g. "mot" -> "MOT / inspection"), user names unchanged.
@@ -70,7 +64,7 @@ public:
     static QString categoryLabel(const core::ServiceCategory &category);
 
     /** Re-reads categories, entries and attachment flags from the database. */
-    Q_INVOKABLE void reload();
+    Q_INVOKABLE void reload() override;
 
     /**
      * @brief One entry as map for the form.
@@ -107,21 +101,13 @@ public:
     Q_INVOKABLE bool removeAttachment(const QString &id);
 
 Q_SIGNALS:
-    void vehicleIdChanged();
-    void countChanged();
-    void errorStringChanged();
     /** Emitted after save()/remove()/attachment changes; the odometer may have changed. */
     void entriesChanged();
 
 private:
-    void setErrorString(const QString &error);
-
-    const core::Database &m_database;
-    QString m_vehicleId;
     QList<core::ServiceEntry> m_entries; ///< newest first
     QHash<QString, core::ServiceCategory> m_categories; ///< by id, refreshed in reload()
     QSet<QString> m_withAttachments;     ///< entry ids
-    QString m_error;
 };
 
 } // namespace garagelog::app
