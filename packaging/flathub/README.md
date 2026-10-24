@@ -4,16 +4,20 @@
 `packaging/flatpak/` it builds the release tag from GitHub, pinned to the tag's commit.
 
 ## Before submitting
-1. The GitHub repository must be **public** – Flathub fetches the sources, the AppStream
-   screenshots and checks the homepage.
+1. The GitHub repository must be public (it is since 2026-10-24) – Flathub fetches the sources,
+   the AppStream screenshots and checks the homepage.
 2. Lint the manifest and a built repository (needs `org.flatpak.Builder` from Flathub):
    ```
    flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest packaging/flathub/io.github.TSTS87.GarageLog.yml
    flatpak run org.flatpak.Builder --user --force-clean --repo=repo-flatpak build-flatpak packaging/flathub/io.github.TSTS87.GarageLog.yml
    flatpak run --command=flatpak-builder-lint org.flatpak.Builder repo repo-flatpak
    ```
-   With a private repository the linter reports `appid-url-not-reachable` and missing screenshots;
-   both disappear once the repository is public.
+   If `bwrap` complains about `/run/user/1000/doc`, the document portal is not running:
+   add `--no-documents-portal` after `flatpak run`.
+   Expected result (checked for v1.0.1): the manifest lint is clean; the repo lint only reports
+   `appstream-external-screenshot-url` / `appstream-screenshots-not-mirrored-in-ostree` /
+   `appstream-remote-icon-not-mirrored`. Flathub's own build pipeline mirrors screenshots and icons
+   to dl.flathub.org, which a local build cannot fully reproduce.
 
 ## Submitting (first release)
 Following <https://docs.flathub.org/docs/for-app-authors/submission>:
