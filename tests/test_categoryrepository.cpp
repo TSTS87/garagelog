@@ -80,7 +80,7 @@ private Q_SLOTS:
         QCOMPARE(repo.byName(QStringLiteral("tires"))->builtin, true);
     }
 
-    /** Blank and duplicate names (also clashing with a built-in key) are refused. */
+    /** Blank and duplicate names (also clashing with a built-in key, in any letter case, umlauts included) are refused. */
     void invalidNames()
     {
         CategoryRepository repo(*m_db);
@@ -89,6 +89,12 @@ private Q_SLOTS:
         ServiceCategory dup = named(QStringLiteral("tires"));
         QVERIFY(!repo.create(dup));
         QVERIFY(repo.errorString().contains(QStringLiteral("already exists")));
+        ServiceCategory upper = named(QStringLiteral("TIRES"));
+        QVERIFY(!repo.create(upper));
+        ServiceCategory wash = named(QStringLiteral("Wäsche"));
+        QVERIFY(repo.create(wash));
+        ServiceCategory washLower = named(QStringLiteral("WÄSCHE"));
+        QVERIFY(!repo.create(washLower));
     }
 
     /** Built-ins can be neither renamed nor deleted. */

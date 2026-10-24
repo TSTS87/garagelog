@@ -202,7 +202,7 @@ Kirigami.ScrollablePage {
             visible: !form.partsValid
             text: form.distanceEmpty && form.monthsEmpty
                 ? i18n("Enter a distance, a number of months, or both.")
-                : i18n("Distance and months must be positive whole numbers.")
+                : i18n("Distance must be a positive number, months a whole number from 1 to 1200.")
             color: Kirigami.Theme.negativeTextColor
         }
 

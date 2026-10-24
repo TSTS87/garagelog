@@ -96,17 +96,20 @@ bool CategoryRepository::validateName(const QString &name, const QString &ownId)
     }
     // The UNIQUE constraint would catch this too, but only with an SQL
     // message the user cannot act on.
+    // Compared in Qt, not SQL: "Wash" and "wash" are the same category to a
+    // user, and SQLite's NOCASE only folds ASCII ("Wäsche"/"wäsche").
     QSqlQuery query(m_database.connection());
-    query.prepare(QStringLiteral("SELECT 1 FROM service_categories WHERE name = ? AND id IS NOT ?"));
-    query.addBindValue(name);
+    query.prepare(QStringLiteral("SELECT name FROM service_categories WHERE id IS NOT ?"));
     query.addBindValue(ownId);
     if (!query.exec()) {
         m_error = QStringLiteral("Cannot check category name: %1").arg(query.lastError().text());
         return false;
     }
-    if (query.next()) {
-        m_error = QStringLiteral("A category named \"%1\" already exists").arg(name);
-        return false;
+    while (query.next()) {
+        if (query.value(0).toString().compare(name, Qt::CaseInsensitive) == 0) {
+            m_error = QStringLiteral("A category named \"%1\" already exists").arg(name);
+            return false;
+        }
     }
     return true;
 }

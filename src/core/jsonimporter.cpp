@@ -145,8 +145,13 @@ QJsonObject readExport(const QString &directory, QString &error)
     }
     QJsonParseError parseError;
     const QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
-    if (doc.isNull() || !doc.isObject()) {
+    if (doc.isNull()) {
         error = QStringLiteral("%1 is not valid JSON: %2").arg(file.fileName(), parseError.errorString());
+        return {};
+    }
+    // Valid JSON, but an array or a bare value: the parser reports no error then.
+    if (!doc.isObject()) {
+        error = QStringLiteral("%1 is not a GarageLog export").arg(file.fileName());
         return {};
     }
     return doc.object();

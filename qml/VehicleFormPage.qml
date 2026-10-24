@@ -220,7 +220,7 @@ Kirigami.ScrollablePage {
 
         Controls.Label {
             visible: !form.odometerValid
-            text: i18n("Please enter a number of kilometres.")
+            text: i18n("Please enter the odometer as a number in %1.", Format.distanceLabel)
             color: Kirigami.Theme.negativeTextColor
         }
 
