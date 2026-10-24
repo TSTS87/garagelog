@@ -57,4 +57,9 @@ Entscheidung: Das Flatpak bekommt Lese-/Schreibzugriff auf `~/Documents` (xdg-do
 Grund: Eine Garage ist Datei + `attachments/`-Ordner daneben (ADR-005). Das Dokumentportal gibt nur die gewählte Einzeldatei frei, der Ordner daneben wäre unerreichbar. Garagen außerhalb von `~/Documents` funktionieren im Flatpak deshalb nur ohne Anhänge bzw. mit zusätzlicher Freigabe per Flatseal.
 Alternativen: `--filesystem=home` (zu breit für Flathub-Review), Anhänge als BLOB (widerspricht ADR-005).
 
-<!-- Nächste: ADR-015 -->
+## ADR-015 (2026-10-24) Eigenes Erscheinungsbild auf Kirigami-Basis
+Entscheidung: GarageLog bekommt eine eigene Optik innerhalb von Kirigami: Fahrzeugseite als Dashboard (Hero-Karte mit Farbverlauf je Fahrzeugtyp, große Ziffern mit Tabellenziffern), Pill-Umschalter statt TabBar, Karten mit `Kirigami.ShadowedRectangle`, eigene einfarbige SVG-Linien-Icons (`qml/icons/`, als Maske eingefärbt) statt des Breeze-`car` für alle Typen. Farben: Fensterrahmen, Text und Statusfarben weiter aus `Kirigami.Theme`; nur Inhaltsflächen (Hero, Icon-Kacheln, Balken) nutzen die feste Typpalette aus `qml/Style.qml`. Kein Glas-/Blur-Effekt.
+Grund: Thomas wünscht eine moderne, unverwechselbare Optik. Recherche 2026: Bento-Raster und Kennzahlen-Kacheln sind das dominierende Dashboard-Muster, Glassmorphism gilt wegen Kontrastproblemen nur zurückhaltend als sinnvoll; Kirigami empfiehlt eigene Farben nur in Inhaltsflächen, nicht im Rahmen. Breeze hat keine Icons für Motorrad, Roller, E-Bike (STATUS, offen seit M15).
+Alternativen: eigenes QtQuick-Style-Plugin (verliert Plasma-Integration, viel Aufwand), kirigami-addons (neue Abhängigkeit, bringt nur Standardoptik), Glas-Effekte mit MultiEffect (Lesbarkeit, GPU-Last offscreen).
+
+<!-- Nächste: ADR-016 -->

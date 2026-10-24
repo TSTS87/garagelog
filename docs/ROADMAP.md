@@ -107,6 +107,14 @@ Definition of Done (DoD) für jeden Meilenstein:
 - Flathub-Einreichung vorbereiten (Repo-Struktur, Manifest mit Git-Tag statt `dir`)
 - GitHub Sponsors / Flathub-Donation-Link
 
+## M19 – Neues Erscheinungsbild (nach v1.0.1, auf Wunsch von Thomas)
+- Recherche aktueller App-Gestaltung (2026): Dashboard zuerst, Bento-Kacheln, große Kennzahlen, Pill-Navigation, Karten mit weichen Schatten; Ergebnis in ADR-015
+- Eigene Linien-Icons je Fahrzeugtyp und für Tanken/Service/Intervalle/Auswertung (SVG in `qml/icons/`, einfarbig, folgen dem Farbschema)
+- Fahrzeugseite: Hero-Karte (Verlauf in Typfarbe, Kennzeichen-Schild, großer Tachostand, nächste Fälligkeit), Pill-Umschalter statt TabBar, schwebender Hinzufügen-Knopf
+- Listen: Zeilen mit Icon-Kachel, Monatsüberschriften, Beträge hervorgehoben; Fällig-Seite nach Status gruppiert
+- Auswertung als Bento-Raster; Seitenleiste mit Marken-Kopf, Fahrzeug-Kacheln, Zähler-Badge
+- DoD: hell + dunkel lesbar, Tastaturbedienung unverändert, keine neue Abhängigkeit, Build/Tests grün, Screenshots erneuert
+
 ---
 
 ## Phase 2 – Touren (nach v1.0, eigene Meilensteine dann hier ergänzen)

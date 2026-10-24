@@ -10,7 +10,7 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-Keiner – Phase 1 abgeschlossen (v1.0.1). Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: Thomas plant sie, bevor weitergearbeitet wird
+M19 – Neues Erscheinungsbild (ROADMAP.md, ADR-015). Danach: Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine, Thomas plant sie
 
 ## Zustand
 - Letzter Commit: `cc4f3bc` build: point the Flathub manifest at v1.0.1 (+ docs). Tags `v1.0.0` = `b23c57c`, `v1.0.1` = `c92c694` (nur neue Screenshots), beide als GitHub-Release. Repo ist öffentlich
