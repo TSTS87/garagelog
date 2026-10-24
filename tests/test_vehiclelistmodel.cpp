@@ -81,7 +81,8 @@ private Q_SLOTS:
         QCOMPARE(index.data(VehicleListModel::NameRole).toString(), QStringLiteral("CB500F"));
         QCOMPARE(index.data(VehicleListModel::TypeRole).toString(), QStringLiteral("motorcycle"));
         QCOMPARE(index.data(VehicleListModel::OdometerRole).toLongLong(), qint64(12'345'000));
-        QVERIFY(!index.data(VehicleListModel::IconRole).toString().isEmpty());
+        // Own line icon per type (ADR-015), not the Breeze "car" for everything.
+        QCOMPARE(index.data(VehicleListModel::IconRole).toString(), QStringLiteral("qrc:/qml/icons/vehicle-motorcycle.svg"));
 
         const QVariantMap loaded = model.get(id);
         QCOMPARE(loaded.value(QStringLiteral("year")).toInt(), 2019);

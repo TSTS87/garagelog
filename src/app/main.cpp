@@ -128,6 +128,8 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Format", &format);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "Garage", &garage);
     qmlRegisterSingletonInstance("org.tmx.garagelog", 1, 0, "DataTransfer", &dataTransfer);
+    // Design tokens of the own look (ADR-015) live in QML, not C++.
+    qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/qml/Style.qml")), "org.tmx.garagelog", 1, 0, "Style");
 
     QQmlApplicationEngine engine;
     // Makes i18n()/i18nc() available in all QML files of this engine.

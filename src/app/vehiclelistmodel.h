@@ -57,7 +57,7 @@ public:
     QString errorString() const;
     int archivedCount() const;
 
-    /** Icon name for a vehicle type (database text); "car" for unknown text. */
+    /** qrc URL of GarageLog's own line icon for a vehicle type (database text); the van icon for unknown text. */
     static QString iconForType(const QString &type);
 
     /** Re-reads all vehicles and odometers from the database. */

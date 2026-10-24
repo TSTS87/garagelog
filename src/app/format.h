@@ -136,6 +136,9 @@ public:
     /** Date for display and input in the locale's short format with four-digit year. @param iso "YYYY-MM-DD". */
     Q_INVOKABLE QString date(const QString &iso) const;
 
+    /** Month heading like "October 2026" in the locale's language. @param isoMonth "YYYY-MM"; "" for an invalid value. */
+    Q_INVOKABLE QString month(const QString &isoMonth) const;
+
     /**
      * @brief Parses a date typed by the user.
      *

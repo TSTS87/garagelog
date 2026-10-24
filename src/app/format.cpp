@@ -274,6 +274,17 @@ QString Format::date(const QString &iso) const
     return QLocale().toString(QDate::fromString(iso, Qt::ISODate), dateFormat());
 }
 
+QString Format::month(const QString &isoMonth) const
+{
+    const QDate d = QDate::fromString(isoMonth + QStringLiteral("-01"), Qt::ISODate);
+    if (!d.isValid()) {
+        return {};
+    }
+    // Standalone form: some languages inflect the month inside a full date
+    // ("Oktobra") but use the nominative in a heading ("Oktober").
+    return QStringLiteral("%1 %2").arg(QLocale().standaloneMonthName(d.month(), QLocale::LongFormat)).arg(d.year());
+}
+
 QVariant Format::parseDate(const QString &text) const
 {
     const QString trimmed = text.trimmed();

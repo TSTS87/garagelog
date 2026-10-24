@@ -84,6 +84,8 @@ QVariant ServiceListModel::data(const QModelIndex &index, int role) const
         return e.id;
     case DateRole:
         return e.date.toString(Qt::ISODate);
+    case MonthRole:
+        return e.date.toString(QStringLiteral("yyyy-MM"));
     case OdometerRole:
         return optionalToVariant(e.odometerM);
     case CategoryIdRole:
@@ -122,6 +124,7 @@ QHash<int, QByteArray> ServiceListModel::roleNames() const
         {ShopNameRole, "shopName"},
         {NotesRole, "notes"},
         {HasAttachmentRole, "hasAttachment"},
+        {MonthRole, "month"},
     };
 }
 

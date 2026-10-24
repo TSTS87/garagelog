@@ -1,6 +1,7 @@
 // Page of one vehicle (role: qml, pure UI).
-// Header with icon, name, details, current odometer and the next due
-// interval, below it the tabs fuel | service | intervals | statistics (SPEC §6).
+// Hero card with name, plate, odometer and the next due interval, below it
+// a pill switch for fuel | service | intervals | statistics (SPEC §6,
+// look from ADR-015) and a floating "add" button.
 
 import QtQuick
 import QtQuick.Controls as Controls
@@ -29,10 +30,12 @@ Kirigami.Page {
         vehicle = Vehicles.get(vehicleId);
     }
 
-    title: vehicle.name ?? ""
+    // The hero card shows the name in large; the toolbar names the section.
+    title: sections[tabBar.currentIndex]?.text ?? ""
 
     actions: [
         Kirigami.Action {
+            id: addAction
             // One "add" button whose meaning follows the visible tab.
             text: [i18n("Add Entry"), i18n("Add Service"), i18n("Add Interval")][tabBar.currentIndex] ?? ""
             icon.name: "list-add"
@@ -74,6 +77,16 @@ Kirigami.Page {
         }
     }
 
+    /** Accent of this vehicle's type; the tabs colour their icon tiles with it. */
+    readonly property color accent: Style.accent(vehicle.type ?? "other")
+    /** Sections of the pill switch, in the order of the StackLayout children. */
+    readonly property var sections: [
+        { text: i18n("Fuel"), icon: FuelEntries.electric ? "qrc:/qml/icons/charge.svg" : "qrc:/qml/icons/fuel.svg" },
+        { text: i18n("Service"), icon: "qrc:/qml/icons/service.svg" },
+        { text: i18n("Intervals"), icon: "qrc:/qml/icons/interval.svg" },
+        { text: i18n("Statistics"), icon: "qrc:/qml/icons/stats.svg" }
+    ]
+
     ColumnLayout {
         anchors.fill: parent
         spacing: Kirigami.Units.largeSpacing
@@ -94,81 +107,20 @@ Kirigami.Page {
             ]
         }
 
-        RowLayout {
+        HeroCard {
             Layout.fillWidth: true
-            spacing: Kirigami.Units.largeSpacing
-
-            // Kirigami.Icon renders a freedesktop icon by name in any size,
-            // following the colour scheme; Units.iconSizes keeps sizes consistent.
-            Kirigami.Icon {
-                source: page.vehicle.icon ?? "car"
-                implicitWidth: Kirigami.Units.iconSizes.huge
-                implicitHeight: Kirigami.Units.iconSizes.huge
-            }
-
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: Kirigami.Units.smallSpacing
-
-                Kirigami.Heading {
-                    Layout.fillWidth: true
-                    level: 1
-                    text: page.vehicle.name ?? ""
-                    elide: Text.ElideRight
-                }
-
-                // "Honda CB500F 2019 · M-AB 123"; empty parts are left out.
-                Controls.Label {
-                    Layout.fillWidth: true
-                    readonly property string makeModelYear: [page.vehicle.make, page.vehicle.model, page.vehicle.year]
-                        .filter(part => part !== undefined && part !== null && part !== "").join(" ")
-                    text: [makeModelYear, page.vehicle.plate ?? ""].filter(part => part !== "").join(" · ")
-                    visible: text !== ""
-                    elide: Text.ElideRight
-                }
-
-                Controls.Label {
-                    text: i18n("Odometer: %1", Format.distance(page.vehicle.odometerM ?? 0))
-                }
-
-                // Most urgent interval; the dot shows the worst status of all.
-                RowLayout {
-                    visible: Intervals.worstStatus !== ""
-                    spacing: Kirigami.Units.smallSpacing
-
-                    StatusDot {
-                        status: Intervals.worstStatus
-                    }
-                    Controls.Label {
-                        Layout.fillWidth: true
-                        readonly property var next: Intervals.nextDue
-                        text: next.name === undefined
-                            ? i18n("No interval with a recorded service yet")
-                            : i18n("Next due: %1 (%2)", next.name, Format.dueSummary(next.remainingM, next.remainingDays, next.status))
-                        elide: Text.ElideRight
-                    }
-                }
-            }
+            vehicle: page.vehicle
+            // Low windows and the statistics (chart and tiles need the height)
+            // get the slim variant.
+            compact: page.height < Kirigami.Units.gridUnit * 40 || tabBar.currentIndex === 3
         }
 
-        // TabBar (Qt Quick Controls) only draws the tab buttons; the
-        // StackLayout below shows the child whose index matches currentIndex.
-        Controls.TabBar {
+        PillBar {
             id: tabBar
+            objectName: "sectionBar"
             Layout.fillWidth: true
-
-            Controls.TabButton {
-                text: i18n("Fuel")
-            }
-            Controls.TabButton {
-                text: i18n("Service")
-            }
-            Controls.TabButton {
-                text: i18n("Intervals")
-            }
-            Controls.TabButton {
-                text: i18n("Statistics")
-            }
+            model: page.sections
+            accent: page.accent
         }
 
         StackLayout {
@@ -177,10 +129,12 @@ Kirigami.Page {
             currentIndex: tabBar.currentIndex
 
             FuelTab {
+                accent: page.accent
                 onFormRequested: entryId => page.fuelFormRequested(entryId)
             }
 
             ServiceTab {
+                accent: page.accent
                 onFormRequested: entryId => page.serviceFormRequested(entryId)
             }
 
@@ -188,7 +142,45 @@ Kirigami.Page {
                 onFormRequested: intervalId => page.intervalFormRequested(intervalId)
             }
 
-            StatsTab {}
+            StatsTab {
+                accent: page.accent
+            }
         }
+    }
+
+    // Floating action button: the most frequent action (a new entry) one
+    // click away in the corner, like in current mobile and desktop apps.
+    // It runs the same toolbar action, so Ctrl+N and the button agree.
+    Kirigami.ShadowedRectangle {
+        id: fab
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: Kirigami.Units.largeSpacing
+        visible: addAction.visible
+        width: Kirigami.Units.gridUnit * 3.2
+        height: width
+        radius: Kirigami.Units.gridUnit
+        color: fabArea.pressed ? Qt.darker(page.accent, 1.2) : fabArea.containsMouse ? Qt.lighter(page.accent, 1.1) : page.accent
+        shadow.size: Kirigami.Units.gridUnit
+        shadow.yOffset: 3
+        shadow.color: Qt.rgba(0, 0, 0, 0.25)
+
+        Kirigami.Icon {
+            anchors.centerIn: parent
+            width: Kirigami.Units.iconSizes.smallMedium
+            height: width
+            source: "list-add"
+            isMask: true
+            color: "white"
+        }
+        MouseArea {
+            id: fabArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: addAction.trigger()
+        }
+        Controls.ToolTip.visible: fabArea.containsMouse
+        Controls.ToolTip.text: addAction.text
     }
 }

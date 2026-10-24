@@ -1,6 +1,7 @@
 // "Due" overview across all vehicles (role: qml, pure UI).
 // Lists the active intervals of every non-archived vehicle from
-// DueIntervals, most urgent first (SPEC §4.4); a click opens the vehicle.
+// DueIntervals in a card, grouped by status and most urgent first
+// (SPEC §4.4); a click opens the vehicle.
 
 import QtQuick
 import QtQuick.Controls as Controls
@@ -8,84 +9,87 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.tmx.garagelog
 
-// ScrollablePage puts its single child (here the ListView) into a
-// scrolling area that fits the page; lists get Kirigami's list styling.
-Kirigami.ScrollablePage {
+Kirigami.Page {
     id: page
 
     signal vehicleRequested(string vehicleId)
 
-    title: i18n("Due")
-
-    header: Kirigami.InlineMessage {
-        position: Kirigami.InlineMessage.Position.Header
-        type: Kirigami.MessageType.Error
-        text: DueIntervals.errorString
-        visible: text !== ""
+    /** Section heading for a status; the list is sorted by urgency, so each status forms one block. */
+    function statusHeading(status) {
+        return ({ overdue: i18n("Overdue"), soon: i18n("Due soon"), ok: i18n("OK") })[status]
+            ?? i18n("No matching service recorded yet");
     }
 
-    ListView {
-        id: list
-        model: DueIntervals
+    title: i18n("Due")
 
-        delegate: Controls.ItemDelegate {
-            id: row
+    ColumnLayout {
+        anchors.fill: parent
+        spacing: Kirigami.Units.largeSpacing
 
-            required property string vehicleId
-            required property string vehicleName
-            required property string name
-            required property string status
-            required property var dueOdometerM
-            required property string dueDate
-            required property var remainingM
-            required property var remainingDays
-
-            width: ListView.view.width
-            onClicked: page.vehicleRequested(vehicleId)
-
-            contentItem: RowLayout {
-                spacing: Kirigami.Units.largeSpacing
-
-                StatusDot {
-                    status: row.status
-                }
-
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
-
-                    Controls.Label {
-                        Layout.fillWidth: true
-                        text: i18nc("%1 vehicle, %2 interval name", "%1 · %2", row.vehicleName, row.name)
-                        elide: Text.ElideRight
-                    }
-
-                    Controls.Label {
-                        Layout.fillWidth: true
-                        text: [row.dueOdometerM === null ? "" : Format.distance(row.dueOdometerM),
-                               row.dueDate === "" ? "" : Format.date(row.dueDate)]
-                            .filter(part => part !== "").join(" / ")
-                        visible: text !== ""
-                        font: Kirigami.Theme.smallFont
-                        color: Kirigami.Theme.disabledTextColor
-                        elide: Text.ElideRight
-                    }
-                }
-
-                Controls.Label {
-                    text: Format.dueSummary(row.remainingM, row.remainingDays, row.status)
-                    color: row.status === "overdue" ? Kirigami.Theme.negativeTextColor : Kirigami.Theme.textColor
-                }
-            }
+        Kirigami.InlineMessage {
+            Layout.fillWidth: true
+            type: Kirigami.MessageType.Error
+            text: DueIntervals.errorString
+            visible: text !== ""
         }
 
-        Kirigami.PlaceholderMessage {
-            anchors.centerIn: parent
-            width: parent.width - Kirigami.Units.gridUnit * 4
-            visible: list.count === 0
-            icon.name: "view-calendar-upcoming-events"
-            text: i18n("Nothing to remind you of")
-            explanation: i18n("Intervals you add to your vehicles appear here, most urgent first.")
+        Card {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            ListView {
+                id: list
+                anchors.fill: parent
+                anchors.margins: Kirigami.Units.smallSpacing
+                clip: true
+                model: DueIntervals
+                bottomMargin: Kirigami.Units.largeSpacing
+                Controls.ScrollBar.vertical: Controls.ScrollBar {}
+
+                section.property: "status"
+                section.delegate: SectionHeader {
+                    required property string section
+                    text: page.statusHeading(section)
+                }
+
+                delegate: EntryRow {
+                    id: row
+
+                    required property string vehicleId
+                    required property string vehicleName
+                    required property string name
+                    required property string status
+                    required property var dueOdometerM
+                    required property string dueDate
+                    required property var remainingM
+                    required property var remainingDays
+
+                    width: ListView.view.width
+                    onClicked: page.vehicleRequested(vehicleId)
+
+                    iconSource: "qrc:/qml/icons/interval.svg"
+                    accent: chip.statusColor
+                    title: i18nc("%1 vehicle, %2 interval name", "%1 · %2", vehicleName, name)
+                    subtitle: [dueOdometerM === null ? "" : Format.distance(dueOdometerM),
+                               dueDate === "" ? "" : Format.date(dueDate)]
+                        .filter(part => part !== "").join(" / ")
+
+                    StatusChip {
+                        id: chip
+                        status: row.status
+                        text: Format.dueSummary(row.remainingM, row.remainingDays, row.status)
+                    }
+                }
+
+                Kirigami.PlaceholderMessage {
+                    anchors.centerIn: parent
+                    width: parent.width - Kirigami.Units.gridUnit * 4
+                    visible: list.count === 0
+                    icon.source: "qrc:/qml/icons/due.svg"
+                    text: i18n("Nothing to remind you of")
+                    explanation: i18n("Intervals you add to your vehicles appear here, most urgent first.")
+                }
+            }
         }
     }
 }

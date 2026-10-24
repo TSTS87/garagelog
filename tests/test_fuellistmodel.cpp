@@ -86,6 +86,7 @@ private Q_SLOTS:
         const QModelIndex newest = model.index(0);
         QCOMPARE(newest.data(FuelListModel::IdRole).toString(), second);
         QCOMPARE(newest.data(FuelListModel::DateRole).toString(), QStringLiteral("2026-10-15"));
+        QCOMPARE(newest.data(FuelListModel::MonthRole).toString(), QStringLiteral("2026-10"));
         QVERIFY(newest.data(FuelListModel::HasConsumptionRole).toBool());
         // 30 l on 500 km = 6 l/100 km = 6000 ml/100 km; 54 EUR on 500 km = 1080 cents/100 km
         QCOMPARE(newest.data(FuelListModel::ConsumptionRole).toDouble(), 6000.0);

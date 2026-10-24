@@ -51,6 +51,7 @@ public:
         HasConsumptionRole,     ///< bool: false for partial fills, the first full tank, odometer typos
         ConsumptionRole,        ///< ml or Wh per 100 km (double), 0 without consumption
         CostPer100KmRole,       ///< cents per 100 km (double), 0 without consumption
+        MonthRole,              ///< ISO text "YYYY-MM", groups the list into month sections
     };
     Q_ENUM(Role)
 

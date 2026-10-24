@@ -148,6 +148,14 @@ private Q_SLOTS:
         QCOMPARE(names, (QStringList{QStringLiteral("CB500F"), QStringLiteral("Golf")}));
     }
 
+    /** month() names the month in the locale's language for list section headings; invalid input gives "". */
+    void monthHeading()
+    {
+        Format f;
+        QCOMPARE(f.month(QStringLiteral("2026-10")), QStringLiteral("Oktober 2026"));
+        QCOMPARE(f.month(QStringLiteral("2026-13")), QString());
+    }
+
     /** dueSummary() combines distance and days, with own texts for overdue, today, unknown and paused. */
     void dueSummary()
     {

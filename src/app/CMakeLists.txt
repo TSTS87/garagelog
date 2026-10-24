@@ -39,23 +39,45 @@ qt_add_resources(garagelog "qml"
     PREFIX "/"
     BASE ${PROJECT_SOURCE_DIR}
     FILES
+        ${PROJECT_SOURCE_DIR}/qml/Card.qml
         ${PROJECT_SOURCE_DIR}/qml/CsvImportPage.qml
         ${PROJECT_SOURCE_DIR}/qml/DuePage.qml
+        ${PROJECT_SOURCE_DIR}/qml/EntryRow.qml
         ${PROJECT_SOURCE_DIR}/qml/FormComboBox.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/FuelTab.qml
+        ${PROJECT_SOURCE_DIR}/qml/HeroCard.qml
+        ${PROJECT_SOURCE_DIR}/qml/IconTile.qml
         ${PROJECT_SOURCE_DIR}/qml/IntervalFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/IntervalTab.qml
         ${PROJECT_SOURCE_DIR}/qml/Main.qml
         ${PROJECT_SOURCE_DIR}/qml/NotesArea.qml
+        ${PROJECT_SOURCE_DIR}/qml/PillBar.qml
+        ${PROJECT_SOURCE_DIR}/qml/SectionHeader.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/ServiceTab.qml
         ${PROJECT_SOURCE_DIR}/qml/SettingsPage.qml
+        ${PROJECT_SOURCE_DIR}/qml/StatTile.qml
         ${PROJECT_SOURCE_DIR}/qml/StatsTab.qml
+        ${PROJECT_SOURCE_DIR}/qml/StatusChip.qml
         ${PROJECT_SOURCE_DIR}/qml/StatusDot.qml
+        ${PROJECT_SOURCE_DIR}/qml/Style.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleDrawer.qml
         ${PROJECT_SOURCE_DIR}/qml/VehicleFormPage.qml
         ${PROJECT_SOURCE_DIR}/qml/VehiclePage.qml
+        ${PROJECT_SOURCE_DIR}/qml/icons/charge.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/due.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/fuel.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/interval.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/odometer.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/service.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/stats.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/vehicle-car.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/vehicle-ebike.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/vehicle-motorcycle.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/vehicle-other.svg
+        ${PROJECT_SOURCE_DIR}/qml/icons/vehicle-scooter.svg
+        ${PROJECT_SOURCE_DIR}/packaging/icons/io.github.TSTS87.GarageLog.svg
 )
 
 target_link_libraries(garagelog PRIVATE

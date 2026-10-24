@@ -48,6 +48,7 @@ public:
         ShopNameRole,       ///< text, may be empty
         NotesRole,          ///< text, may be empty
         HasAttachmentRole,  ///< bool: at least one attached file
+        MonthRole,          ///< ISO text "YYYY-MM", groups the list into month sections
     };
     Q_ENUM(Role)
 

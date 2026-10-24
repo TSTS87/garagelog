@@ -16,6 +16,8 @@ Kirigami.ApplicationWindow {
 
     /** Vehicle whose page is shown; empty while the placeholder is shown. */
     property string currentVehicleId: ""
+    /** Page family shown in the main column: "vehicle", "due", "settings" or "" (placeholder); the drawer highlights it. */
+    property string currentSection: ""
 
     title: i18n("GarageLog")
     width: Kirigami.Units.gridUnit * 50
@@ -72,6 +74,8 @@ Kirigami.ApplicationWindow {
 
     globalDrawer: VehicleDrawer {
         currentVehicleId: root.currentVehicleId
+        dueShown: root.currentSection === "due"
+        settingsShown: root.currentSection === "settings"
         onVehicleSelected: vehicleId => root.showVehicle(vehicleId)
         onAddRequested: root.openForm("")
         onDueRequested: root.showDue()
@@ -97,6 +101,7 @@ Kirigami.ApplicationWindow {
 
     function showSettings() {
         currentVehicleId = "";
+        currentSection = "settings";
         pageStack.clear();
         pageStack.push(settingsComponent);
     }
@@ -155,6 +160,7 @@ Kirigami.ApplicationWindow {
     /** Replaces everything in the page stack with the page of one vehicle. */
     function showVehicle(vehicleId) {
         currentVehicleId = vehicleId;
+        currentSection = "vehicle";
         pageStack.clear();
         pageStack.push(vehiclePageComponent, { vehicleId: vehicleId });
     }
@@ -162,6 +168,7 @@ Kirigami.ApplicationWindow {
     /** Due overview of all vehicles; no vehicle is highlighted while it is shown. */
     function showDue() {
         currentVehicleId = "";
+        currentSection = "due";
         pageStack.clear();
         pageStack.push(duePageComponent);
     }
@@ -169,6 +176,7 @@ Kirigami.ApplicationWindow {
     /** Placeholder shown when the garage has no (active) vehicle yet. */
     function showPlaceholder() {
         currentVehicleId = "";
+        currentSection = "";
         pageStack.clear();
         pageStack.push(placeholderComponent);
     }
@@ -287,7 +295,7 @@ Kirigami.ApplicationWindow {
 
                 anchors.centerIn: parent
                 width: parent.width - Kirigami.Units.gridUnit * 4
-                icon.name: "car"
+                icon.source: "qrc:/qml/icons/vehicle-car.svg"
                 text: onlyArchived ? i18n("All vehicles are archived") : i18n("No vehicles yet")
                 explanation: onlyArchived
                     ? i18n("Show the archived vehicles to look at their entries, or add a new vehicle from the side bar.")

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GarageLog line icon "vehicle-car": side view of a car. Drawn as a black mask; Kirigami.Icon { isMask: true } recolours it.
+     SPDX-License-Identifier: GPL-3.0-or-later -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M5 16.5H3.8a.8.8 0 0 1-.8-.8V13c0-.9.6-1.7 1.5-1.9L7 10.5l2.1-3.3a2 2 0 0 1 1.7-.9h3.9a2 2 0 0 1 1.6.8L19 10.5l1.6.5c.8.3 1.4 1 1.4 1.9v2.8a.8.8 0 0 1-.8.8H19"/>
+  <path d="M9 16.5h6M7 10.5h12M12.5 6.5v4"/>
+  <circle cx="7" cy="16.5" r="2"/>
+  <circle cx="17" cy="16.5" r="2"/>
+</svg>

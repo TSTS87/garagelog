@@ -91,17 +91,17 @@ int VehicleListModel::archivedCount() const
 
 QString VehicleListModel::iconForType(const QString &type)
 {
-    // Breeze only ships a "car" icon; motorcycle, scooter and e-bike icons
-    // do not exist there. Kept as a table so own icons can replace the
-    // fallback per type later without touching QML.
+    // Breeze only ships a "car" icon, so GarageLog brings its own line icons
+    // for every type (ADR-015). They are single-colour masks: QML shows them
+    // with Kirigami.Icon { isMask: true } in the colour it needs.
     static const QHash<QString, QString> icons{
-        {QStringLiteral("car"), QStringLiteral("car")},
-        {QStringLiteral("motorcycle"), QStringLiteral("car")},
-        {QStringLiteral("scooter"), QStringLiteral("car")},
-        {QStringLiteral("ebike"), QStringLiteral("car")},
-        {QStringLiteral("other"), QStringLiteral("car")},
+        {QStringLiteral("car"), QStringLiteral("qrc:/qml/icons/vehicle-car.svg")},
+        {QStringLiteral("motorcycle"), QStringLiteral("qrc:/qml/icons/vehicle-motorcycle.svg")},
+        {QStringLiteral("scooter"), QStringLiteral("qrc:/qml/icons/vehicle-scooter.svg")},
+        {QStringLiteral("ebike"), QStringLiteral("qrc:/qml/icons/vehicle-ebike.svg")},
+        {QStringLiteral("other"), QStringLiteral("qrc:/qml/icons/vehicle-other.svg")},
     };
-    return icons.value(type, QStringLiteral("car"));
+    return icons.value(type, QStringLiteral("qrc:/qml/icons/vehicle-other.svg"));
 }
 
 void VehicleListModel::reload()

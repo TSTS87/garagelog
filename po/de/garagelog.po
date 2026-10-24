@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: garagelog\n"
 "Report-Msgid-Bugs-To: https://github.com/TSTS87/garagelog/issues\n"
-"POT-Creation-Date: 2026-10-24 00:19+0200\n"
+"POT-Creation-Date: 2026-10-24 09:58+0200\n"
 "PO-Revision-Date: 2026-10-23 12:00+0200\n"
 "Last-Translator: Thomas (TMX)\n"
 "Language-Team: German\n"
@@ -29,7 +29,7 @@ msgstr "Keine CSV-Datei geladen"
 msgid "Paused"
 msgstr "Pausiert"
 
-#: src/app/format.cpp:142
+#: src/app/format.cpp:142 qml/DuePage.qml:20
 msgid "No matching service recorded yet"
 msgstr "Noch kein passender Service erfasst"
 
@@ -59,11 +59,11 @@ msgid_plural "%1 days overdue"
 msgstr[0] "%1 Tag überfällig"
 msgstr[1] "%1 Tage überfällig"
 
-#: src/app/fuellistmodel.cpp:187
+#: src/app/fuellistmodel.cpp:190
 msgid "Fuel entry not found"
 msgstr "Tankeintrag nicht gefunden"
 
-#: src/app/fuellistmodel.cpp:198
+#: src/app/fuellistmodel.cpp:201
 msgid "Odometer, quantity and total price are required"
 msgstr "Kilometerstand, Menge und Gesamtpreis sind Pflichtfelder"
 
@@ -184,7 +184,8 @@ msgstr "Sonstiges"
 msgid "Charging"
 msgstr "Laden"
 
-#: src/app/statsmodel.cpp:187 qml/FuelFormPage.qml:203 qml/VehiclePage.qml:161
+#: src/app/statsmodel.cpp:187 qml/FuelFormPage.qml:203 qml/FuelTab.qml:75
+#: qml/VehiclePage.qml:84
 msgid "Fuel"
 msgstr "Tanken"
 
@@ -321,28 +322,40 @@ msgstr "… und %1 weitere Fehler"
 msgid "Row %1"
 msgstr "Zeile %1"
 
-#: qml/CsvImportPage.qml:238 qml/FuelTab.qml:76
+#: qml/CsvImportPage.qml:238 qml/FuelTab.qml:79
 msgid "partial"
 msgstr "Teilfüllung"
 
-#: qml/DuePage.qml:18 qml/VehicleDrawer.qml:46
+#: qml/DuePage.qml:19 qml/StatusDot.qml:32
+msgid "Overdue"
+msgstr "Überfällig"
+
+#: qml/DuePage.qml:19 qml/StatusDot.qml:33
+msgid "Due soon"
+msgstr "Bald fällig"
+
+#: qml/DuePage.qml:19 qml/StatusDot.qml:34
+msgid "OK"
+msgstr "OK"
+
+#: qml/DuePage.qml:23 qml/VehicleDrawer.qml:146
 msgid "Due"
 msgstr "Fällig"
 
-#: qml/DuePage.qml:59
+#: qml/DuePage.qml:72
 msgctxt "%1 vehicle, %2 interval name"
 msgid "%1 · %2"
 msgstr "%1 · %2"
 
-#: qml/DuePage.qml:87
+#: qml/DuePage.qml:89
 msgid "Nothing to remind you of"
 msgstr "Nichts, woran du denken musst"
 
-#: qml/DuePage.qml:88
+#: qml/DuePage.qml:90
 msgid "Intervals you add to your vehicles appear here, most urgent first."
 msgstr "Intervalle deiner Fahrzeuge erscheinen hier, das dringendste zuerst."
 
-#: qml/FuelFormPage.qml:99 qml/FuelTab.qml:111 qml/VehiclePage.qml:37
+#: qml/FuelFormPage.qml:99 qml/FuelTab.qml:94 qml/VehiclePage.qml:40
 msgid "Add Entry"
 msgstr "Eintrag hinzufügen"
 
@@ -395,7 +408,7 @@ msgstr "Kilometerstand (%1):"
 msgid "Currently %1"
 msgstr "Aktuell %1"
 
-#: qml/FuelFormPage.qml:203
+#: qml/FuelFormPage.qml:203 qml/FuelTab.qml:75
 msgid "Charge"
 msgstr "Ladung"
 
@@ -463,15 +476,15 @@ msgstr "Details"
 msgid "Charging station:"
 msgstr "Ladestation:"
 
-#: qml/FuelTab.qml:108
+#: qml/FuelTab.qml:91
 msgid "No charging entries yet"
 msgstr "Noch keine Ladeeinträge"
 
-#: qml/FuelTab.qml:108
+#: qml/FuelTab.qml:91
 msgid "No fuel entries yet"
 msgstr "Noch keine Tankeinträge"
 
-#: qml/FuelTab.qml:109
+#: qml/FuelTab.qml:92
 msgid ""
 "Record every refuelling or charge; consumption is calculated between two "
 "full tanks."
@@ -479,7 +492,51 @@ msgstr ""
 "Erfasse jedes Tanken oder Laden; der Verbrauch wird zwischen zwei "
 "Volltankungen berechnet."
 
-#: qml/IntervalFormPage.qml:62 qml/IntervalTab.qml:111 qml/VehiclePage.qml:37
+#: qml/HeroCard.qml:25 qml/VehicleFormPage.qml:37
+msgid "Car"
+msgstr "Auto"
+
+#: qml/HeroCard.qml:25 qml/VehicleFormPage.qml:38
+msgid "Motorcycle"
+msgstr "Motorrad"
+
+#: qml/HeroCard.qml:25 qml/VehicleFormPage.qml:39
+msgid "Scooter"
+msgstr "Roller"
+
+#: qml/HeroCard.qml:26 qml/VehicleFormPage.qml:40
+msgid "E-bike"
+msgstr "E-Bike"
+
+#: qml/HeroCard.qml:26 qml/VehicleFormPage.qml:41 qml/VehicleFormPage.qml:48
+msgid "Other"
+msgstr "Sonstiges"
+
+#: qml/HeroCard.qml:76 qml/VehicleFormPage.qml:46
+msgid "Electric"
+msgstr "Elektro"
+
+#: qml/HeroCard.qml:81
+msgid "Archived"
+msgstr "Archiviert"
+
+#: qml/HeroCard.qml:124
+msgid "Odometer"
+msgstr "Kilometerstand"
+
+#: qml/HeroCard.qml:178
+msgid "Next due"
+msgstr "Als Nächstes fällig"
+
+#: qml/HeroCard.qml:178
+msgid "Next due: %1"
+msgstr "Als Nächstes fällig: %1"
+
+#: qml/HeroCard.qml:186
+msgid "No interval with a recorded service yet"
+msgstr "Noch kein Intervall mit erfasstem Service"
+
+#: qml/IntervalFormPage.qml:62 qml/IntervalTab.qml:98 qml/VehiclePage.qml:40
 msgid "Add Interval"
 msgstr "Intervall hinzufügen"
 
@@ -554,15 +611,15 @@ msgctxt "interval rule, %1 = '15.000 km / 12 months'"
 msgid "every %1"
 msgstr "alle %1"
 
-#: qml/IntervalTab.qml:88
+#: qml/IntervalTab.qml:80
 msgid "due at %1"
 msgstr "fällig bei %1"
 
-#: qml/IntervalTab.qml:108
+#: qml/IntervalTab.qml:95
 msgid "No intervals yet"
 msgstr "Noch keine Intervalle"
 
-#: qml/IntervalTab.qml:109
+#: qml/IntervalTab.qml:96
 msgid ""
 "Add rules like “oil change every 15,000 km or 12 months”. The due date is "
 "calculated from the last matching service entry."
@@ -570,11 +627,11 @@ msgstr ""
 "Lege Regeln an wie „Ölwechsel alle 15.000 km oder 12 Monate“. Die Fälligkeit "
 "wird aus dem letzten passenden Serviceeintrag berechnet."
 
-#: qml/Main.qml:20 qml/Main.qml:280
+#: qml/Main.qml:22 qml/Main.qml:288 qml/VehicleDrawer.qml:65
 msgid "GarageLog"
 msgstr "GarageLog"
 
-#: qml/Main.qml:48
+#: qml/Main.qml:50
 msgid ""
 "The garage file %1 was deleted or moved. GarageLog still has your data open, "
 "but changes are lost when it closes. Save a copy to keep them."
@@ -583,7 +640,7 @@ msgstr ""
 "Daten noch geöffnet, Änderungen gehen beim Beenden aber verloren. Speichere "
 "eine Kopie, um sie zu behalten."
 
-#: qml/Main.qml:49
+#: qml/Main.qml:51
 msgid ""
 "The garage file %1 is write-protected. You can look at your data, but "
 "changes cannot be saved. Save a copy to keep working."
@@ -592,59 +649,59 @@ msgstr ""
 "Änderungen lassen sich aber nicht speichern. Speichere eine Kopie, um "
 "weiterzuarbeiten."
 
-#: qml/Main.qml:52
+#: qml/Main.qml:54
 msgid "Save Copy…"
 msgstr "Kopie speichern …"
 
-#: qml/Main.qml:64 qml/SettingsPage.qml:60
+#: qml/Main.qml:66 qml/SettingsPage.qml:60
 msgid "Save Garage As"
 msgstr "Garage speichern unter"
 
-#: qml/Main.qml:68 qml/SettingsPage.qml:44 qml/SettingsPage.qml:54
+#: qml/Main.qml:70 qml/SettingsPage.qml:44 qml/SettingsPage.qml:54
 #: qml/SettingsPage.qml:64
 msgid "GarageLog garages (*.sqlite)"
 msgstr "GarageLog-Garagen (*.sqlite)"
 
-#: qml/Main.qml:70 qml/SettingsPage.qml:65
+#: qml/Main.qml:72 qml/SettingsPage.qml:65
 msgid "Garage saved; you are now working in the copy"
 msgstr "Garage gespeichert; du arbeitest jetzt in der Kopie"
 
-#: qml/Main.qml:107
+#: qml/Main.qml:112
 msgid "Add a vehicle first; fuel entries are imported into a vehicle."
 msgstr ""
 "Lege zuerst ein Fahrzeug an; Tankeinträge werden in ein Fahrzeug importiert."
 
-#: qml/Main.qml:119
+#: qml/Main.qml:124
 msgid "(%1 warning)"
 msgid_plural "(%1 warnings)"
 msgstr[0] "(%1 Warnung)"
 msgstr[1] "(%1 Warnungen)"
 
-#: qml/Main.qml:127
+#: qml/Main.qml:132
 msgid "Choose Export Folder to Import"
 msgstr "Export-Ordner zum Importieren wählen"
 
-#: qml/Main.qml:127
+#: qml/Main.qml:132
 msgid "Choose Folder for the Export"
 msgstr "Ordner für den Export wählen"
 
-#: qml/Main.qml:131 qml/Main.qml:133
+#: qml/Main.qml:136 qml/Main.qml:138
 msgid "Exported to %1"
 msgstr "Exportiert nach %1"
 
-#: qml/Main.qml:136
+#: qml/Main.qml:141
 msgid "Import finished"
 msgstr "Import abgeschlossen"
 
-#: qml/Main.qml:291
+#: qml/Main.qml:299
 msgid "All vehicles are archived"
 msgstr "Alle Fahrzeuge sind archiviert"
 
-#: qml/Main.qml:291
+#: qml/Main.qml:299
 msgid "No vehicles yet"
 msgstr "Noch keine Fahrzeuge"
 
-#: qml/Main.qml:293
+#: qml/Main.qml:301
 msgid ""
 "Show the archived vehicles to look at their entries, or add a new vehicle "
 "from the side bar."
@@ -652,17 +709,18 @@ msgstr ""
 "Zeige die archivierten Fahrzeuge an, um ihre Einträge zu sehen, oder lege in "
 "der Seitenleiste ein neues Fahrzeug an."
 
-#: qml/Main.qml:294
+#: qml/Main.qml:302
 msgid "Add your car, motorcycle or scooter to start tracking fuel and service."
 msgstr ""
 "Lege dein Auto, Motorrad oder deinen Roller an, um Tanken und Service zu "
 "erfassen."
 
-#: qml/Main.qml:299 qml/VehicleDrawer.qml:56 qml/VehicleFormPage.qml:82
+#: qml/Main.qml:307 qml/VehicleDrawer.qml:90 qml/VehicleDrawer.qml:132
+#: qml/VehicleFormPage.qml:82
 msgid "Add Vehicle"
 msgstr "Fahrzeug hinzufügen"
 
-#: qml/Main.qml:305 qml/VehicleDrawer.qml:61
+#: qml/Main.qml:313 qml/VehicleDrawer.qml:202
 msgid "Show Archived"
 msgstr "Archivierte anzeigen"
 
@@ -678,7 +736,7 @@ msgstr "Selbst"
 msgid "Workshop"
 msgstr "Werkstatt"
 
-#: qml/ServiceFormPage.qml:90 qml/ServiceTab.qml:100 qml/VehiclePage.qml:37
+#: qml/ServiceFormPage.qml:90 qml/ServiceTab.qml:94 qml/VehiclePage.qml:40
 msgid "Add Service"
 msgstr "Service hinzufügen"
 
@@ -774,30 +832,30 @@ msgstr "Nicht anhängen"
 msgid "Attach File…"
 msgstr "Datei anhängen …"
 
-#: qml/ServiceTab.qml:69
+#: qml/ServiceTab.qml:72
 msgid "workshop"
 msgstr "Werkstatt"
 
-#: qml/ServiceTab.qml:70
+#: qml/ServiceTab.qml:73
 msgid "self"
 msgstr "selbst"
 
-#: qml/ServiceTab.qml:83
+#: qml/ServiceTab.qml:82
 msgid "Has attachments"
 msgstr "Hat Anhänge"
 
-#: qml/ServiceTab.qml:97
+#: qml/ServiceTab.qml:91
 msgid "No service entries yet"
 msgstr "Noch keine Serviceeinträge"
 
-#: qml/ServiceTab.qml:98
+#: qml/ServiceTab.qml:92
 msgid ""
 "Record oil changes, repairs, inspections and recurring costs like insurance."
 msgstr ""
 "Erfasse Ölwechsel, Reparaturen, Inspektionen und laufende Kosten wie die "
 "Versicherung."
 
-#: qml/SettingsPage.qml:18 qml/VehicleDrawer.qml:93
+#: qml/SettingsPage.qml:18 qml/VehicleDrawer.qml:192
 msgid "Settings"
 msgstr "Einstellungen"
 
@@ -889,11 +947,11 @@ msgstr ""
 "Eine Garage ist eine Datei plus der Ordner „attachments“ daneben. „Speichern "
 "unter“ kopiert beides und arbeitet in der Kopie weiter."
 
-#: qml/StatsTab.qml:25
+#: qml/StatsTab.qml:29
 msgid "No statistics yet"
 msgstr "Noch keine Statistik"
 
-#: qml/StatsTab.qml:26
+#: qml/StatsTab.qml:30
 msgid ""
 "Costs, consumption and charts appear here once you add fuel or service "
 "entries."
@@ -901,11 +959,11 @@ msgstr ""
 "Kosten, Verbrauch und Diagramme erscheinen hier, sobald du Tank- oder "
 "Serviceeinträge erfasst."
 
-#: qml/StatsTab.qml:60
+#: qml/StatsTab.qml:62
 msgid "This Year"
 msgstr "Dieses Jahr"
 
-#: qml/StatsTab.qml:61
+#: qml/StatsTab.qml:62
 msgid "Last 12 Months"
 msgstr "Letzte 12 Monate"
 
@@ -913,130 +971,106 @@ msgstr "Letzte 12 Monate"
 msgid "All Time"
 msgstr "Gesamt"
 
-#: qml/StatsTab.qml:78
+#: qml/StatsTab.qml:72
 msgid "until %1"
 msgstr "bis %1"
 
-#: qml/StatsTab.qml:79
+#: qml/StatsTab.qml:73
 msgctxt "date range"
 msgid "%1 – %2"
 msgstr "%1 – %2"
 
-#: qml/StatsTab.qml:93
+#: qml/StatsTab.qml:111
 msgid "Total cost"
 msgstr "Gesamtkosten"
 
-#: qml/StatsTab.qml:94
+#: qml/StatsTab.qml:146
 msgid "Fuel %1 · Service %2"
 msgstr "Tanken %1 · Service %2"
 
-#: qml/StatsTab.qml:95
+#: qml/StatsTab.qml:160
 msgid "Cost per %1"
 msgstr "Kosten pro %1"
 
-#: qml/StatsTab.qml:96
+#: qml/StatsTab.qml:162
 msgid "no distance yet"
 msgstr "noch keine Strecke"
 
-#: qml/StatsTab.qml:96
+#: qml/StatsTab.qml:162
 msgid "over %1"
 msgstr "über %1"
 
-#: qml/StatsTab.qml:97
+#: qml/StatsTab.qml:170
 msgid "Cost per month"
 msgstr "Kosten pro Monat"
 
-#: qml/StatsTab.qml:98
+#: qml/StatsTab.qml:172
 msgid "average"
 msgstr "Durchschnitt"
 
-#: qml/StatsTab.qml:99 qml/StatsTab.qml:205
+#: qml/StatsTab.qml:181 qml/StatsTab.qml:276
 msgid "Consumption"
 msgstr "Verbrauch"
 
-#: qml/StatsTab.qml:100
+#: qml/StatsTab.qml:183
 msgid "average between full tanks"
 msgstr "Durchschnitt zwischen Volltankungen"
 
-#: qml/StatsTab.qml:137
+#: qml/StatsTab.qml:200
 msgid "Consumption (%1)"
 msgstr "Verbrauch (%1)"
 
-#: qml/StatsTab.qml:152
+#: qml/StatsTab.qml:222
 msgid "At least three full tanks are needed for a consumption curve."
 msgstr "Für eine Verbrauchskurve sind mindestens drei Volltankungen nötig."
 
-#: qml/StatsTab.qml:229
+#: qml/StatsTab.qml:313
 msgid "Costs by Category"
 msgstr "Kosten nach Kategorie"
 
-#: qml/StatsTab.qml:234
+#: qml/StatsTab.qml:318
 msgid "No costs in this period."
 msgstr "Keine Kosten in diesem Zeitraum."
-
-#: qml/StatusDot.qml:32
-msgid "Overdue"
-msgstr "Überfällig"
-
-#: qml/StatusDot.qml:33
-msgid "Due soon"
-msgstr "Bald fällig"
-
-#: qml/StatusDot.qml:34
-msgid "OK"
-msgstr "OK"
 
 #: qml/StatusDot.qml:36
 msgid "Unknown – enter the last service"
 msgstr "Unbekannt – letzten Service eintragen"
 
-#: qml/VehicleDrawer.qml:46
-msgid "Due (%1 overdue)"
-msgstr "Fällig (%1 überfällig)"
+#: qml/VehicleDrawer.qml:86
+msgid "Vehicles"
+msgstr "Fahrzeuge"
 
-#: qml/VehicleDrawer.qml:69
-msgid "Data"
-msgstr "Daten"
-
-#: qml/VehicleDrawer.qml:72
-msgid "Export Everything (JSON)…"
-msgstr "Alles exportieren (JSON) …"
-
-#: qml/VehicleDrawer.qml:77
-msgid "Import Export Folder (JSON)…"
-msgstr "Export-Ordner importieren (JSON) …"
-
-#: qml/VehicleDrawer.qml:82
-msgid "Export Tables (CSV)…"
-msgstr "Tabellen exportieren (CSV) …"
-
-#: qml/VehicleDrawer.qml:87
-msgid "Import Fuel Entries (CSV)…"
-msgstr "Tankeinträge importieren (CSV) …"
-
-#: qml/VehicleDrawer.qml:122
+#: qml/VehicleDrawer.qml:118
 msgid "%1 · archived"
 msgstr "%1 · archiviert"
 
-#: qml/VehicleFormPage.qml:37
-msgid "Car"
-msgstr "Auto"
+#: qml/VehicleDrawer.qml:141
+msgid "Garage"
+msgstr "Garage"
 
-#: qml/VehicleFormPage.qml:38
-msgid "Motorcycle"
-msgstr "Motorrad"
+#: qml/VehicleDrawer.qml:152
+msgid "Due (%1 overdue)"
+msgstr "Fällig (%1 überfällig)"
 
-#: qml/VehicleFormPage.qml:39
-msgid "Scooter"
-msgstr "Roller"
+#: qml/VehicleDrawer.qml:159
+msgid "Data"
+msgstr "Daten"
 
-#: qml/VehicleFormPage.qml:40
-msgid "E-bike"
-msgstr "E-Bike"
+#: qml/VehicleDrawer.qml:168
+msgid "Export Everything (JSON)…"
+msgstr "Alles exportieren (JSON) …"
 
-#: qml/VehicleFormPage.qml:41 qml/VehicleFormPage.qml:48
-msgid "Other"
-msgstr "Sonstiges"
+#: qml/VehicleDrawer.qml:173
+msgid "Import Export Folder (JSON)…"
+msgstr "Export-Ordner importieren (JSON) …"
+
+#: qml/VehicleDrawer.qml:178
+msgid "Export Tables (CSV)…"
+msgstr "Tabellen exportieren (CSV) …"
+
+#: qml/VehicleDrawer.qml:183
+msgid "Import Fuel Entries (CSV)…"
+msgstr "Tankeinträge importieren (CSV) …"
 
 #: qml/VehicleFormPage.qml:44
 msgid "Petrol"
@@ -1046,19 +1080,15 @@ msgstr "Benzin"
 msgid "Diesel"
 msgstr "Diesel"
 
-#: qml/VehicleFormPage.qml:46
-msgid "Electric"
-msgstr "Elektro"
-
 #: qml/VehicleFormPage.qml:47
 msgid "Hybrid"
 msgstr "Hybrid"
 
-#: qml/VehicleFormPage.qml:82 qml/VehiclePage.qml:52
+#: qml/VehicleFormPage.qml:82 qml/VehiclePage.qml:55
 msgid "Edit Vehicle"
 msgstr "Fahrzeug bearbeiten"
 
-#: qml/VehicleFormPage.qml:94 qml/VehiclePage.qml:90
+#: qml/VehicleFormPage.qml:94 qml/VehiclePage.qml:103
 msgid "Restore"
 msgstr "Wiederherstellen"
 
@@ -1102,34 +1132,22 @@ msgstr "Baujahr:"
 msgid "Licence plate:"
 msgstr "Kennzeichen:"
 
+#: qml/VehiclePage.qml:85
+msgid "Service"
+msgstr "Service"
+
+#: qml/VehiclePage.qml:86
+msgid "Intervals"
+msgstr "Intervalle"
+
 #: qml/VehiclePage.qml:87
+msgid "Statistics"
+msgstr "Statistik"
+
+#: qml/VehiclePage.qml:100
 msgid ""
 "This vehicle is archived. It is hidden from the vehicle list, its entries "
 "are kept."
 msgstr ""
 "Dieses Fahrzeug ist archiviert. Es ist in der Fahrzeugliste ausgeblendet, "
 "seine Einträge bleiben erhalten."
-
-#: qml/VehiclePage.qml:131
-msgid "Odometer: %1"
-msgstr "Kilometerstand: %1"
-
-#: qml/VehiclePage.qml:146
-msgid "No interval with a recorded service yet"
-msgstr "Noch kein Intervall mit erfasstem Service"
-
-#: qml/VehiclePage.qml:147
-msgid "Next due: %1 (%2)"
-msgstr "Als Nächstes fällig: %1 (%2)"
-
-#: qml/VehiclePage.qml:164
-msgid "Service"
-msgstr "Service"
-
-#: qml/VehiclePage.qml:167
-msgid "Intervals"
-msgstr "Intervalle"
-
-#: qml/VehiclePage.qml:170
-msgid "Statistics"
-msgstr "Statistik"

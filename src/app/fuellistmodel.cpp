@@ -49,6 +49,8 @@ QVariant FuelListModel::data(const QModelIndex &index, int role) const
         return e.id;
     case DateRole:
         return e.date.toString(Qt::ISODate);
+    case MonthRole:
+        return e.date.toString(QStringLiteral("yyyy-MM"));
     case OdometerRole:
         return QVariant::fromValue(e.odometerM);
     case QuantityRole:
@@ -89,6 +91,7 @@ QHash<int, QByteArray> FuelListModel::roleNames() const
         {HasConsumptionRole, "hasConsumption"},
         {ConsumptionRole, "consumptionPer100Km"},
         {CostPer100KmRole, "costPer100KmC"},
+        {MonthRole, "month"},
     };
 }
 
