@@ -21,7 +21,7 @@ Keiner – M20 (Audit-Fixes) abgeschlossen. Phase 2 (Touren) hat in ROADMAP.md n
 ## Offene Punkte
 - Flathub zurückgestellt (2026-10-25): laut Flathub-Regeln darf KI den PR nicht öffnen/texten/beantworten, das Manifest darf keine KI-Inhalte haben (das in `packaging/flathub/` stammt von Claude → TSTS87 muss es selbst schreiben), KI-Anteile im Code offenlegen, und das Projekt braucht längere Entwicklungs-/Nutzungshistorie (Repo seit 2026-10-23). Einreichung frühestens nach einigen Monaten Pflege, durch TSTS87 selbst
 - Ideen, noch nicht entschieden: eigenes Flatpak-Repo auf GitHub Pages (Updates über Discover, braucht GPG-Signatur), AUR-Paket (vorher AUR-Regeln zu KI prüfen), Ankündigung auf r/kde / discuss.kde.org mit KI-Hinweis
-- Statistik (ADR-017): Workflow `Stats` sammelt montags Downloads/Sterne auf Branch `stats` (getestet 2026-10-25). Fehlt: TSTS87 legt Token mit „Administration: read“ an und setzt Secret `TRAFFIC_TOKEN`, sonst keine Besucher/Clones. Läuft das Token ab, schlägt der Workflow fehl (Mail von GitHub)
+- Statistik (ADR-017): Workflow `Stats` sammelt montags Downloads/Sterne auf Branch `stats` (getestet 2026-10-25), Secret `TRAFFIC_TOKEN` (Token nur `garagelog`, Administration read-only) gesetzt, Besucher/Clones/Verweise werden mitgesammelt. Läuft das Token ab, schlägt der Workflow fehl (Mail von GitHub)
 - TSTS87: GitHub-Sponsors freischalten (Spenden-Link in metainfo/README zeigt darauf)
 - Screenshots zeigen erfundene Demodaten (Kennzeichen „M-GL 219“); Demo-Garage und Aufnahmeweg aus M19 sind nicht mehr vorhanden (lagen in /tmp)
 - TSTS87: „Über“-Seite im Drawer fehlt (SPEC §6 sagt jetzt „noch offen“) – bauen (KAboutData/Kirigami.AboutPage) oder streichen?
