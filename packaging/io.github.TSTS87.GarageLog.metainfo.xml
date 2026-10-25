@@ -45,19 +45,19 @@
   <screenshots>
     <screenshot type="default">
       <caption>Fuel log with consumption per tank</caption>
-      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.1/docs/screenshots/fuel.png</image>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.1.0/docs/screenshots/fuel.png</image>
     </screenshot>
     <screenshot>
       <caption>Costs and consumption over time</caption>
-      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.1/docs/screenshots/statistics.png</image>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.1.0/docs/screenshots/statistics.png</image>
     </screenshot>
     <screenshot>
       <caption>Maintenance intervals of a vehicle</caption>
-      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.1/docs/screenshots/intervals.png</image>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.1.0/docs/screenshots/intervals.png</image>
     </screenshot>
     <screenshot>
       <caption>Everything that is due, across all vehicles</caption>
-      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.0.1/docs/screenshots/due.png</image>
+      <image>https://raw.githubusercontent.com/TSTS87/garagelog/v1.1.0/docs/screenshots/due.png</image>
     </screenshot>
   </screenshots>
   <branding>
@@ -74,10 +74,23 @@
     <keyword>mileage</keyword>
     <keyword>maintenance</keyword>
     <keyword>logbook</keyword>
+    <keyword>scooter</keyword>
+    <keyword>electric vehicle</keyword>
+    <keyword>charging</keyword>
+    <keyword>consumption</keyword>
+    <keyword>service</keyword>
+    <keyword>vehicle costs</keyword>
     <keyword xml:lang="de">Auto</keyword>
+    <keyword xml:lang="de">Motorrad</keyword>
+    <keyword xml:lang="de">Roller</keyword>
+    <keyword xml:lang="de">Elektroauto</keyword>
     <keyword xml:lang="de">Tanken</keyword>
+    <keyword xml:lang="de">Laden</keyword>
+    <keyword xml:lang="de">Verbrauch</keyword>
+    <keyword xml:lang="de">Tankbuch</keyword>
     <keyword xml:lang="de">Fahrzeugkosten</keyword>
     <keyword xml:lang="de">Wartung</keyword>
+    <keyword xml:lang="de">Inspektion</keyword>
   </keywords>
   <requires>
     <display_length compare="ge">360</display_length>
@@ -88,6 +101,19 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.1.0" date="2026-10-25">
+      <description>
+        <p>A new look and many robustness fixes.</p>
+        <ul>
+          <li>Redesigned vehicle page with a summary card, own icons per vehicle type, a due list grouped by status and statistics tiles</li>
+          <li>The odometer value of a vehicle is now a minimum reading, so a starting value is no longer added to later entries</li>
+          <li>Forms save or close only once per key press; the computed price field uses the current input</li>
+          <li>Safer files: checked attachment names, atomic "Save As", private file permissions, CSV export protected against formula injection</li>
+          <li>Faster statistics and CSV import preview</li>
+        </ul>
+        <p>Garages opened with 1.1.0 are upgraded to a new file format and can no longer be opened with 1.0.x.</p>
+      </description>
+    </release>
     <release version="1.0.1" date="2026-10-24">
       <description>
         <p>New screenshots of the real application window; no changes to the app itself.</p>
