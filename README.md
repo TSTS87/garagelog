@@ -40,6 +40,9 @@ sudo cmake --install build
 - Attachments are copied into an `attachments` folder next to the garage file. To back up, copy both – or use *Data → Export Everything*.
 - GarageLog never connects to the network.
 
+## Made with AI
+GarageLog is developed with the AI coding assistant [Claude Code](https://claude.com/claude-code) (Anthropic). Most of the code, documentation and packaging was written by the AI; the maintainer decides what is built, tests the app and is responsible for every release. Commits written with AI help carry a `Co-Authored-By: Claude` line.
+
 ## Contributing
 Bug reports, translations and pull requests are welcome – see [CONTRIBUTING.md](CONTRIBUTING.md).
 Design notes: [specification](docs/SPEC.md), [data model](docs/DATA_MODEL.md), [decisions](docs/DECISIONS.md).
