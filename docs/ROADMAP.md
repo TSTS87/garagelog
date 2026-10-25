@@ -107,7 +107,7 @@ Definition of Done (DoD) für jeden Meilenstein:
 - Flathub-Einreichung vorbereiten (Repo-Struktur, Manifest mit Git-Tag statt `dir`)
 - GitHub Sponsors / Flathub-Donation-Link
 
-## M19 – Neues Erscheinungsbild (nach v1.0.1, auf Wunsch von Thomas)
+## M19 – Neues Erscheinungsbild (nach v1.0.1, auf Wunsch von TSTS87)
 - Recherche aktueller App-Gestaltung (2026): Dashboard zuerst, Bento-Kacheln, große Kennzahlen, Pill-Navigation, Karten mit weichen Schatten; Ergebnis in ADR-015
 - Eigene Linien-Icons je Fahrzeugtyp und für Tanken/Service/Intervalle/Auswertung (SVG in `qml/icons/`, einfarbig, folgen dem Farbschema)
 - Fahrzeugseite: Hero-Karte (Verlauf in Typfarbe, Kennzeichen-Schild, großer Tachostand, nächste Fälligkeit), Pill-Umschalter statt TabBar, schwebender Hinzufügen-Knopf
@@ -115,7 +115,7 @@ Definition of Done (DoD) für jeden Meilenstein:
 - Auswertung als Bento-Raster; Seitenleiste mit Marken-Kopf, Fahrzeug-Kacheln, Zähler-Badge
 - DoD: hell + dunkel lesbar, Tastaturbedienung unverändert, keine neue Abhängigkeit, Build/Tests grün, Screenshots erneuert
 
-## M20 – Audit-Fixes (nach Audit vom 2026-10-24, auf Wunsch von Thomas)
+## M20 – Audit-Fixes (nach Audit vom 2026-10-24, auf Wunsch von TSTS87)
 Reihenfolge nach Schwere; jeder Punkt mit Regressionstest, wo testbar.
 1. Formulare: Enter/Escape/Ctrl+S lösen Speichern bzw. Schließen nur einmal aus; Main.qml poppt nur die oberste Seite
 2. Tankformular: berechnetes drittes Preisfeld rechnet mit dem aktuellen Text, nicht dem vorigen

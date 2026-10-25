@@ -1,7 +1,7 @@
 # German translation of GarageLog.
-# Copyright (C) 2026 Thomas (TMX)
+# Copyright (C) 2026 TSTS87
 # This file is distributed under the same license as the garagelog package.
-# Thomas (TMX), 2026.
+# TSTS87, 2026.
 #
 msgid ""
 msgstr ""
@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/TSTS87/garagelog/issues\n"
 "POT-Creation-Date: 2026-10-24 22:43+0200\n"
 "PO-Revision-Date: 2026-10-23 12:00+0200\n"
-"Last-Translator: Thomas (TMX)\n"
+"Last-Translator: TSTS87\n"
 "Language-Team: German\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"

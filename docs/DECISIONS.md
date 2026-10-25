@@ -3,7 +3,7 @@
 Format: Nummer, Datum, Entscheidung, Grund, Alternativen. Neue Einträge unten anhängen, alte nie löschen (nur „ersetzt durch #n" ergänzen).
 
 ## ADR-001 (2026-10-23) Qt 6 + QML + Kirigami statt GTK/libadwaita oder Flutter
-Grund: Thomas kennt C++ am besten, nutzt KDE Plasma; Kirigami liefert Plasma-nativen Look, läuft aber auch unter GNOME; Qt ermöglicht späteren Windows-Build ohne Neuschreiben. Flutter-Linux sieht nicht nativ aus und ist auf Flathub unüblich; GTK hätte Rust oder C bedeutet.
+Grund: TSTS87 kennt C++ am besten, nutzt KDE Plasma; Kirigami liefert Plasma-nativen Look, läuft aber auch unter GNOME; Qt ermöglicht späteren Windows-Build ohne Neuschreiben. Flutter-Linux sieht nicht nativ aus und ist auf Flathub unüblich; GTK hätte Rust oder C bedeutet.
 
 ## ADR-002 (2026-10-23) SQLite, eine Datei pro Garage, UUID-Schlüssel
 Grund: Offline, kopierbar, in Nextcloud-Ordner legbar, kein Server. UUIDs statt Autoincrement, damit Export/Import und ein späterer Sync ohne ID-Konflikte funktionieren.
@@ -45,7 +45,7 @@ Alternativen: vor jedem Schreiben prüfen (verteilt über alle Repositories), Ve
 
 ## ADR-012 (2026-10-23) Entwickler-Werkzeuge in `tools/`
 Entscheidung: Nicht ausgelieferte Hilfsprogramme liegen in `tools/` (eigene CMake-Ziele, nicht installiert, nicht im Flatpak). Erstes: `garagelog-gendata` und die Bibliothek `garagelog_sampledata` (Testgarage mit 10.000 Tankeinträgen, M15), die auch `test_performance` nutzt. Sie verwenden nur `garagelog_core`.
-Grund: Der Generator gehört weder in die Kern-Bibliothek (keine Produktfunktion) noch nur in die Tests (Thomas soll sich eine volle Garage ansehen können).
+Grund: Der Generator gehört weder in die Kern-Bibliothek (keine Produktfunktion) noch nur in die Tests (TSTS87 soll sich eine volle Garage ansehen können).
 
 ## ADR-013 (2026-10-23) App-ID `io.github.TSTS87.GarageLog`
 Entscheidung: Die App-ID (Desktop-Datei, AppStream, Flatpak, Icon-Name) ist `io.github.TSTS87.GarageLog` und ersetzt den Platzhalter `org.tmx.GarageLog`. Die QML-Modul-URI `org.tmx.garagelog` bleibt (intern, nicht sichtbar); `OrganizationDomain` bleibt ebenfalls, weil `AppDataLocation` nur vom Anwendungsnamen abhängt.
@@ -59,12 +59,12 @@ Alternativen: `--filesystem=home` (zu breit für Flathub-Review), Anhänge als B
 
 ## ADR-015 (2026-10-24) Eigenes Erscheinungsbild auf Kirigami-Basis
 Entscheidung: GarageLog bekommt eine eigene Optik innerhalb von Kirigami: Fahrzeugseite als Dashboard (Hero-Karte mit Farbverlauf je Fahrzeugtyp, große Ziffern mit Tabellenziffern), Pill-Umschalter statt TabBar, Karten mit `Kirigami.ShadowedRectangle`, eigene einfarbige SVG-Linien-Icons (`qml/icons/`, als Maske eingefärbt) statt des Breeze-`car` für alle Typen. Farben: Fensterrahmen, Text und Statusfarben weiter aus `Kirigami.Theme`; nur Inhaltsflächen (Hero, Icon-Kacheln, Balken) nutzen die feste Typpalette aus `qml/Style.qml`. Kein Glas-/Blur-Effekt.
-Grund: Thomas wünscht eine moderne, unverwechselbare Optik. Recherche 2026: Bento-Raster und Kennzahlen-Kacheln sind das dominierende Dashboard-Muster, Glassmorphism gilt wegen Kontrastproblemen nur zurückhaltend als sinnvoll; Kirigami empfiehlt eigene Farben nur in Inhaltsflächen, nicht im Rahmen. Breeze hat keine Icons für Motorrad, Roller, E-Bike (STATUS, offen seit M15).
+Grund: TSTS87 wünscht eine moderne, unverwechselbare Optik. Recherche 2026: Bento-Raster und Kennzahlen-Kacheln sind das dominierende Dashboard-Muster, Glassmorphism gilt wegen Kontrastproblemen nur zurückhaltend als sinnvoll; Kirigami empfiehlt eigene Farben nur in Inhaltsflächen, nicht im Rahmen. Breeze hat keine Icons für Motorrad, Roller, E-Bike (STATUS, offen seit M15).
 Alternativen: eigenes QtQuick-Style-Plugin (verliert Plasma-Integration, viel Aufwand), kirigami-addons (neue Abhängigkeit, bringt nur Standardoptik), Glas-Effekte mit MultiEffect (Lesbarkeit, GPU-Last offscreen).
 
 ## ADR-016 (2026-10-24) Manueller Tachostand als absoluter Mindestwert statt Offset
 Entscheidung: Der im Fahrzeugformular eingegebene Tachostand wird als echter Zählerstand in `vehicles.odometer_reading_m` (Migration 0002) gespeichert; aktueller Tachostand = max(höchster Eintrag, manueller Wert). `odometer_offset_m` bleibt als Spalte (Migrationen sind additiv), ist aber immer 0. Bestehende Offsets werden per Heuristik umgerechnet (Offset > halber höchster Eintrag = Startwert, sonst Korrektur, angezeigter Wert bleibt).
-Grund: Audit 2026-10-24 (A4): Ein neues Fahrzeug mit 50.000 km plus Tankeintrag bei 50.500 km zeigte 100.500 km, weil der Startwert als Offset auf jeden späteren absoluten Eintrag addiert wurde. Nutzer tragen Zählerstände vom Tacho ab, nie Differenzen. Thomas hat diese Variante gewählt.
+Grund: Audit 2026-10-24 (A4): Ein neues Fahrzeug mit 50.000 km plus Tankeintrag bei 50.500 km zeigte 100.500 km, weil der Startwert als Offset auf jeden späteren absoluten Eintrag addiert wurde. Nutzer tragen Zählerstände vom Tacho ab, nie Differenzen. TSTS87 hat diese Variante gewählt.
 Alternativen: Offset behalten und nur für neue Fahrzeuge verwerfen (Startwert ohne Einträge ginge verloren); Offset beim ersten Eintrag automatisch zurücksetzen (versteckte Magie, Tachotausch trotzdem nicht abbildbar). Korrektur nach unten (Tachotausch) geht nicht mehr über das Formular; dafür bräuchte es später eine eigene Funktion.
 
 <!-- Nächste: ADR-017 -->

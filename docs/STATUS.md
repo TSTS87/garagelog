@@ -10,19 +10,19 @@ Regeln:
 ---
 
 ## Aktueller Meilenstein
-Keiner – M20 (Audit-Fixes) abgeschlossen. Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: Thomas plant sie, bevor weitergearbeitet wird
+Keiner – M20 (Audit-Fixes) abgeschlossen. Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: TSTS87 plant sie, bevor weitergearbeitet wird
 
 ## Zustand
 - Letzter Code-Commit: `0356022` i18n: German texts for the M20 messages (+ dieser docs-Commit). M19-Look und M20 sind in keinem Release; Tags `v1.0.0` = `b23c57c`, `v1.0.1` = `c92c694`. Repo öffentlich
 - Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (25/25 inkl. desktop-file-validate, appstreamcli, msgfmt; de.po 262/262), auch mit ASAN/UBSan (`halt_on_error`)
-- App startet: ja (offscreen). Schema jetzt Version 2 (Migration 0002): eine mit dieser Version geöffnete Garage lehnt v1.0.x als „newer“ ab. Sichtprüfung am Plasma-Desktop (M04–M20, `docs/RELEASE_CHECK_1.0.md`) und native Datei-Dialoge durch Thomas stehen aus
-- Testgarage für Thomas: `~/GarageLog-Testgarage/garage.sqlite` (10.000 Tank-, 389 Serviceeinträge) – wird beim nächsten Öffnen auf Schema 2 migriert
+- App startet: ja (offscreen). Schema jetzt Version 2 (Migration 0002): eine mit dieser Version geöffnete Garage lehnt v1.0.x als „newer“ ab. Sichtprüfung am Plasma-Desktop (M04–M20, `docs/RELEASE_CHECK_1.0.md`) und native Datei-Dialoge durch TSTS87 stehen aus
+- Testgarage für TSTS87: `~/GarageLog-Testgarage/garage.sqlite` (10.000 Tank-, 389 Serviceeinträge) – wird beim nächsten Öffnen auf Schema 2 migriert
 
 ## Offene Punkte
-- Thomas: GitHub-Sponsors freischalten; Flathub-PR (`packaging/flathub/README.md`); Kriterien 3 und 5 aus `docs/RELEASE_CHECK_1.0.md` am Desktop prüfen
-- Thomas: M19 + M20 als 1.1.0 veröffentlichen? (metainfo-Release, Screenshot-URLs, Flathub-Manifest auf neuen Tag; Hinweis auf Schema 2 in den Release-Notes)
-- Thomas: „Über“-Seite im Drawer fehlt (SPEC §6 sagt jetzt „noch offen“) – bauen (KAboutData/Kirigami.AboutPage) oder streichen?
-- Thomas: alte Commits tragen Klarnamen + private E-Mail; neue Commits laufen über `285398251+TSTS87@users.noreply.github.com` (lokale git-Config). Historie umschreiben = Force-Push, nur durch Thomas
+- TSTS87: GitHub-Sponsors freischalten; Flathub-PR (`packaging/flathub/README.md`); Kriterien 3 und 5 aus `docs/RELEASE_CHECK_1.0.md` am Desktop prüfen
+- TSTS87: M19 + M20 als 1.1.0 veröffentlichen? (metainfo-Release, Screenshot-URLs, Flathub-Manifest auf neuen Tag; Hinweis auf Schema 2 in den Release-Notes)
+- TSTS87: „Über“-Seite im Drawer fehlt (SPEC §6 sagt jetzt „noch offen“) – bauen (KAboutData/Kirigami.AboutPage) oder streichen?
+- TSTS87: alte Commits tragen Klarnamen + private E-Mail; neue Commits laufen über `285398251+TSTS87@users.noreply.github.com` (lokale git-Config). Historie umschreiben = Force-Push, nur durch TSTS87
 
 ## Verschoben / Abweichungen vom Plan
 - M20 bewusst nicht gemacht: gemeinsame Test-Fixture (zu viel Umbau für ~50 Zeilen), Dunkelmodus/Hover-Farbe in Style (brauchen das Kirigami.Theme des Elements), `reuseItems`/Loader für StatsTab/Diagramm-Downsampling (kein messbarer Bedarf), Single-Instance-Lock

@@ -7,10 +7,10 @@ Lokal, offline, kein Konto, keine Cloud, keine Telemetrie. Eine SQLite-Datei pro
 Phase 2 (später): GPX-Touren-Import, der den Tachostand automatisch fortschreibt. Phase 3: Kartenanzeige.
 
 Zielgruppe: Linux-Nutzer mit Auto, Motorrad, Roller, E-Fahrzeug. Veröffentlichung auf Flathub.
-Lizenz: GPL-3.0-or-later. Entwickler: Thomas (TMX). Arbeitssprache im Repo: Englisch (Code, Commits, Doku); Kommunikation mit Thomas: Deutsch.
+Lizenz: GPL-3.0-or-later. Entwickler: TSTS87. Arbeitssprache im Repo: Englisch (Code, Commits, Doku); Kommunikation mit TSTS87: Deutsch.
 
 ## Dokumente und wann sie gelesen werden
-Thomas arbeitet pro Meilenstein in einer frischen Session (`/clear`). Es gibt deshalb KEIN Gedächtnis zwischen Sessions außer diesen Dateien und Git.
+TSTS87 arbeitet pro Meilenstein in einer frischen Session (`/clear`). Es gibt deshalb KEIN Gedächtnis zwischen Sessions außer diesen Dateien und Git.
 
 | Datei | Wann lesen |
 |---|---|
@@ -23,18 +23,18 @@ Thomas arbeitet pro Meilenstein in einer frischen Session (`/clear`). Es gibt de
 Nicht alle Dokumente komplett lesen – das kostet Kontext. Gezielt lesen, was der Meilenstein braucht.
 
 ## Ablauf einer Session
-1. `docs/STATUS.md` lesen. `git status` + `git log --oneline -5` prüfen. Bei Widerspruch zwischen STATUS.md und Repo: anhalten, Thomas fragen.
+1. `docs/STATUS.md` lesen. `git status` + `git log --oneline -5` prüfen. Bei Widerspruch zwischen STATUS.md und Repo: anhalten, TSTS87 fragen.
 2. Den Abschnitt des aktuellen Meilensteins in `docs/ROADMAP.md` lesen, nur den.
 3. In 2 Sätzen sagen, was ansteht. Dann arbeiten, Punkt für Punkt.
 4. Nach jedem Punkt: Build + Tests, Commit.
 5. Vor Ende der Session (auch wenn der Meilenstein nicht fertig ist!) `docs/STATUS.md` aktualisieren: Meilenstein, letzter Commit-Hash, Build/Tests/Start-Status, offene Punkte, Abweichungen, Hinweise für die nächste Session.
-6. Ist der Meilenstein fertig (DoD aus ROADMAP.md erfüllt): STATUS.md auf den nächsten Meilenstein setzen, Historienzeile anhängen, Commit `docs: complete M0x`, dann **alles nach GitHub pushen** (`git push origin main`, Auth läuft über `gh`), und Thomas sagen: „M0x fertig, gepusht, du kannst /clear machen."
+6. Ist der Meilenstein fertig (DoD aus ROADMAP.md erfüllt): STATUS.md auf den nächsten Meilenstein setzen, Historienzeile anhängen, Commit `docs: complete M0x`, dann **alles nach GitHub pushen** (`git push origin main`, Auth läuft über `gh`), und TSTS87 sagen: „M0x fertig, gepusht, du kannst /clear machen."
    - Jeder gepushte Commit hat eine aussagekräftige Message: Conventional-Commit-Zeile + Body (Englisch), der kurz erklärt, was und warum geändert wurde.
    - Der `docs: complete M0x`-Commit fasst im Body zusammen, was der Meilenstein geliefert hat.
-   - Schlägt der Push fehl: nicht forcen, Thomas fragen.
-7. Thomas 3-Satz-Bericht auf Deutsch geben.
+   - Schlägt der Push fehl: nicht forcen, TSTS87 fragen.
+7. TSTS87 3-Satz-Bericht auf Deutsch geben.
 
-Wenn Thomas mitten in einem Meilenstein aufhört: STATUS.md trotzdem aktualisieren und committen. Ein halb fertiger Meilenstein mit ehrlichem STATUS.md ist in Ordnung; ein veraltetes STATUS.md ist das einzige echte Problem.
+Wenn TSTS87 mitten in einem Meilenstein aufhört: STATUS.md trotzdem aktualisieren und committen. Ein halb fertiger Meilenstein mit ehrlichem STATUS.md ist in Ordnung; ein veraltetes STATUS.md ist das einzige echte Problem.
 
 ## Tech-Stack (fest)
 - C++20, CMake ≥ 3.21, Qt 6.6+ (Core, Gui, Qml, Quick, QuickControls2, Sql)
@@ -59,11 +59,11 @@ Wenn Thomas mitten in einem Meilenstein aufhört: STATUS.md trotzdem aktualisier
 - Vor jedem Commit: `cmake --build build && ctest --test-dir build`.
 - Keine Features außerhalb der aktuellen Phase anfangen – auch nicht „nur das Datenfeld schon mal anlegen", sofern es nicht in DATA_MODEL.md steht.
 - Wenn etwas im SPEC unklar ist: kurz nachfragen (Deutsch, eine Frage, konkret), nicht raten.
-- Wenn ein Build auf der Maschine von Thomas fehlschlägt: einen Befehl vorschlagen, auf Ausgabe warten, dann den nächsten.
-- Thomas kennt C++ gut, QML/Kirigami neu: bei QML-Code kurz erklären, warum ein Pattern gewählt wurde (1–2 Sätze), nicht mehr.
+- Wenn ein Build auf der Maschine von TSTS87 fehlschlägt: einen Befehl vorschlagen, auf Ausgabe warten, dann den nächsten.
+- TSTS87 kennt C++ gut, QML/Kirigami neu: bei QML-Code kurz erklären, warum ein Pattern gewählt wurde (1–2 Sätze), nicht mehr.
 
 ## Kommentare im Code (Pflicht)
-Thomas liest den Code zum Lernen (QML/Kirigami sind neu für ihn) und muss ihn nach Wochen Pause wieder verstehen. Deshalb:
+TSTS87 liest den Code zum Lernen (QML/Kirigami sind neu für ihn) und muss ihn nach Wochen Pause wieder verstehen. Deshalb:
 - Jede Datei beginnt mit einem Kopfkommentar: Zweck der Datei, Rolle in der Architektur (core/app/qml), 2–4 Zeilen.
 - Jede Klasse und jede nicht-triviale Funktion bekommt einen Doxygen-Kommentar (`/** ... */`): was sie tut, Parameter, Rückgabe, Einheiten (Cent/Meter/ml/Wh!), Sonderfälle (z. B. „liefert nullopt, wenn kein vorheriger Volltank existiert").
 - Innerhalb von Funktionen: das **Warum** kommentieren, nicht das Was. `// skip partial fills, consumption is only defined between two full tanks` ja; `// increment i` nein.
