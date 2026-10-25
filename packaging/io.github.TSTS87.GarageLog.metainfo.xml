@@ -13,19 +13,19 @@
     <name>TSTS87</name>
   </developer>
   <description>
-    <p>GarageLog is a private logbook for your cars, motorcycles, scooters and electric vehicles. Everything stays on your computer in one file you own: no account, no cloud, no tracking.</p>
-    <p xml:lang="de">GarageLog ist ein privates Logbuch für Autos, Motorräder, Roller und Elektrofahrzeuge. Alles bleibt auf deinem Rechner in einer Datei, die dir gehört: kein Konto, keine Cloud, kein Tracking.</p>
+    <p>Your car knows exactly how much it costs you. Now you can know too. GarageLog is a private logbook for cars, motorcycles, scooters and electric vehicles: fuel and charging, service, maintenance intervals and costs, all in one file on your computer. No account, no cloud, no tracking. The only one keeping an eye on your fuel consumption is you.</p>
+    <p xml:lang="de">Dein Auto weiß ganz genau, was es dich kostet. Jetzt weißt du es auch. GarageLog ist ein privates Logbuch für Autos, Motorräder, Roller und Elektrofahrzeuge: Tanken und Laden, Service, Wartungsintervalle und Kosten, alles in einer Datei auf deinem Rechner. Kein Konto, keine Cloud, kein Tracking. Deinen Verbrauch beobachtest nur du.</p>
     <p>Features:</p>
     <p xml:lang="de">Funktionen:</p>
     <ul>
-      <li>Fuel and charging entries with consumption between full tanks</li>
+      <li>Fuel and charging entries with consumption between two full tanks</li>
       <li xml:lang="de">Tank- und Ladeeinträge mit Verbrauch zwischen zwei Volltankungen</li>
-      <li>Service history with categories, workshop and attached receipts</li>
-      <li xml:lang="de">Servicehistorie mit Kategorien, Werkstatt und angehängten Belegen</li>
-      <li>Maintenance intervals by distance and time with due reminders</li>
-      <li xml:lang="de">Wartungsintervalle nach Strecke und Zeit mit Fälligkeitsanzeige</li>
-      <li>Statistics: total cost, cost per kilometre and month, consumption chart</li>
-      <li xml:lang="de">Statistik: Gesamtkosten, Kosten pro Kilometer und Monat, Verbrauchskurve</li>
+      <li>Service history with categories, workshop and receipts, so "when did we last change the oil?" is no longer a family debate</li>
+      <li xml:lang="de">Servicehistorie mit Kategorien, Werkstatt und Belegen, damit „Wann war eigentlich der letzte Ölwechsel?“ keine Familiendiskussion mehr wird</li>
+      <li>Maintenance intervals by distance and time that speak up before the warning light does</li>
+      <li xml:lang="de">Wartungsintervalle nach Strecke und Zeit, die sich melden, bevor es die Warnleuchte tut</li>
+      <li>Statistics: total cost, cost per kilometre and month, consumption chart (not for the faint of heart)</li>
+      <li xml:lang="de">Statistik: Gesamtkosten, Kosten pro Kilometer und Monat, Verbrauchskurve (für starke Nerven)</li>
       <li>Export to JSON and CSV, import of fuel entries from CSV</li>
       <li xml:lang="de">Export als JSON und CSV, Import von Tankeinträgen aus CSV</li>
       <li>Kilometres or miles, litres or gallons, any currency symbol</li>

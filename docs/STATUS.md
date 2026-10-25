@@ -19,7 +19,7 @@ Keiner – M20 (Audit-Fixes) abgeschlossen. Phase 2 (Touren) hat in ROADMAP.md n
 - Testgarage für TSTS87: `~/GarageLog-Testgarage/garage.sqlite` (10.000 Tank-, 389 Serviceeinträge) – wird beim nächsten Öffnen auf Schema 2 migriert
 
 ## Offene Punkte
-- TSTS87: Flathub-PR öffnen (`packaging/flathub/README.md`). Manifest steht auf `v1.1.0`/`9b13c37`; Manifest-Lint sauber, lokaler Build ok, Repo-Lint meldet nur `appstream-external-screenshot-url` (erwartet, Flathub spiegelt selbst)
+- Flathub zurückgestellt (2026-10-25): laut Flathub-Regeln darf KI den PR nicht öffnen/texten/beantworten, das Manifest darf keine KI-Inhalte haben (das in `packaging/flathub/` stammt von Claude → TSTS87 muss es selbst schreiben), KI-Anteile im Code offenlegen, und das Projekt braucht längere Entwicklungs-/Nutzungshistorie (Repo seit 2026-10-23). Einreichung frühestens nach einigen Monaten Pflege, durch TSTS87 selbst
 - TSTS87: GitHub-Sponsors freischalten (Spenden-Link in metainfo/README zeigt darauf)
 - Screenshots zeigen erfundene Demodaten (Kennzeichen „M-GL 219“); Demo-Garage und Aufnahmeweg aus M19 sind nicht mehr vorhanden (lagen in /tmp)
 - TSTS87: „Über“-Seite im Drawer fehlt (SPEC §6 sagt jetzt „noch offen“) – bauen (KAboutData/Kirigami.AboutPage) oder streichen?
