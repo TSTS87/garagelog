@@ -13,16 +13,17 @@ Regeln:
 Keiner – M20 (Audit-Fixes) abgeschlossen. Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: TSTS87 plant sie, bevor weitergearbeitet wird
 
 ## Zustand
-- Letzter Code-Commit: `a43fa69` i18n: German texts for the M20 messages (+ dieser docs-Commit). M19-Look und M20 sind in keinem Release; Tags `v1.0.0` = `0c8fb47`, `v1.0.1` = `e48617b`. Repo öffentlich
+- Letzter Code-Commit: `d284255` build: prepare release 1.1.0 (+ dieser docs-Commit). M19-Look und M20 sind noch in keinem Release; Tags `v1.0.0` = `0c8fb47`, `v1.0.1` = `e48617b`. Repo öffentlich
 - Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (25/25 inkl. desktop-file-validate, appstreamcli, msgfmt; de.po 262/262), auch mit ASAN/UBSan (`halt_on_error`)
 - App startet: ja (offscreen). Schema jetzt Version 2 (Migration 0002): eine mit dieser Version geöffnete Garage lehnt v1.0.x als „newer“ ab. Sichtprüfung am Plasma-Desktop (M04–M20, `docs/RELEASE_CHECK_1.0.md`) und native Datei-Dialoge durch TSTS87 stehen aus
 - Testgarage für TSTS87: `~/GarageLog-Testgarage/garage.sqlite` (10.000 Tank-, 389 Serviceeinträge) – wird beim nächsten Öffnen auf Schema 2 migriert
 
 ## Offene Punkte
 - TSTS87: GitHub-Sponsors freischalten; Flathub-PR (`packaging/flathub/README.md`); Kriterien 3 und 5 aus `docs/RELEASE_CHECK_1.0.md` am Desktop prüfen
-- TSTS87: M19 + M20 als 1.1.0 veröffentlichen? (metainfo-Release, Screenshot-URLs, Flathub-Manifest auf neuen Tag; Hinweis auf Schema 2 in den Release-Notes)
+- Release 1.1.0 (M19 + M20) vorbereitet in `d284255` (Version, metainfo-Release mit Schema-2-Hinweis, Screenshot-URLs auf `v1.1.0`, mehr Keywords). Fehlt: Desktop-Prüfung durch TSTS87, dann Tag `v1.1.0` + GitHub-Release, danach Flathub-Manifest auf Tag/Commit setzen, Lint, Flathub-PR. Bis der Tag existiert, meldet `appstreamcli validate` die Screenshots als nicht gefunden (erwartet)
+- Screenshots zeigen erfundene Demodaten (Kennzeichen „M-GL 219“); Demo-Garage und Aufnahmeweg aus M19 sind nicht mehr vorhanden (lagen in /tmp)
 - TSTS87: „Über“-Seite im Drawer fehlt (SPEC §6 sagt jetzt „noch offen“) – bauen (KAboutData/Kirigami.AboutPage) oder streichen?
-- TSTS87: Historie lokal umgeschrieben (2026-10-25): alle Commits und Tags auf `285398251+TSTS87@users.noreply.github.com`, Klarname aus Dateien entfernt, alle Hashes neu. Noch nicht gepusht: `git push --force origin main` + `git push --force origin v1.0.0 v1.0.1`, danach die GitHub-Releases 1.0.0/1.0.1 an den neuen Tags prüfen. Backup der alten Historie: Bundle im Scratchpad der Session (nicht im Repo)
+- TSTS87: Historie lokal umgeschrieben (2026-10-25): alle Commits und Tags auf `285398251+TSTS87@users.noreply.github.com`, Klarname aus Dateien entfernt, alle Hashes neu, Force-Push durch TSTS87 erfolgt und auf GitHub geprüft (Commits, Tags, Releases). Offen, optional: GitHub-Support um Löschen der gecachten alten Commits bitten. Lokaler Branch `worktree-agent-a5ae8aa2dc7f36b5b` enthält noch die alte Historie – nie pushen
 
 ## Verschoben / Abweichungen vom Plan
 - M20 bewusst nicht gemacht: gemeinsame Test-Fixture (zu viel Umbau für ~50 Zeilen), Dunkelmodus/Hover-Farbe in Style (brauchen das Kirigami.Theme des Elements), `reuseItems`/Loader für StatsTab/Diagramm-Downsampling (kein messbarer Bedarf), Single-Instance-Lock
