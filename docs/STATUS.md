@@ -13,13 +13,14 @@ Regeln:
 Keiner – M20 (Audit-Fixes) abgeschlossen. Phase 2 (Touren) hat in ROADMAP.md noch keine Meilensteine: TSTS87 plant sie, bevor weitergearbeitet wird
 
 ## Zustand
-- Letzter Code-Commit: `d284255` build: prepare release 1.1.0 (+ docs-Commits). Release 1.1.0 (M19 + M20) = Tag `v1.1.0` (`9b13c37`), GitHub-Release angelegt; ältere Tags `v1.0.0` = `0c8fb47`, `v1.0.1` = `e48617b`. Repo öffentlich
+- Letzter Code-Commit: `a83fb1e` build: add a script for the release Flatpak bundle (+ docs-Commits). Neuestes Release 1.1.1 = Tag `v1.1.1` (`a83fb1e`): nur neue App-Beschreibung, GitHub-Release mit `GarageLog-1.1.1.flatpak` (aus dem Tag gebaut, Installation/Start/Deutsch geprüft). Release 1.1.0 (M19 + M20) = `v1.1.0` (`9b13c37`); ältere Tags `v1.0.0` = `0c8fb47`, `v1.0.1` = `e48617b`. Repo öffentlich
 - Build grün: ja (Qt 6.12, KF 6.31, keine Warnungen) · Tests grün: ja (25/25 inkl. desktop-file-validate, appstreamcli, msgfmt; de.po 262/262), auch mit ASAN/UBSan (`halt_on_error`)
 - App startet: ja (offscreen). Schema jetzt Version 2 (Migration 0002): eine mit dieser Version geöffnete Garage lehnt v1.0.x als „newer“ ab. TSTS87 hat 1.1.0 am Desktop angesehen („sieht gut aus“, 2026-10-25); Kriterien 3 und 5 in `docs/RELEASE_CHECK_1.0.md` sind dort weiter als „open“ eingetragen
 - Testgarage für TSTS87: `~/GarageLog-Testgarage/garage.sqlite` (10.000 Tank-, 389 Serviceeinträge) – wird beim nächsten Öffnen auf Schema 2 migriert
 
 ## Offene Punkte
 - Flathub zurückgestellt (2026-10-25): laut Flathub-Regeln darf KI den PR nicht öffnen/texten/beantworten, das Manifest darf keine KI-Inhalte haben (das in `packaging/flathub/` stammt von Claude → TSTS87 muss es selbst schreiben), KI-Anteile im Code offenlegen, und das Projekt braucht längere Entwicklungs-/Nutzungshistorie (Repo seit 2026-10-23). Einreichung frühestens nach einigen Monaten Pflege, durch TSTS87 selbst
+- Ideen, noch nicht entschieden: eigenes Flatpak-Repo auf GitHub Pages (Updates über Discover, braucht GPG-Signatur), AUR-Paket (vorher AUR-Regeln zu KI prüfen), Ankündigung auf r/kde / discuss.kde.org mit KI-Hinweis
 - TSTS87: GitHub-Sponsors freischalten (Spenden-Link in metainfo/README zeigt darauf)
 - Screenshots zeigen erfundene Demodaten (Kennzeichen „M-GL 219“); Demo-Garage und Aufnahmeweg aus M19 sind nicht mehr vorhanden (lagen in /tmp)
 - TSTS87: „Über“-Seite im Drawer fehlt (SPEC §6 sagt jetzt „noch offen“) – bauen (KAboutData/Kirigami.AboutPage) oder streichen?
@@ -31,7 +32,7 @@ Keiner – M20 (Audit-Fixes) abgeschlossen. Phase 2 (Touren) hat in ROADMAP.md n
 - Datumseingabe als Textfeld, kein Datepicker ohne kirigami-addons (bräuchte ADR)
 - M13/M14: JSON-Import nur in leere Garage (ADR-010); CSV-Tankimport erwartet km/l/kWh; mi + l zeigen l/100 km
 - M16: Fehlermeldungen aus `src/core` bleiben englisch (Core ohne KI18n)
-- M18: GitHub-Release nur Quellcode; Flathub-Manifest baut aus GitHub (Tag v1.1.0)
+- Verbreitung statt Flathub: Flatpak-Datei am GitHub-Release, gebaut mit `tools/build-bundle.sh vX.Y.Z` (Locales in der App, weil ein Bundle keine `.Locale`-Erweiterung mitnimmt); keine automatischen Updates. Flathub-Manifest steht noch auf v1.1.0. README und Release-Notes kennzeichnen deutlich, dass die App mit KI (Claude Code) entsteht
 
 ## Bekannte Probleme
 - KQuickCharts `AxisLabels` beschriftet nicht → eigene Labels in StatsTab
