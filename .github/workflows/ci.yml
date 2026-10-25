@@ -5,6 +5,8 @@ name: CI
 
 on:
   push:
+    branches-ignore:
+      - stats  # only CSV files from the Stats workflow, nothing to build
   pull_request:
 
 jobs:

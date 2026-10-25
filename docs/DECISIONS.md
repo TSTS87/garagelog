@@ -67,4 +67,9 @@ Entscheidung: Der im Fahrzeugformular eingegebene Tachostand wird als echter Zä
 Grund: Audit 2026-10-24 (A4): Ein neues Fahrzeug mit 50.000 km plus Tankeintrag bei 50.500 km zeigte 100.500 km, weil der Startwert als Offset auf jeden späteren absoluten Eintrag addiert wurde. Nutzer tragen Zählerstände vom Tacho ab, nie Differenzen. TSTS87 hat diese Variante gewählt.
 Alternativen: Offset behalten und nur für neue Fahrzeuge verwerfen (Startwert ohne Einträge ginge verloren); Offset beim ersten Eintrag automatisch zurücksetzen (versteckte Magie, Tachotausch trotzdem nicht abbildbar). Korrektur nach unten (Tachotausch) geht nicht mehr über das Formular; dafür bräuchte es später eine eigene Funktion.
 
-<!-- Nächste: ADR-017 -->
+## ADR-017 (2026-10-25) Download- und Besucherzahlen wöchentlich auf eigenem Branch sichern
+Entscheidung: Eine GitHub Action (`.github/workflows/stats.yml`) ruft jeden Montag `tools/collect-stats.py` auf und schreibt Downloads je Release-Datei, Sterne/Forks sowie Aufrufe, Clones und Verweise als CSV auf den Branch `stats` (ohne gemeinsame Historie mit `main`). Die Besucherzahlen brauchen ein Token mit „Administration: read“ als Secret `TRAFFIC_TOKEN`; ohne Secret werden nur die öffentlichen Zahlen gesammelt. Nur Python-Standardbibliothek.
+Grund: GitHub zeigt Besucher und Clones nur 14 Tage lang; für den späteren Flathub-Antrag soll die Nutzung über Monate belegbar sein. Die App selbst bleibt ohne Telemetrie (SPEC §3), gezählt wird nur, was GitHub ohnehin erfasst. Eigener Branch, damit `main` keine wöchentlichen Bot-Commits bekommt.
+Alternativen: Commits auf `main` (verwässert die Entwicklungshistorie), Workflow-Artefakte (höchstens 90 Tage), privates Zweit-Repo (mehr Einrichtung, die Zahlen sind ohnehin unkritisch), Zähler in der App (bricht das Offline-Versprechen).
+
+<!-- Nächste: ADR-018 -->
