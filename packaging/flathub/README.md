@@ -14,7 +14,7 @@
    ```
    If `bwrap` complains about `/run/user/1000/doc`, the document portal is not running:
    add `--no-documents-portal` after `flatpak run`.
-   Expected result (checked for v1.0.1): the manifest lint is clean; the repo lint only reports
+   Expected result (checked for v1.1.0): the manifest lint is clean; the repo lint only reports
    `appstream-external-screenshot-url` / `appstream-screenshots-not-mirrored-in-ostree` /
    `appstream-remote-icon-not-mirrored`. Flathub's own build pipeline mirrors screenshots and icons
    to dl.flathub.org, which a local build cannot fully reproduce.

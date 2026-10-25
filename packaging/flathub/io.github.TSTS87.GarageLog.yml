@@ -23,8 +23,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/TSTS87/garagelog.git
-        tag: v1.0.1
-        commit: e48617bad614aa77db1af7708902209acd3900a6
+        tag: v1.1.0
+        commit: 9b13c37ba751258668f09040a48d75b1528e5ea6
         x-checker-data:
           type: git
           tag-pattern: ^v([\d.]+)$
