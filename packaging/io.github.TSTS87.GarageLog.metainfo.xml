@@ -101,6 +101,11 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.1.1" date="2026-10-25">
+      <description>
+        <p>A friendlier app description and a ready-to-install Flatpak file on the release page; the app itself is unchanged.</p>
+      </description>
+    </release>
     <release version="1.1.0" date="2026-10-25">
       <description>
         <p>A new look and many robustness fixes.</p>

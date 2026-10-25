@@ -20,7 +20,11 @@ Native Linux desktop app built with Qt 6 and Kirigami. Local and offline – no 
 - English and German user interface
 
 ## Install
-**Flatpak** (Flathub submission in preparation): until then, build the Flatpak locally – see [CONTRIBUTING.md](CONTRIBUTING.md#building-and-testing).
+**Flatpak** (not on Flathub yet): download `GarageLog-<version>.flatpak` from the [latest release](https://github.com/TSTS87/garagelog/releases/latest) and open it with Discover or GNOME Software, or run
+```
+flatpak install --user GarageLog-<version>.flatpak
+```
+The KDE runtime it needs is fetched from Flathub, so the Flathub repository must be set up ([how](https://flathub.org/setup)). The file does not update itself: install the file of a newer release the same way. To build the Flatpak yourself, see [CONTRIBUTING.md](CONTRIBUTING.md#building-and-testing).
 
 **From source** (Arch/CachyOS):
 ```
